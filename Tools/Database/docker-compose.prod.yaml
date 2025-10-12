@@ -8,6 +8,7 @@ services:
         -c ssl_cert_file=/etc/postgres-config/postgres.crt
         -c ssl_key_file=/etc/postgres-config/postgres.key
         -c ssl_ca_file=/etc/postgres-config/root.crt
+        -c ssl_passphrase_command='echo $POSTGRES_SSL_PASSPHRASE'
         -c hba_file=/etc/postgres-config/pg_hba.conf
         -c logging_collector=on
         -c log_statement=all
@@ -20,6 +21,7 @@ services:
         POSTGRES_USER: superuser
         POSTGRES_PASSWORD: superuser
         POSTGRES_DB: postgres
+        POSTGRES_SSL_PASSPHRASE: ${POSTGRES_SSL_PASSPHRASE}
       ports:
         - 5432:5432
       volumes:

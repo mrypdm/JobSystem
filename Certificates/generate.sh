@@ -20,7 +20,6 @@ function generate_root_certificate() {
         openssl req \
             -new \
             -text \
-            -noenc \
             -newkey $MTLS_ALGO \
             -subj "$MTLS_DN""mrypdm root ca" \
             -keyout root/root.key \
@@ -51,7 +50,6 @@ function generate_server_certificate() {
         openssl req \
             -new \
             -text \
-            -noenc \
             -newkey $MTLS_ALGO \
             -subj "$MTLS_DN"$server_name \
             -keyout $server_name/$server_name.key \
@@ -85,7 +83,6 @@ function generate_client_certificate() {
             openssl req \
                 -new \
                 -text \
-                -noenc \
                 -newkey $MTLS_ALGO \
                 -subj "$MTLS_DN"$client_name \
                 -keyout $server_name/$client_name/$client_name.key \
@@ -117,6 +114,8 @@ generate_client_certificate postgres svc_jobs_webapi
 generate_client_certificate postgres svc_jobs_worker
 generate_client_certificate postgres svc_users_webapp
 
+
+generate_server_certificate zookeeper
 generate_server_certificate kafka
 generate_client_certificate kafka superuser
 generate_client_certificate kafka svc_jobs_webapi

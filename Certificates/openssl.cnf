@@ -30,6 +30,23 @@ DNS.1                  = localhost
 DNS.2                  = postgres
 
 #
+# Zookeeper certificates
+#
+
+[ v3_mtls_server_zookeeper ]
+basicConstraints       = critical, @mtls_common_basic_constraints
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always, issuer:always
+keyUsage               = critical, digitalSignature, keyEncipherment, keyAgreement
+extendedKeyUsage       = critical, serverAuth
+subjectAltName         = @mtls_server_zookeeper_alt_names
+
+[ mtls_server_zookeeper_alt_names ]
+IP.1                   = 127.0.0.1
+DNS.1                  = localhost
+DNS.2                  = zookeeper
+
+#
 # Kafka certificates
 #
 

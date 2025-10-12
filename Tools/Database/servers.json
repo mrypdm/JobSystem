@@ -11,7 +11,8 @@
                 "sslmode": "verify-full",
                 "sslrootcert": "/certs/root.crt",
                 "sslcert": "/certs/superuser.crt",
-                "sslkey": "/certs/superuser.key"
+                "sslkey": "/certs/superuser.key",
+                "sslpassword": ""
             }
         }
     }
