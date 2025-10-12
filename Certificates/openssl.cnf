@@ -1,0 +1,65 @@
+#
+# Root certificate
+#
+
+[ v3_mtls_root ]
+basicConstraints       = critical, @mtls_root_basic_constraints
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always, issuer:always
+keyUsage               = critical, keyCertSign, cRLSign
+
+[ mtls_root_basic_constraints ]
+CA                     = true
+pathlen                = 0
+
+#
+# PostgreSQL certificates
+#
+
+[ v3_mtls_server_postgres ]
+basicConstraints       = critical, @mtls_common_basic_constraints
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always, issuer:always
+keyUsage               = critical, digitalSignature, keyEncipherment, keyAgreement
+extendedKeyUsage       = critical, serverAuth
+subjectAltName         = @mtls_server_postgres_alt_names
+
+[ mtls_server_postgres_alt_names ]
+IP.1                   = 127.0.0.1
+DNS.1                  = localhost
+DNS.2                  = postgres
+
+#
+# Kafka certificates
+#
+
+[ v3_mtls_server_kafka ]
+basicConstraints       = critical, @mtls_common_basic_constraints
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always, issuer:always
+keyUsage               = critical, digitalSignature, keyEncipherment, keyAgreement
+extendedKeyUsage       = critical, serverAuth
+subjectAltName         = @mtls_server_kafka_alt_names
+
+[ mtls_server_kafka_alt_names ]
+IP.1                   = 127.0.0.1
+DNS.1                  = localhost
+DNS.2                  = kafka
+
+#
+# Clients certificates
+#
+
+[ v3_mtls_client ]
+basicConstraints       = critical, @mtls_common_basic_constraints
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always, issuer:always
+keyUsage               = critical, digitalSignature, keyAgreement
+extendedKeyUsage       = critical, clientAuth
+
+#
+# Common
+#
+
+[ mtls_common_basic_constraints ]
+CA                     = false

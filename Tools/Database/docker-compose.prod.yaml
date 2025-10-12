@@ -1,0 +1,28 @@
+services:
+    postgres:
+      container_name: postgres
+      image: postgres:alpine
+      command: >-
+        -c ssl=on
+        -c ssl_min_protocol_version=TLSv1.3
+        -c ssl_cert_file=/etc/postgres-config/postgres.crt
+        -c ssl_key_file=/etc/postgres-config/postgres.key
+        -c ssl_ca_file=/etc/postgres-config/root.crt
+        -c hba_file=/etc/postgres-config/pg_hba.conf
+        -c logging_collector=on
+        -c log_statement=all
+        -c log_directory=/var/log/postgresql
+        -c log_rotation_age=30d
+        -c log_destination=jsonlog
+      restart: unless-stopped
+      user: 70:70
+      environment:
+        POSTGRES_USER: superuser
+        POSTGRES_PASSWORD: superuser
+        POSTGRES_DB: postgres
+      ports:
+        - 5432:5432
+      volumes:
+        - ./postgres/data:/var/lib/postgresql
+        - ./postgres/logs:/var/log/postgresql
+        - ./postgres/config:/etc/postgres-config:ro

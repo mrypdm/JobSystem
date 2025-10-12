@@ -1,0 +1,18 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "main",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 5432,
+            "MaintenanceDB": "postgres",
+            "Username": "superuser",
+            "ConnectionParameters": {
+                "sslmode": "verify-full",
+                "sslrootcert": "/certs/root.crt",
+                "sslcert": "/certs/superuser.crt",
+                "sslkey": "/certs/superuser.key"
+            }
+        }
+    }
+}

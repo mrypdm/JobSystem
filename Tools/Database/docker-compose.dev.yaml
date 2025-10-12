@@ -1,0 +1,58 @@
+services:
+    postgres:
+      container_name: postgres
+      image: postgres:alpine
+      command: >-
+        -c ssl=on
+        -c ssl_min_protocol_version=TLSv1.3
+        -c ssl_cert_file=/etc/postgres-config/postgres.crt
+        -c ssl_key_file=/etc/postgres-config/postgres.key
+        -c ssl_ca_file=/etc/postgres-config/root.crt
+        -c hba_file=/etc/postgres-config/pg_hba.conf
+        -c logging_collector=on
+        -c log_statement=all
+        -c log_directory=/var/log/postgresql
+        -c log_rotation_age=30d
+        -c log_destination=jsonlog
+      restart: unless-stopped
+      user: 70:70
+      environment:
+        POSTGRES_USER: superuser
+        POSTGRES_PASSWORD: superuser
+        POSTGRES_DB: postgres
+      ports:
+        - 5432:5432
+      volumes:
+        - ./postgres/data:/var/lib/postgresql
+        - ./postgres/logs:/var/log/postgresql
+        - ./postgres/config:/etc/postgres-config:ro
+      networks:
+        - postgres_network
+
+    # Only for debugging
+    pgadmin:
+      container_name: pgadmin
+      image: dpage/pgadmin4
+      restart: unless-stopped
+      user: 5050:5050
+      depends_on:
+        - postgres
+      environment:
+        PGADMIN_DEFAULT_EMAIL: superuser@example.com
+        PGADMIN_DEFAULT_PASSWORD: superuser
+        PGADMIN_CONFIG_SERVER_MODE: "False"
+        PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      ports:
+        - 5050:80
+      networks:
+        - postgres_network
+      volumes:
+        - ./pgadmin/data:/var/lib/pgadmin
+        - ./pgadmin/servers.json:/pgadmin4/servers.json
+        - ./pgadmin/certs:/certs:ro
+
+
+networks:
+  postgres_network:
+    name: postgres_network
+    driver: bridge
