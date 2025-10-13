@@ -8,6 +8,8 @@
 *.key
 *.crt
 *.srl
+*.jks
+*.p12
 
 # dotenv files
 .env
