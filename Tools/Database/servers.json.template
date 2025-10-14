@@ -12,7 +12,7 @@
                 "sslrootcert": "/certs/root.crt",
                 "sslcert": "/certs/superuser.crt",
                 "sslkey": "/certs/superuser.key",
-                "sslpassword": ""
+                "sslpassword": "<PASSWORD>"
             }
         }
     }

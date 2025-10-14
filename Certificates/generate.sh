@@ -1,4 +1,4 @@
-MTLS_ALGO="rsa:2048"
+MTLS_ALGO="rsa:8192"
 
 DURATION_DAYS=365
 
@@ -9,78 +9,78 @@ DEFAULT_O="mrypdm"
 DEFAULT_OU="localhost"
 DEFAULT_EMAIL="mrypdm@gmail.com"
 
+DEFAULT_PASSWORD="$1"
+
 MTLS_DN_S="C=${DEFAULT_C}, ST=${DEFAULT_ST}, L=${DEFAULT_L}, O=${DEFAULT_O}, OU=${DEFAULT_OU}, emailAddress=${DEFAULT_EMAIL}, CN="
 MTLS_DN="/${MTLS_DN_S//, //}"
 
 function generate_root_certificate() {
-    umask u=rwx,go= && mkdir -p root
+    mkdir -p root
 
     echo "Generating mTLS root CSR and private key"
-    umask u=rw,go= && \
-        openssl req \
-            -new \
-            -text \
-            -newkey $MTLS_ALGO \
-            -subj "$MTLS_DN""mrypdm root ca" \
-            -keyout root/root.key \
-            -out root/root.csr
+    openssl req \
+        -new \
+        -text \
+        -newkey $MTLS_ALGO \
+        -subj "$MTLS_DN"CARoot \
+        -keyout root/root.key \
+        -out root/root.csr \
+        -passout "pass:$DEFAULT_PASSWORD" \
+        -quiet
 
     echo "Generating mTLS root certificate"
-    umask u=rw,go= && \
-        openssl x509 \
-            -req \
-            -text \
-            -days $DURATION_DAYS \
-            -in root/root.csr \
-            -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
-            -extensions v3_mtls_root \
-            -key root/root.key \
-            -out root/root.crt
+    openssl x509 \
+        -req \
+        -text \
+        -days $DURATION_DAYS \
+        -in root/root.csr \
+        -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
+        -extensions v3_mtls_root \
+        -key root/root.key \
+        -out root/root.crt \
+        -passin "pass:$DEFAULT_PASSWORD"
+
+    echo "Creating mTLS root truststore"
+    rm root/root.p12
+    keytool \
+        -keystore root/root.p12 \
+        -alias caroot \
+        -storepass "$DEFAULT_PASSWORD" \
+        -importcert -file root/root.crt \
+        -noprompt
 
     rm root/root.csr
-}
-
-function create_java_truststore() {
-    echo "Enter password for truststore: "
-    read -s truststore_password
-
-    umask u=rw,go= && \
-        keytool \
-            -keystore root/root.jks \
-            -alias root \
-            -storepass "$truststore_password" \
-            -importcert -file root/root.crt \
-            -noprompt
 }
 
 function generate_server_certificate() {
     server_name=$1
 
-    umask u=rwx,go= && mkdir -p $server_name
+    mkdir -p $server_name
 
     echo "Generating mTLS $server_name server CSR and private key"
-    umask u=rw,go= && \
-        openssl req \
-            -new \
-            -text \
-            -newkey $MTLS_ALGO \
-            -subj "$MTLS_DN"$server_name \
-            -keyout $server_name/$server_name.key \
-            -out $server_name/$server_name.csr
+    openssl req \
+        -new \
+        -text \
+        -newkey $MTLS_ALGO \
+        -subj "$MTLS_DN"$server_name \
+        -keyout $server_name/$server_name.key \
+        -out $server_name/$server_name.csr \
+        -passout "pass:$DEFAULT_PASSWORD" \
+        -quiet
 
     echo "Generating mTLS $server_name server certificate using previously generated root certificate"
-    umask u=rw,go= && \
-        openssl x509 \
-            -req \
-            -text \
-            -CAcreateserial \
-            -days $DURATION_DAYS \
-            -in $server_name/$server_name.csr \
-            -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
-            -extensions v3_mtls_server_$server_name \
-            -CA root/root.crt \
-            -CAkey root/root.key \
-            -out $server_name/$server_name.crt
+    openssl x509 \
+        -req \
+        -text \
+        -CAcreateserial \
+        -days $DURATION_DAYS \
+        -in $server_name/$server_name.csr \
+        -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
+        -extensions v3_mtls_$server_name \
+        -CA root/root.crt \
+        -CAkey root/root.key \
+        -out $server_name/$server_name.crt \
+        -passin "pass:$DEFAULT_PASSWORD"
 
     rm $server_name/$server_name.csr
 }
@@ -89,112 +89,72 @@ function generate_client_certificate() {
     server_name=$1
     client_name=$2
 
-    umask u=rwx,go= && mkdir -p $server_name/$client_name
+    mkdir -p $server_name/$client_name
 
     echo "Generating mTLS $server_name client CSR and private key for $client_name"
-        umask u=rw,go= && \
-            openssl req \
-                -new \
-                -text \
-                -newkey $MTLS_ALGO \
-                -subj "$MTLS_DN"$client_name \
-                -keyout $server_name/$client_name/$client_name.key \
-                -out $server_name/$client_name/$client_name.csr
+    openssl req \
+        -new \
+        -text \
+        -newkey $MTLS_ALGO \
+        -subj "$MTLS_DN"$client_name \
+        -keyout $server_name/$client_name/$client_name.key \
+        -out $server_name/$client_name/$client_name.csr \
+        -passout "pass:$DEFAULT_PASSWORD" \
+        -quiet
 
     echo "Generating mTLS $server_name client certificate for $client_name using previously generated root certificate"
-    umask u=rw,go= && \
-        openssl x509 \
-            -req \
-            -text \
-            -CAcreateserial \
-            -days $DURATION_DAYS \
-            -in $server_name/$client_name/$client_name.csr \
-            -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
-            -extensions v3_mtls_client \
-            -CA root/root.crt \
-            -CAkey root/root.key \
-            -out $server_name/$client_name/$client_name.crt
-
-    rm $server_name/$client_name/$client_name.csr
-}
-
-function append_to_server_keystore(){
-    keystore=$1
-    cn=$2
-    pass=$3
-
-    umask u=rw,go= && keytool -keystore $keystore -alias $cn -validity 365 -genkey -keyalg RSA -dname "$MTLS_DN_S""$cn" -storepass $pass -keypass $pass
-    umask u=rw,go= && keytool -keystore $keystore -alias $cn -certreq -file $cn.csr -storepass $pass -keypass $pass
-    umask u=rw,go= && openssl x509 \
+    openssl x509 \
         -req \
         -text \
         -CAcreateserial \
         -days $DURATION_DAYS \
-        -in $cn.csr \
-        -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
-        -extensions v3_mtls_server_kafka \
-        -CA root/root.crt \
-        -CAkey root/root.key \
-        -out $cn.crt
-    umask u=rw,go= && keytool -keystore $keystore -alias $cn -import -file $cn.crt -storepass $pass -keypass $pass -noprompt
-    rm $cn.csr $cn.crt
-}
-
-function append_to_user_keystore(){
-    keystore=$1
-    cn=$2
-
-    umask u=rw,go= && keytool -keystore $keystore -alias $cn -validity 365 -genkey -keyalg RSA -dname "$MTLS_DN_S""$cn" -storepass $pass -keypass $pass
-    umask u=rw,go= && keytool -keystore $keystore -alias $cn -certreq -file $cn.csr -storepass $pass -keypass $pass
-    umask u=rw,go= && openssl x509 \
-        -req \
-        -text \
-        -CAcreateserial \
-        -days $DURATION_DAYS \
-        -in $cn.csr \
+        -in $server_name/$client_name/$client_name.csr \
         -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
         -extensions v3_mtls_client \
         -CA root/root.crt \
         -CAkey root/root.key \
-        -out $cn.crt
-    umask u=rw,go= && keytool -keystore $keystore -alias $cn -import -file $cn.crt -storepass $pass -keypass $pass -noprompt
-    rm $cn.csr $cn.crt
+        -out $server_name/$client_name/$client_name.crt \
+        -passin "pass:$DEFAULT_PASSWORD"
+
+    rm $server_name/$client_name/$client_name.csr
 }
 
-function generate_kafka_server_certificate() {
-    umask u=rwx,go= && mkdir -p kafka
+function pem_to_pkcs12() {
+    cert_path=$1
+    cert_name=$2
 
-    echo "Enter password for Kafka keystore: "
-    read -s keystore_password
+    echo "Creating PKCS12 keystore for $cert_path/$cert_name"
+    openssl pkcs12 \
+        -export \
+        -in $cert_path/$cert_name.crt \
+        -inkey $cert_path/$cert_name.key \
+        -out $cert_path/$cert_name.p12 \
+        -name $cert_name \
+        -certfile root/root.crt \
+        -CAfile root/root.crt \
+        -caname caroot \
+        -passin "pass:$DEFAULT_PASSWORD" \
+        -passout "pass:$DEFAULT_PASSWORD"
 
-    umask u=rw,go= && keytool -keystore kafka/kafka.keystore.jks -alias caroot -storepass $keystore_password -importcert -file root/root.crt -noprompt
-    append_to_server_keystore kafka/kafka.keystore.jks kafka $keystore_password
-    append_to_server_keystore kafka/kafka.keystore.jks localhost $keystore_password
-}
-
-function generate_kafka_client_certificate() {
-    client_name=$1
-
-    umask u=rwx,go= && mkdir -p kafka/$client_name
-
-    echo "Enter password for Kafka $client_name keystore: "
-    read -s keystore_password
-
-    umask u=rw,go= && keytool -keystore kafka/$client_name/$client_name.keystore.jks -alias caroot -storepass $keystore_password -importcert -file root/root.crt -noprompt
-    append_to_user_keystore kafka/$client_name/$client_name.keystore.jks $client_name $keystore_password
+    keytool -keystore $cert_path/$cert_name.p12 -alias caroot -storepass "$DEFAULT_PASSWORD" -importcert -file root/root.crt -noprompt
 }
 
 
 generate_root_certificate
-create_java_truststore
 
-generate_server_certificate postgres
-generate_client_certificate postgres superuser
-generate_client_certificate postgres svc_jobs_webapi
-generate_client_certificate postgres svc_jobs_worker
-generate_client_certificate postgres svc_users_webapp
+generate_server_certificate svc_postgres
+generate_client_certificate svc_postgres superuser
+#generate_client_certificate svc_postgres svc_jobs_webapi
+#generate_client_certificate svc_postgres svc_jobs_worker
+#generate_client_certificate svc_postgres svc_users_webapp
 
-generate_kafka_server_certificate
-generate_kafka_client_certificate superuser
-generate_kafka_client_certificate svc_jobs_webapi
-generate_kafka_client_certificate svc_jobs_worker
+
+generate_server_certificate svc_kafka
+generate_client_certificate svc_kafka superuser
+#generate_client_certificate svc_kafka svc_jobs_webapi
+#generate_client_certificate svc_kafka svc_jobs_worker
+
+pem_to_pkcs12 svc_kafka svc_kafka
+pem_to_pkcs12 svc_kafka/superuser superuser
+#pem_to_pkcs12 svc_kafka/svc_jobs_webapi svc_jobs_webapi
+#pem_to_pkcs12 svc_kafka/svc_jobs_worker svc_jobs_worker

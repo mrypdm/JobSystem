@@ -1,0 +1,20 @@
+auth:
+  type: DISABLED
+
+kafka:
+  clusters:
+  - bootstrapServers: kafka:9000
+    name: Kafka (superuser)
+    properties:
+      security.protocol: SSL
+      ssl.keystore.password: <PASSWORD>
+      ssl.keystore.location: /etc/kafkaui/secrets/superuser.p12
+    readOnly: false
+    ssl:
+      truststoreLocation: /etc/kafkaui/secrets/root.p12
+      truststorePassword: <PASSWORD>
+
+rbac:
+  roles: []
+
+webclient: {}

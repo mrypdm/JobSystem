@@ -1,0 +1,43 @@
+services:
+    kafka:
+      image: apache/kafka
+      hostname: kafka
+      container_name: kafka
+      ports:
+        - '8000:8000'
+        - '8500:8500'
+        - '9000:9000'
+      environment:
+        KAFKA_NODE_ID: 1
+        CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'
+        KAFKA_PROCESS_ROLES: 'broker,controller'
+        KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:8000'
+        KAFKA_ADVERTISED_LISTENERS: 'CONTROLLER://localhost:8000,SSL://localhost:8500,SSL-INTERNAL://kafka:9000'
+        KAFKA_LISTENERS: 'CONTROLLER://:8000,SSL://:8500,SSL-INTERNAL://:9000'
+        KAFKA_INTER_BROKER_LISTENER_NAME: 'SSL-INTERNAL'
+        KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'SSL:SSL,CONTROLLER:SSL,SSL-INTERNAL:SSL'
+
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+        KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+        KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+        KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
+        KAFKA_LOG_DIRS: /var/lib/kafka/data
+
+        KAFKA_SECURITY_PROTOCOL: SSL
+        KAFKA_CSECURITY_INTER_BROKER_PROTOCOL: SSL
+        KAFKA_SSL_KEYSTORE_FILENAME: svc_kafka.p12
+        KAFKA_SSL_KEYSTORE_CREDENTIALS: pass.txt
+        KAFKA_SSL_KEY_CREDENTIALS: pass.txt
+        KAFKA_SSL_TRUSTSTORE_FILENAME: root.p12
+        KAFKA_SSL_TRUSTSTORE_CREDENTIALS: pass.txt
+        KAFKA_SSL_CLIENT_AUTH: required
+
+        KAFKA_SSL_PRINCIPAL_MAPPING_RULES: 'RULE:^CN=(.*?),.*/$1/,DEFAULT'
+        KAFKA_SUPER_USERS: 'User:svc_kafka;User:superuser'
+        KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
+      volumes:
+        - ./kafka/data:/var/lib/kafka/data
+        - ./kafka/secrets:/etc/kafka/secrets:ro

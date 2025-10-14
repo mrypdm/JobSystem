@@ -23,8 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker", "Job\Worker\Jo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{B44AB3AB-CEFF-4EBB-B935-17E849E1085D}"
 	ProjectSection(SolutionItems) = preProject
-		Certificates\openssl.cnf = Certificates\openssl.cnf
 		Certificates\generate.sh = Certificates\generate.sh
+		Certificates\openssl.cnf = Certificates\openssl.cnf
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{76A4D5B4-E733-4543-83A5-5BCB40A5F628}"
@@ -35,7 +35,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{DB
 		Tools\Database\docker-compose.prod.yaml = Tools\Database\docker-compose.prod.yaml
 		Tools\Database\init.sh = Tools\Database\init.sh
 		Tools\Database\pg_hba.conf = Tools\Database\pg_hba.conf
-		Tools\Database\servers.json = Tools\Database\servers.json
+		Tools\Database\servers.json.template = Tools\Database\servers.json.template
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Broker", "Broker", "{D24A1ED0-D0E1-4FF0-8760-48AF0FCDFC98}"
+	ProjectSection(SolutionItems) = preProject
+		Tools\Broker\config.yaml.template = Tools\Broker\config.yaml.template
+		Tools\Broker\docker-compose.dev.yaml = Tools\Broker\docker-compose.dev.yaml
+		Tools\Broker\docker-compose.prod.yaml = Tools\Broker\docker-compose.prod.yaml
+		Tools\Broker\init.sh = Tools\Broker\init.sh
 	EndProjectSection
 EndProject
 Global
@@ -65,6 +73,7 @@ Global
 		{B6A6B8B4-0262-DD4F-3C4E-DA5406B58C3F} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
 		{B8A9C944-B874-C8E8-F399-930156429D52} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
 		{DB249E03-3A9B-4878-811C-B7BD2E038418} = {76A4D5B4-E733-4543-83A5-5BCB40A5F628}
+		{D24A1ED0-D0E1-4FF0-8760-48AF0FCDFC98} = {76A4D5B4-E733-4543-83A5-5BCB40A5F628}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A09298-C745-4041-A133-65E3AF4E8E3E}
