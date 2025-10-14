@@ -50,19 +50,3 @@ sudo chmod 400 kafka-ui/secrets/root.p12
 sudo chown $KAFKA_UI_USER:$KAFKA_UI_USER -R kafka-ui/
 
 cp docker-compose.dev.yaml docker-compose.yaml
-
-exit
-
-# создание truststore
-keytool -keystore kafka.client.trustore.jks -alias CARoot -storepass mrypdm56m-43 -importcert -file ../root/root.crt -noprompt
-
-keytool -keystore kafka.server.trustore.jks -alias CARoot -storepass mrypdm56m-43 -importcert -file ../root/root.crt -noprompt
-
-# создание из CRT и KEY (PEM) одного PKCS12 файла
-openssl pkcs12 -export -in superuser.crt -inkey superuser.key -out superuser.p12 -name superuser -CAfile ../../root/root.crt -caname root
-
-# превращение PKCS12 в Java Keystore
-keytool -importkeystore -deststorepass mrypdm56m-43 -destkeypass mrypdm56m-43 -destkeystore superuser.keystore -srckeystore superuser.p12 -srcstoretype PKCS12 -srcstorepass mrypdm56m-43 -alias superuser
-
-# https://stackoverflow.com/questions/75489955/kafka-producer-in-net-ssl-handshake-failed вроде и не надо jks
-# https://zookeeper.apache.org/doc/r3.7.1/zookeeperAdmin.html : ssl.trustStore.type
