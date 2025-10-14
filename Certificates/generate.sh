@@ -147,7 +147,8 @@ function generate_client_certificate() {
 function create_pkcs12_truststore() {
     ou_name=$1
 
-    echo "Creating mTLS $ou_name truststore"
+    echo "Creating PKCS12 truststore for $ou_name"
+
     keytool \
         -keystore $ou_name/$ou_name.p12 \
         -alias CA-$ou_name-intermediate \
@@ -158,6 +159,8 @@ function create_pkcs12_truststore() {
 
 function create_pem_truststore() {
     ou_name=$1
+
+    echo "Creating PEM truststore for $ou_name"
 
     cat root/root.crt "$ou_name/$ou_name.crt" > "$ou_name/$ou_name.chain.crt"
 }
