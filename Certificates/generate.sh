@@ -151,6 +151,12 @@ function create_pkcs12_truststore() {
 
     keytool \
         -keystore $ou_name/$ou_name.p12 \
+        -alias CA-root \
+        -storepass "$DEFAULT_PASSWORD" \
+        -importcert -file root/root.crt \
+        -noprompt
+    keytool \
+        -keystore $ou_name/$ou_name.p12 \
         -alias CA-$ou_name-intermediate \
         -storepass "$DEFAULT_PASSWORD" \
         -importcert -file $ou_name/$ou_name.crt \
@@ -195,6 +201,8 @@ function pem_to_pkcs12() {
         -importcert -file $ou_name/$ou_name.crt \
         -noprompt
 }
+
+rm -rf kafka postgres webapi root
 
 generate_root_certificate
 generate_intermediate_certificate postgres
