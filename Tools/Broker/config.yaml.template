@@ -11,7 +11,7 @@ kafka:
       ssl.keystore.location: /etc/kafkaui/secrets/superuser.p12
     readOnly: false
     ssl:
-      truststoreLocation: /etc/kafkaui/secrets/root.p12
+      truststoreLocation: /etc/kafkaui/secrets/kafka.p12
       truststorePassword: <PASSWORD>
 
 rbac:

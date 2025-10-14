@@ -1,4 +1,4 @@
-MTLS_ALGO="rsa:8192"
+MTLS_ALGO="rsa:2048"
 
 DURATION_DAYS=365
 
@@ -6,13 +6,12 @@ DEFAULT_C="RU"
 DEFAULT_ST="Moscow"
 DEFAULT_L="Moscow"
 DEFAULT_O="mrypdm"
-DEFAULT_OU="localhost"
-DEFAULT_EMAIL="mrypdm@gmail.com"
 
 DEFAULT_PASSWORD="$1"
 
-MTLS_DN_S="C=${DEFAULT_C}, ST=${DEFAULT_ST}, L=${DEFAULT_L}, O=${DEFAULT_O}, OU=${DEFAULT_OU}, emailAddress=${DEFAULT_EMAIL}, CN="
-MTLS_DN="/${MTLS_DN_S//, //}"
+function get_dn() {
+    echo "/C=${DEFAULT_C}/ST=${DEFAULT_ST}/L=${DEFAULT_L}/O=${DEFAULT_O}/OU=$1/CN=$2"
+}
 
 function generate_root_certificate() {
     mkdir -p root
@@ -22,7 +21,7 @@ function generate_root_certificate() {
         -new \
         -text \
         -newkey $MTLS_ALGO \
-        -subj "$MTLS_DN"CARoot \
+        -subj $(get_dn CA root) \
         -keyout root/root.key \
         -out root/root.csr \
         -passout "pass:$DEFAULT_PASSWORD" \
@@ -40,31 +39,56 @@ function generate_root_certificate() {
         -out root/root.crt \
         -passin "pass:$DEFAULT_PASSWORD"
 
-    echo "Creating mTLS root truststore"
-    rm root/root.p12
-    keytool \
-        -keystore root/root.p12 \
-        -alias caroot \
-        -storepass "$DEFAULT_PASSWORD" \
-        -importcert -file root/root.crt \
-        -noprompt
-
     rm root/root.csr
 }
 
-function generate_server_certificate() {
-    server_name=$1
+function generate_intermediate_certificate() {
+    ou_name=$1
 
-    mkdir -p $server_name
+    mkdir -p $ou_name
+
+    echo "Generating mTLS $ou_name intermediate CSR and private key"
+    openssl req \
+        -new \
+        -text \
+        -newkey $MTLS_ALGO \
+        -subj $(get_dn CA $ou_name) \
+        -keyout $ou_name/$ou_name.key \
+        -out $ou_name/$ou_name.csr \
+        -passout "pass:$DEFAULT_PASSWORD" \
+        -quiet
+
+    echo "Generating mTLS $ou_name intermediate certificate using previously generated root certificate"
+    openssl x509 \
+        -req \
+        -text \
+        -CAcreateserial \
+        -days $DURATION_DAYS \
+        -in $ou_name/$ou_name.csr \
+        -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
+        -extensions v3_mtls_intermediate \
+        -CA root/root.crt \
+        -CAkey root/root.key \
+        -out $ou_name/$ou_name.crt \
+        -passin "pass:$DEFAULT_PASSWORD"
+
+    rm $ou_name/$ou_name.csr
+}
+
+function generate_server_certificate() {
+    ou_name=$1
+    server_name=$2
+
+    mkdir -p $ou_name/$server_name
 
     echo "Generating mTLS $server_name server CSR and private key"
     openssl req \
         -new \
         -text \
         -newkey $MTLS_ALGO \
-        -subj "$MTLS_DN"$server_name \
-        -keyout $server_name/$server_name.key \
-        -out $server_name/$server_name.csr \
+        -subj $(get_dn $ou_name $server_name) \
+        -keyout $ou_name/$server_name/$server_name.key \
+        -out $ou_name/$server_name/$server_name.csr \
         -passout "pass:$DEFAULT_PASSWORD" \
         -quiet
 
@@ -74,61 +98,80 @@ function generate_server_certificate() {
         -text \
         -CAcreateserial \
         -days $DURATION_DAYS \
-        -in $server_name/$server_name.csr \
+        -in $ou_name/$server_name/$server_name.csr \
         -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
         -extensions v3_mtls_$server_name \
-        -CA root/root.crt \
-        -CAkey root/root.key \
-        -out $server_name/$server_name.crt \
+        -copy_extensions copy \
+        -CA $ou_name/$ou_name.crt \
+        -CAkey $ou_name/$ou_name.key \
+        -out $ou_name/$server_name/$server_name.crt \
         -passin "pass:$DEFAULT_PASSWORD"
 
-    rm $server_name/$server_name.csr
+    rm $ou_name/$server_name/$server_name.csr
 }
 
 function generate_client_certificate() {
-    server_name=$1
+    ou_name=$1
     client_name=$2
 
-    mkdir -p $server_name/$client_name
+    mkdir -p $ou_name/$client_name
 
-    echo "Generating mTLS $server_name client CSR and private key for $client_name"
+    echo "Generating mTLS $client_name client CSR and private key for $ou_name"
     openssl req \
         -new \
         -text \
         -newkey $MTLS_ALGO \
-        -subj "$MTLS_DN"$client_name \
-        -keyout $server_name/$client_name/$client_name.key \
-        -out $server_name/$client_name/$client_name.csr \
+        -subj $(get_dn $ou_name $client_name) \
+        -keyout $ou_name/$client_name/$client_name.key \
+        -out $ou_name/$client_name/$client_name.csr \
         -passout "pass:$DEFAULT_PASSWORD" \
         -quiet
 
-    echo "Generating mTLS $server_name client certificate for $client_name using previously generated root certificate"
+    echo "Generating mTLS $client_name client certificate for $ou_name using previously generated root certificate"
     openssl x509 \
         -req \
         -text \
         -CAcreateserial \
         -days $DURATION_DAYS \
-        -in $server_name/$client_name/$client_name.csr \
+        -in $ou_name/$client_name/$client_name.csr \
         -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
         -extensions v3_mtls_client \
-        -CA root/root.crt \
-        -CAkey root/root.key \
-        -out $server_name/$client_name/$client_name.crt \
+        -CA $ou_name/$ou_name.crt \
+        -CAkey $ou_name/$ou_name.key \
+        -out $ou_name/$client_name/$client_name.crt \
         -passin "pass:$DEFAULT_PASSWORD"
 
-    rm $server_name/$client_name/$client_name.csr
+    rm $ou_name/$client_name/$client_name.csr
+}
+
+function create_pkcs12_truststore() {
+    ou_name=$1
+
+    echo "Creating mTLS $ou_name truststore"
+    keytool \
+        -keystore $ou_name/$ou_name.p12 \
+        -alias CA-$ou_name-intermediate \
+        -storepass "$DEFAULT_PASSWORD" \
+        -importcert -file $ou_name/$ou_name.crt \
+        -noprompt
+}
+
+function create_pem_truststore() {
+    ou_name=$1
+
+    cat root/root.crt "$ou_name/$ou_name.crt" > "$ou_name/$ou_name.chain.crt"
 }
 
 function pem_to_pkcs12() {
-    cert_path=$1
+    ou_name=$1
     cert_name=$2
 
-    echo "Creating PKCS12 keystore for $cert_path/$cert_name"
+    echo "Creating PKCS12 keystore for $ou_name/$cert_name"
     openssl pkcs12 \
         -export \
-        -in $cert_path/$cert_name.crt \
-        -inkey $cert_path/$cert_name.key \
-        -out $cert_path/$cert_name.p12 \
+        -in $ou_name/$cert_name/$cert_name.crt \
+        -inkey $ou_name/$cert_name/$cert_name.key \
+        -out $ou_name/$cert_name/$cert_name.p12 \
         -name $cert_name \
         -certfile root/root.crt \
         -CAfile root/root.crt \
@@ -136,25 +179,41 @@ function pem_to_pkcs12() {
         -passin "pass:$DEFAULT_PASSWORD" \
         -passout "pass:$DEFAULT_PASSWORD"
 
-    keytool -keystore $cert_path/$cert_name.p12 -alias caroot -storepass "$DEFAULT_PASSWORD" -importcert -file root/root.crt -noprompt
+    keytool \
+        -keystore $ou_name/$cert_name/$cert_name.p12 \
+        -alias CA-root \
+        -storepass "$DEFAULT_PASSWORD" \
+        -importcert -file root/root.crt \
+        -noprompt
+    keytool \
+        -keystore $ou_name/$cert_name/$cert_name.p12 \
+        -alias CA-$ou_name-intermediate \
+        -storepass "$DEFAULT_PASSWORD" \
+        -importcert -file $ou_name/$ou_name.crt \
+        -noprompt
 }
 
-
 generate_root_certificate
+generate_intermediate_certificate postgres
+generate_intermediate_certificate kafka
+generate_intermediate_certificate webapi
 
-generate_server_certificate svc_postgres
-generate_client_certificate svc_postgres superuser
-generate_client_certificate svc_postgres svc_jobs_webapi
-generate_client_certificate svc_postgres svc_jobs_worker
-generate_client_certificate svc_postgres svc_users_webapp
+create_pem_truststore postgres
+create_pkcs12_truststore kafka
+create_pkcs12_truststore webapi
 
+generate_server_certificate postgres svc_postgres
 
-generate_server_certificate svc_kafka
-generate_client_certificate svc_kafka superuser
-generate_client_certificate svc_kafka svc_jobs_webapi
-generate_client_certificate svc_kafka svc_jobs_worker
+generate_server_certificate kafka svc_kafka
+pem_to_pkcs12 kafka svc_kafka
 
-pem_to_pkcs12 svc_kafka svc_kafka
-pem_to_pkcs12 svc_kafka/superuser superuser
-pem_to_pkcs12 svc_kafka/svc_jobs_webapi svc_jobs_webapi
-pem_to_pkcs12 svc_kafka/svc_jobs_worker svc_jobs_worker
+generate_server_certificate webapi svc_jobs_webapi
+pem_to_pkcs12 webapi svc_jobs_webapi
+
+generate_client_certificate postgres superuser
+
+generate_client_certificate kafka superuser
+pem_to_pkcs12 kafka superuser
+
+generate_client_certificate webapi superuser
+pem_to_pkcs12 webapi superuser

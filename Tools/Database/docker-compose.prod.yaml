@@ -7,7 +7,7 @@ services:
         -c ssl_min_protocol_version=TLSv1.3
         -c ssl_cert_file=/etc/postgres-config/svc_postgres.crt
         -c ssl_key_file=/etc/postgres-config/svc_postgres.key
-        -c ssl_ca_file=/etc/postgres-config/root.crt
+        -c ssl_ca_file=/etc/postgres-config/postgres.chain.crt
         -c ssl_passphrase_command='cat /etc/postgres-config/pass.txt'
         -c hba_file=/etc/postgres-config/pg_hba.conf
         -c logging_collector=on

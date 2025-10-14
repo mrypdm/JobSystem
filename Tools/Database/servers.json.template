@@ -9,7 +9,7 @@
             "Username": "superuser",
             "ConnectionParameters": {
                 "sslmode": "verify-full",
-                "sslrootcert": "/certs/root.crt",
+                "sslrootcert": "/certs/postgres.chain.crt",
                 "sslcert": "/certs/superuser.crt",
                 "sslkey": "/certs/superuser.key",
                 "sslpassword": "<PASSWORD>"
