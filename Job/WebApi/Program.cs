@@ -20,8 +20,8 @@ builder.Services.Configure<KestrelServerOptions>(options =>
     options.ConfigureHttpsDefaults(httpsOptions =>
     {
         httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-        httpsOptions.ServerCertificate = serverCert.GetCertificate();
-        httpsOptions.ServerCertificateChain = serverCert.GetChain();
+        httpsOptions.ServerCertificate = serverCert.Certificate;
+        httpsOptions.ServerCertificateChain = serverCert.Chain;
     });
 });
 
@@ -31,7 +31,7 @@ builder.Services
     {
         options.AllowedCertificateTypes = CertificateTypes.Chained;
         options.ChainTrustValidationMode = X509ChainTrustMode.CustomRootTrust;
-        options.CustomTrustStore = serverCert.GetTrusted();
+        options.CustomTrustStore = serverCert.Chain;
         options.RevocationFlag = X509RevocationFlag.ExcludeRoot;
         options.RevocationMode = X509RevocationMode.NoCheck; // TODO revocation list
 

@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Job.WebApi;
@@ -7,15 +9,15 @@ namespace Job.WebApi;
 /// </summary>
 public class CertificateOptions
 {
-    /// <summary>
-    /// Truststore file in PKCS12 format
-    /// </summary>
-    public string RootFile { get; set; }
+    private readonly Lazy<X509Certificate2Collection> _chain;
 
     /// <summary>
-    /// Password for <see cref="RootFile"/>
+    /// Creates new instance
     /// </summary>
-    public string RootPassword { get; set; }
+    public CertificateOptions()
+    {
+        _chain = new(() => X509CertificateLoader.LoadPkcs12CollectionFromFile(CertificateFile, CertificatePassword));
+    }
 
     /// <summary>
     /// Keystore file in PKCS12 format
@@ -28,26 +30,12 @@ public class CertificateOptions
     public string CertificatePassword { get; set; }
 
     /// <summary>
-    /// Get certificate
-    /// </summary>
-    public X509Certificate2 GetCertificate()
-    {
-        return X509CertificateLoader.LoadPkcs12FromFile(CertificateFile, CertificatePassword);
-    }
-
-    /// <summary>
-    /// Get truststore
-    /// </summary>
-    public X509Certificate2Collection GetTrusted()
-    {
-        return X509CertificateLoader.LoadPkcs12CollectionFromFile(RootFile, RootPassword);
-    }
-
-    /// <summary>
     /// Get whole certificate chain
     /// </summary>
-    public X509Certificate2Collection GetChain()
-    {
-        return [GetCertificate(), .. GetTrusted()];
-    }
+    public X509Certificate2Collection Chain => _chain.Value;
+
+    /// <summary>
+    /// Get certificate
+    /// </summary>
+    public X509Certificate2 Certificate => _chain.Value.First();
 }
