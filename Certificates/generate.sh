@@ -180,11 +180,8 @@ function pem_to_pkcs12() {
         -export \
         -in $ou_name/$cert_name/$cert_name.crt \
         -inkey $ou_name/$cert_name/$cert_name.key \
-        -out $ou_name/$cert_name/$cert_name.p12 \
+        -out $ou_name/$cert_name/$cert_name.p12.private \
         -name $cert_name \
-        -certfile root/root.crt \
-        -CAfile root/root.crt \
-        -caname caroot \
         -passin "pass:$DEFAULT_PASSWORD" \
         -passout "pass:$DEFAULT_PASSWORD"
 
@@ -200,6 +197,17 @@ function pem_to_pkcs12() {
         -storepass "$DEFAULT_PASSWORD" \
         -importcert -file $ou_name/$ou_name.crt \
         -noprompt
+    keytool \
+        -importkeystore \
+        -deststorepass "$DEFAULT_PASSWORD" \
+        -destkeypass "$DEFAULT_PASSWORD" \
+        -destkeystore $ou_name/$cert_name/$cert_name.p12 \
+        -srckeystore $ou_name/$cert_name/$cert_name.p12.private \
+        -srcstoretype PKCS12 \
+        -srcstorepass "$DEFAULT_PASSWORD" \
+        -alias $cert_name
+
+    rm $ou_name/$cert_name/$cert_name.p12.private
 }
 
 rm -rf kafka postgres webapi root
@@ -222,6 +230,7 @@ generate_server_certificate webapi svc_jobs_webapi
 pem_to_pkcs12 webapi svc_jobs_webapi
 
 generate_client_certificate postgres superuser
+pem_to_pkcs12 postgres superuser
 
 generate_client_certificate kafka superuser
 pem_to_pkcs12 kafka superuser
