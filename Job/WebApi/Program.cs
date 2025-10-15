@@ -13,7 +13,7 @@ using Microsoft.Extensions.Hosting;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
-var serverCert = builder.Configuration.GetSection("Certificates:WebServer").Get<CertificateOptions>();
+var serverCert = builder.Configuration.GetSection("WebServerOptions:Certificate").Get<CertificateOptions>();
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
