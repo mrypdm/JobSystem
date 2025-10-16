@@ -23,12 +23,7 @@ sudo chmod 700 postgres
 sudo chmod 700 postgres/data
 sudo chmod 700 postgres/logs
 sudo chmod 500 postgres/config
-sudo chmod 400 postgres/config/pg_hba.conf
-sudo chmod 400 postgres/config/svc_postgres.crt
-sudo chmod 400 postgres/config/svc_postgres.key
-sudo chmod 400 postgres/config/postgres.chain.crt
-sudo chmod 400 postgres/config/pass.txt
-
+sudo chmod 400 postgres/config/*
 sudo chown $POSTGRES_USER:$POSTGRES_USER -R postgres/
 
 if [ "$2" != "debug" ]; then
@@ -48,15 +43,19 @@ mkdir -p pgadmin/certs
 sed "s/<PASSWORD>/$1/g" servers.json.template > pgadmin/servers.json
 cp ../../Certificates/postgres/superuser/superuser.crt pgadmin/certs/
 cp ../../Certificates/postgres/superuser/superuser.key pgadmin/certs/
+cp ../../Certificates/postgres/svc_jobs_worker/svc_jobs_worker.key pgadmin/certs/
+cp ../../Certificates/postgres/svc_jobs_worker/svc_jobs_worker.key pgadmin/certs/
+cp ../../Certificates/postgres/svc_jobs_webapi/svc_jobs_webapi.key pgadmin/certs/
+cp ../../Certificates/postgres/svc_jobs_webapi/svc_jobs_webapi.key pgadmin/certs/
+cp ../../Certificates/postgres/svc_user_webapp/svc_user_webapp.key pgadmin/certs/
+cp ../../Certificates/postgres/svc_user_webapp/svc_user_webapp.key pgadmin/certs/
 cp ../../Certificates/postgres/postgres.chain.crt pgadmin/certs/
 
 sudo chmod 700 pgadmin
 sudo chmod 700 pgadmin/data
 sudo chmod 500 pgadmin/certs
 sudo chmod 600 pgadmin/servers.json
-sudo chmod 400 pgadmin/certs/superuser.crt
-sudo chmod 400 pgadmin/certs/superuser.key
-sudo chmod 400 pgadmin/certs/postgres.chain.crt
+sudo chmod 400 pgadmin/certs/*
 
 sudo chown $PGADMIN_USER:$PGADMIN_USER -R pgadmin/
 

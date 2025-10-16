@@ -1,7 +1,7 @@
 {
     "Servers": {
         "1": {
-            "Name": "main",
+            "Name": "main (superuser)",
             "Group": "Servers",
             "Host": "postgres",
             "Port": 5432,
@@ -12,6 +12,51 @@
                 "sslrootcert": "/certs/postgres.chain.crt",
                 "sslcert": "/certs/superuser.crt",
                 "sslkey": "/certs/superuser.key",
+                "sslpassword": "<PASSWORD>"
+            }
+        },
+        "2": {
+            "Name": "main (svc_jobs_webapi)",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 5432,
+            "MaintenanceDB": "Jobs",
+            "Username": "superuser",
+            "ConnectionParameters": {
+                "sslmode": "verify-full",
+                "sslrootcert": "/certs/postgres.chain.crt",
+                "sslcert": "/certs/svc_jobs_webapi.crt",
+                "sslkey": "/certs/svc_jobs_webapi.key",
+                "sslpassword": "<PASSWORD>"
+            }
+        },
+        "3": {
+            "Name": "main (svc_jobs_worker)",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 5432,
+            "MaintenanceDB": "Jobs",
+            "Username": "superuser",
+            "ConnectionParameters": {
+                "sslmode": "verify-full",
+                "sslrootcert": "/certs/postgres.chain.crt",
+                "sslcert": "/certs/svc_jobs_worker.crt",
+                "sslkey": "/certs/svc_jobs_worker.key",
+                "sslpassword": "<PASSWORD>"
+            }
+        },
+        "4": {
+            "Name": "main (svc_user_webapp)",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 5432,
+            "MaintenanceDB": "Users",
+            "Username": "superuser",
+            "ConnectionParameters": {
+                "sslmode": "verify-full",
+                "sslrootcert": "/certs/postgres.chain.crt",
+                "sslcert": "/certs/svc_user_webapp.crt",
+                "sslkey": "/certs/svc_user_webapp.key",
                 "sslpassword": "<PASSWORD>"
             }
         }

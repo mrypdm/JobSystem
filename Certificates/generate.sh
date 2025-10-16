@@ -221,6 +221,7 @@ generate_server_certificate postgres svc_postgres
 generate_client_certificate postgres superuser
 generate_client_certificate postgres svc_jobs_webapi
 generate_client_certificate postgres svc_jobs_worker
+generate_client_certificate postgres svc_user_webapp
 
 # Kafka
 generate_intermediate_certificate kafka
@@ -241,3 +242,7 @@ generate_server_certificate webapi svc_jobs_webapi
 pem_to_pkcs12 webapi svc_jobs_webapi
 generate_client_certificate webapi superuser
 pem_to_pkcs12 webapi superuser
+
+# User.WebApp
+generate_intermediate_certificate webapp
+generate_server_certificate webapi svc_user_webapp
