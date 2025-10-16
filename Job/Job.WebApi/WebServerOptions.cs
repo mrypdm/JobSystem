@@ -1,33 +1,24 @@
 using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Shared.Contract;
 
 namespace Job.WebApi;
 
 /// <summary>
-/// Certificate options
+/// Options for mTLS authentication in web server
 /// </summary>
-public class CertificateOptions
+public class WebServerOptions : CertificateOptions
 {
     private readonly Lazy<X509Certificate2Collection> _chain;
 
     /// <summary>
     /// Creates new instance
     /// </summary>
-    public CertificateOptions()
+    public WebServerOptions()
     {
-        _chain = new(() => X509CertificateLoader.LoadPkcs12CollectionFromFile(CertificateFile, CertificatePassword));
+        _chain = new(() => X509CertificateLoader.LoadPkcs12CollectionFromFile(CertificateFilePath, Password));
     }
-
-    /// <summary>
-    /// Keystore file in PKCS12 format
-    /// </summary>
-    public string CertificateFile { get; set; }
-
-    /// <summary>
-    /// Password for <see cref="CertificateFile"/>
-    /// </summary>
-    public string CertificatePassword { get; set; }
 
     /// <summary>
     /// Get whole certificate chain

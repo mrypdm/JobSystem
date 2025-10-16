@@ -1,27 +1,32 @@
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Job.Broker;
+using Job.Broker.Options;
+using Job.Database.Contexts;
 using Job.WebApi;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Shared.Contract;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
-var serverCert = builder.Configuration.GetSection("WebServerOptions:Certificate").Get<CertificateOptions>();
+var webServerOptions = builder.Configuration.GetSection("WebServerOptions").Get<WebServerOptions>();
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.ConfigureHttpsDefaults(httpsOptions =>
     {
         httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-        httpsOptions.ServerCertificate = serverCert.Certificate;
-        httpsOptions.ServerCertificateChain = serverCert.Chain;
+        httpsOptions.ServerCertificate = webServerOptions.Certificate;
+        httpsOptions.ServerCertificateChain = webServerOptions.Chain;
     });
 });
 
@@ -31,7 +36,7 @@ builder.Services
     {
         options.AllowedCertificateTypes = CertificateTypes.Chained;
         options.ChainTrustValidationMode = X509ChainTrustMode.CustomRootTrust;
-        options.CustomTrustStore = serverCert.Chain;
+        options.CustomTrustStore = webServerOptions.Chain;
         options.RevocationFlag = X509RevocationFlag.ExcludeRoot;
         options.RevocationMode = X509RevocationMode.NoCheck; // TODO revocation list
 
@@ -61,9 +66,16 @@ builder.Services
             }
         };
     });
-
 builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
+
+var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
+builder.Services.AddDbContext<JobDbContext>(options => options.UseNpgsql(JobDbContext.GetConnectionString(dbOptions)));
+
+var producerOptions = builder.Configuration.GetSection("ProducerOptions").Get<ProducerOptions>();
+builder.Services.AddSingleton(producerOptions);
+builder.Services.AddSingleton<JobProducer>();
 
 var app = builder.Build();
 

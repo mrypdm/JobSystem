@@ -11,17 +11,17 @@ public class CertificateOptions
     public string UserName { get; set; }
 
     /// <summary>
-    /// Path to truststore in PEM format
+    /// Path to truststore
     /// </summary>
     public string TruststoreFilePath { get; set; }
 
     /// <summary>
-    /// Path to client certificate in PEM format
+    /// Path to client certificate
     /// </summary>
     public string CertificateFilePath { get; set; }
 
     /// <summary>
-    /// Path to client private key in PEM format
+    /// Path to client private key
     /// </summary>
     public string KeyFilePath { get; set; }
 
