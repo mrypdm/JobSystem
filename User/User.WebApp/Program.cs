@@ -84,6 +84,12 @@ builder.Services
 
 builder.Services.AddControllersWithViews();
 
+builder.Services
+    .AddAntiforgery(opt =>
+    {
+        opt.HeaderName = "X-CSRF-TOKEN";
+    });
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

@@ -1,0 +1,32 @@
+@using User.WebApp.Views.Authentication;
+@model LoginModel;
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div>
+    <div class="row">
+        <div style="float: left; width: 35%">
+            <label for="username">Username</label>
+        </div>
+        <div style="float: left; width: 65%">
+            <input id="username"
+                   type="text"
+                   placeholder="Username" />
+        </div>
+    </div>
+    <div class="row">
+        <div style="float: left; width: 35%">
+            <label for="password">Password</label>
+        </div>
+        <div style="float: left; width: 65%">
+            <input id="password"
+                   type="password"
+                   placeholder="Password" />
+            <input type="checkbox" onclick="showPassword('password')" />
+        </div>
+    </div>
+
+    <input type="button" value="Login" onclick="login('@(Model.ReturnUrl)')" />
+</div>
