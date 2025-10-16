@@ -1,0 +1,27 @@
+#
+# Root certificate
+#
+
+[ v3_mtls_root ]
+basicConstraints       = critical, @v3_mtls_root_constraints
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always, issuer:always
+keyUsage               = critical, keyCertSign, cRLSign
+
+[ v3_mtls_root_constraints ]
+CA                     = true
+pathlen                = 1
+
+#
+# Intermediate certificate
+#
+
+[ v3_mtls_intermediate ]
+basicConstraints       = critical, @v3_mtls_intermediate_constraints
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always, issuer:always
+keyUsage               = critical, keyCertSign, cRLSign
+
+[ v3_mtls_intermediate_constraints ]
+CA                     = true
+pathlen                = 0

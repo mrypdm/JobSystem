@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -e
+
 MTLS_ALGO="rsa:2048"
 
 DURATION_DAYS=365
@@ -33,7 +37,7 @@ function generate_root_certificate() {
         -text \
         -days $DURATION_DAYS \
         -in root/root.csr \
-        -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
+        -extfile <(cat /etc/ssl/openssl.cnf common.cnf root.cnf) \
         -extensions v3_mtls_root \
         -key root/root.key \
         -out root/root.crt \
@@ -65,7 +69,7 @@ function generate_intermediate_certificate() {
         -CAcreateserial \
         -days $DURATION_DAYS \
         -in $ou_name/$ou_name.csr \
-        -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
+        -extfile <(cat /etc/ssl/openssl.cnf common.cnf root.cnf) \
         -extensions v3_mtls_intermediate \
         -CA root/root.crt \
         -CAkey root/root.key \
@@ -99,7 +103,7 @@ function generate_server_certificate() {
         -CAcreateserial \
         -days $DURATION_DAYS \
         -in $ou_name/$server_name/$server_name.csr \
-        -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
+        -extfile <(cat /etc/ssl/openssl.cnf common.cnf servers.cnf) \
         -extensions v3_mtls_$server_name \
         -copy_extensions copy \
         -CA $ou_name/$ou_name.crt \
@@ -134,7 +138,7 @@ function generate_client_certificate() {
         -CAcreateserial \
         -days $DURATION_DAYS \
         -in $ou_name/$client_name/$client_name.csr \
-        -extfile <(cat /etc/ssl/openssl.cnf openssl.cnf) \
+        -extfile <(cat /etc/ssl/openssl.cnf common.cnf clients.cnf) \
         -extensions v3_mtls_client \
         -CA $ou_name/$ou_name.crt \
         -CAkey $ou_name/$ou_name.key \
@@ -210,7 +214,7 @@ function pem_to_pkcs12() {
     rm $ou_name/$cert_name/$cert_name.p12.private
 }
 
-rm -rf kafka postgres webapi root
+rm -rf root postgres kafka webapi webapp
 
 generate_root_certificate
 
@@ -221,7 +225,7 @@ generate_server_certificate postgres svc_postgres
 generate_client_certificate postgres superuser
 generate_client_certificate postgres svc_jobs_webapi
 generate_client_certificate postgres svc_jobs_worker
-generate_client_certificate postgres svc_user_webapp
+generate_client_certificate postgres svc_users_webapp
 
 # Kafka
 generate_intermediate_certificate kafka
@@ -242,7 +246,10 @@ generate_server_certificate webapi svc_jobs_webapi
 pem_to_pkcs12 webapi svc_jobs_webapi
 generate_client_certificate webapi superuser
 pem_to_pkcs12 webapi superuser
+generate_client_certificate webapi svc_users_webapp
+pem_to_pkcs12 webapi svc_users_webapp
 
 # User.WebApp
 generate_intermediate_certificate webapp
-generate_server_certificate webapi svc_user_webapp
+generate_server_certificate webapp svc_users_webapp
+pem_to_pkcs12 webapp svc_users_webapp

@@ -1,33 +1,5 @@
 #
-# Root certificate
-#
-
-[ v3_mtls_root ]
-basicConstraints       = critical, @v3_mtls_root_constraints
-subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always, issuer:always
-keyUsage               = critical, keyCertSign, cRLSign
-
-[ v3_mtls_root_constraints ]
-CA                     = true
-pathlen                = 1
-
-#
-# Intermediate certificate
-#
-
-[ v3_mtls_intermediate ]
-basicConstraints       = critical, @v3_mtls_intermediate_constraints
-subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always, issuer:always
-keyUsage               = critical, keyCertSign, cRLSign
-
-[ v3_mtls_intermediate_constraints ]
-CA                     = true
-pathlen                = 0
-
-#
-# Server certificates
+# PostgreSQL
 #
 
 [ v3_mtls_svc_postgres ]
@@ -43,6 +15,10 @@ IP.1                   = 127.0.0.1
 DNS.1                  = localhost
 DNS.2                  = postgres
 
+#
+# Kafka
+#
+
 [ v3_mtls_svc_kafka ]
 basicConstraints       = critical, @v3_mtls_common_basic_constraints
 subjectKeyIdentifier   = hash
@@ -55,6 +31,10 @@ subjectAltName         = @v3_mtls_svc_kafka_san
 IP.1                   = 127.0.0.1
 DNS.1                  = localhost
 DNS.2                  = kafka
+
+#
+# WebApi
+#
 
 [ v3_mtls_svc_jobs_webapi ]
 basicConstraints       = critical, @v3_mtls_common_basic_constraints
@@ -70,19 +50,18 @@ DNS.1                  = localhost
 DNS.2                  = webapi
 
 #
-# Clients certificates
+# WebApp
 #
 
-[ v3_mtls_client ]
+[ v3_mtls_svc_users_webapp ]
 basicConstraints       = critical, @v3_mtls_common_basic_constraints
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid:always, issuer:always
-keyUsage               = critical, digitalSignature, keyAgreement
-extendedKeyUsage       = critical, clientAuth
+keyUsage               = critical, digitalSignature, keyEncipherment, keyAgreement
+extendedKeyUsage       = critical, serverAuth
+subjectAltName         = @v3_mtls_svc_users_webapp_san
 
-#
-# Common
-#
-
-[ v3_mtls_common_basic_constraints ]
-CA                     = false
+[ v3_mtls_svc_users_webapp_san ]
+IP.1                   = 127.0.0.1
+DNS.1                  = localhost
+DNS.2                  = webapp
