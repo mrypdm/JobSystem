@@ -1,5 +1,5 @@
 using System;
-using Job.Contract;
+using Shared.Contract.Models;
 
 namespace Job.Database.Models;
 
@@ -41,7 +41,7 @@ public class JobDbModel
     /// <summary>
     /// Steps of Job
     /// </summary>
-    public byte[] Steps { get; set; }
+    public string[] Steps { get; set; }
 
     /// <summary>
     /// Results of Job

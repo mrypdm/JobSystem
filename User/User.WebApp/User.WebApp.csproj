@@ -10,4 +10,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUi" Version="9.0.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Shared.Contract\Shared.Contract.csproj" />
+    <ProjectReference Include="..\User.Database\User.Database.csproj" />
+  </ItemGroup>
+
 </Project>

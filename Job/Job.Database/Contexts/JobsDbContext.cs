@@ -1,18 +1,18 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Job.Contract;
 using Job.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Shared.Contract;
+using Shared.Contract.Models;
+using Shared.Contract.Options;
 
 namespace Job.Database.Contexts;
 
 /// <summary>
 /// Context for jobs
 /// </summary>
-public class JobDbContext(DbContextOptions options) : DbContext(options)
+public class JobsDbContext(DbContextOptions options) : DbContext(options)
 {
     /// <summary>
     /// Table of <see cref="JobDbModel"/>
@@ -69,7 +69,7 @@ public class JobDbContext(DbContextOptions options) : DbContext(options)
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobsDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
 

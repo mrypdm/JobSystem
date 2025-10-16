@@ -1,8 +1,9 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Shared.Contract;
+using Shared.Contract.Options;
 using User.Database.Models;
 
 namespace User.Database.Contexts;
@@ -60,6 +61,17 @@ public class UserDbContext(DbContextOptions options) : DbContext(options)
         return await Database
             .SqlQuery<UserJobDbModel>($"select * from exec f_users_get_user_jobs({username})")
             .ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// If Job belongs to user
+    /// </summary>
+    public async Task<bool> IsUserJobAsync(string username, Guid jobId, CancellationToken cancellationToken)
+    {
+        var res = await Database
+            .SqlQuery<int>($"select * from exec f_users_check_user_job({username}, {jobId})")
+            .SingleOrDefaultAsync(cancellationToken);
+        return res == 1;
     }
 
     /// <inheritdoc />

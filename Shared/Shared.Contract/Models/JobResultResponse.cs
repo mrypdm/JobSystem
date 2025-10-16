@@ -1,6 +1,6 @@
 using System;
 
-namespace Job.Contract;
+namespace Shared.Contract.Models;
 
 /// <summary>
 /// Results of job

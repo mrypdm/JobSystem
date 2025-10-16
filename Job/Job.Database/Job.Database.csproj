@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Shared.Contract\Shared.Contract.csproj" />
-    <ProjectReference Include="..\Job.Contract\Job.Contract.csproj" />
   </ItemGroup>
 
 </Project>

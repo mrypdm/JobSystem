@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Job.Broker;
 using Job.Broker.Options;
 using Job.Database.Contexts;
-using Job.WebApi;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -13,13 +12,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Shared.Contract;
+using Shared.Contract.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 var webServerOptions = builder.Configuration.GetSection("WebServerOptions").Get<WebServerOptions>();
-
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.ConfigureHttpsDefaults(httpsOptions =>
@@ -47,8 +45,6 @@ builder.Services
                 var claims = new[]
                 {
                     // TODO custom fields in certificate for authorization
-                    new Claim(ClaimTypes.NameIdentifier, context.ClientCertificate.Subject,
-                        ClaimValueTypes.String, context.ClientCertificate.Issuer),
                     new Claim(ClaimTypes.Name, context.ClientCertificate.Subject, ClaimValueTypes.String,
                         context.ClientCertificate.Issuer)
                 };
@@ -71,7 +67,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
-builder.Services.AddDbContext<JobDbContext>(options => options.UseNpgsql(JobDbContext.GetConnectionString(dbOptions)));
+builder.Services.AddDbContext<JobsDbContext>(options => options.UseNpgsql(JobsDbContext.GetConnectionString(dbOptions)));
 
 var producerOptions = builder.Configuration.GetSection("ProducerOptions").Get<ProducerOptions>();
 builder.Services.AddSingleton(producerOptions);

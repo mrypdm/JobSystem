@@ -1,9 +1,11 @@
-namespace Shared.Contract;
+using Shared.Contract.SslOptions;
+
+namespace Shared.Contract.Options;
 
 /// <summary>
 /// Options for connecting to database
 /// </summary>
-public class DatabaseOptions : CertificateOptions
+public class DatabaseOptions : PemCertificateOptions
 {
     /// <summary>
     /// Hostname of database

@@ -2,10 +2,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Job.Broker;
-using Job.Contract;
 using Job.Database.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Contract.Models;
 
 namespace Job.WebApi.Controllers;
 
@@ -14,7 +14,7 @@ namespace Job.WebApi.Controllers;
 /// </summary>
 [Authorize]
 [Route("api/jobs")]
-public class JobsController(JobDbContext jobDbContext, JobProducer jobProducer) : Controller
+public class JobsController(JobsDbContext jobDbContext, JobProducer jobProducer) : Controller
 {
     /// <summary>
     /// Add new job

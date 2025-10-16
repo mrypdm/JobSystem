@@ -1,13 +1,13 @@
 using System.Net;
 using System.Reflection;
-using Shared.Contract;
+using Shared.Contract.SslOptions;
 
 namespace Job.Broker.Options;
 
 /// <summary>
 /// Common options for Broker
 /// </summary>
-public class BrokerOptions : CertificateOptions
+public class BrokerOptions : PemCertificateOptions
 {
     /// <summary>
     /// Broker servers in format 'host:port'

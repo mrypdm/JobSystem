@@ -14,7 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Contract\Job.Contract.csproj" />
     <ProjectReference Include="..\Job.Broker\Job.Broker.csproj" />
-    <ProjectReference Include="..\Job.Contract\Job.Contract.csproj" />
     <ProjectReference Include="..\Job.Database\Job.Database.csproj" />
   </ItemGroup>
 

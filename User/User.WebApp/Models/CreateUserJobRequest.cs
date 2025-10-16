@@ -1,17 +1,12 @@
 using System;
 
-namespace Job.Contract;
+namespace User.WebApp.Models;
 
 /// <summary>
-/// Request for creating new Job
+/// Request to create user Job
 /// </summary>
-public class CreateJobRequest
+public class CreateUserJobRequest
 {
-    /// <summary>
-    /// Job Id
-    /// </summary>
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Timeout of Job
     /// </summary>
