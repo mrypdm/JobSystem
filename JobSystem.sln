@@ -13,13 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configs", "Configs", "{02EA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "User", "User", "{8D298B9C-A21A-46C3-A611-79137AC4A422}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.WebApp", "User\WebApp\User.WebApp.csproj", "{A4B80FEC-5825-89B6-2276-873776429D78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.WebApp", "User\User.WebApp\User.WebApp.csproj", "{A4B80FEC-5825-89B6-2276-873776429D78}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Job", "Job", "{135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi", "Job\WebApi\Job.WebApi.csproj", "{B6A6B8B4-0262-DD4F-3C4E-DA5406B58C3F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi", "Job\Job.WebApi\Job.WebApi.csproj", "{B6A6B8B4-0262-DD4F-3C4E-DA5406B58C3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker", "Job\Worker\Job.Worker.csproj", "{B8A9C944-B874-C8E8-F399-930156429D52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker", "Job\Job.Worker\Job.Worker.csproj", "{B8A9C944-B874-C8E8-F399-930156429D52}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{B44AB3AB-CEFF-4EBB-B935-17E849E1085D}"
 	ProjectSection(SolutionItems) = preProject
@@ -48,11 +48,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Broker", "Broker", "{D24A1E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{5A2B5FFB-59AD-4516-AC34-5F8E686BC94C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Contract", "Job\Contract\Job.Contract.csproj", "{45F196BF-23BC-4A59-842B-0ED680111BEE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Contract", "Job\Job.Contract\Job.Contract.csproj", "{45F196BF-23BC-4A59-842B-0ED680111BEE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Database", "Job\Job.Database\Job.Database.csproj", "{C8C6FC91-2146-4A98-AB1A-7272BB7A600A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Broker", "Job\Job.Broker\Job.Broker.csproj", "{88D1C89F-DB80-4E5D-95C3-7B514C230612}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Contract", "Shared\Shared.Contract\Shared.Contract.csproj", "{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +86,10 @@ Global
 		{88D1C89F-DB80-4E5D-95C3-7B514C230612}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88D1C89F-DB80-4E5D-95C3-7B514C230612}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88D1C89F-DB80-4E5D-95C3-7B514C230612}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +103,7 @@ Global
 		{45F196BF-23BC-4A59-842B-0ED680111BEE} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
 		{C8C6FC91-2146-4A98-AB1A-7272BB7A600A} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
 		{88D1C89F-DB80-4E5D-95C3-7B514C230612} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
+		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2} = {5A2B5FFB-59AD-4516-AC34-5F8E686BC94C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A09298-C745-4041-A133-65E3AF4E8E3E}
