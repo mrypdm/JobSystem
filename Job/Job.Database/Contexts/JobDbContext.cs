@@ -1,6 +1,7 @@
 using Job.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Shared.Contract;
 
 namespace Job.Database.Contexts;
 
@@ -32,11 +33,11 @@ public class JobDbContext(DbContextOptions options) : DbContext(options)
             Port = databaseOptions.Port,
             Database = databaseOptions.DatabaseName,
             SslMode = SslMode.VerifyFull,
-            Username = databaseOptions.CertificateOptions.UserName,
-            RootCertificate = databaseOptions.CertificateOptions.TruststoreFilePath,
-            SslCertificate = databaseOptions.CertificateOptions.CertificateFilePath,
-            SslKey = databaseOptions.CertificateOptions.KeyFilePath,
-            SslPassword = databaseOptions.CertificateOptions.Password,
+            Username = databaseOptions.UserName,
+            RootCertificate = databaseOptions.TruststoreFilePath,
+            SslCertificate = databaseOptions.CertificateFilePath,
+            SslKey = databaseOptions.KeyFilePath,
+            SslPassword = databaseOptions.Password,
         }.ConnectionString;
     }
 }
