@@ -25,7 +25,7 @@ public class JobsDbContext(DbContextOptions options) : DbContext(options)
     public async Task AddNewJobAsync(CreateJobRequest job, CancellationToken cancellationToken)
     {
         await Database
-            .ExecuteSqlAsync($"call p_jobs_add_new({job.Id}, {job.Timeout}, {job.Steps})", cancellationToken);
+            .ExecuteSqlAsync($"call p_jobs_add_new({job.Id}, {job.Timeout}, {job.Script})", cancellationToken);
     }
 
     /// <summary>

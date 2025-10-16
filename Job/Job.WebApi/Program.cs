@@ -78,9 +78,9 @@ var app = builder.Build();
 app
     .UseHsts()
     .UseHttpsRedirection()
+    .UseRouting()
     .UseAuthentication()
-    .UseAuthorization()
-    .UseRouting();
+    .UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {

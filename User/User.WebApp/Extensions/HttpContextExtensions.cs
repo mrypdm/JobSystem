@@ -54,4 +54,12 @@ public static class HttpContextExtensions
 
         return context.Connection.RemoteIpAddress?.ToString();
     }
+
+    /// <summary>
+    /// Get name of current user
+    /// </summary>
+    public static string GetUserName(this HttpContext context)
+    {
+        return context.User.Claims.Single(m => m.Type == ClaimTypes.Name).Value;
+    }
 }

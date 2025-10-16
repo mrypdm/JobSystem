@@ -1,5 +1,11 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using User.Database.Contexts;
+using User.WebApp.Extensions;
+using User.WebApp.Views.Jobs;
 
 namespace User.WebApp.Controllers;
 
@@ -8,14 +14,34 @@ namespace User.WebApp.Controllers;
 /// </summary>
 [Authorize]
 [Route("")]
-public class JobsController : Controller
+public class JobsController(UserDbContext userDbContext) : Controller
 {
     /// <summary>
-    /// Get generator view
+    /// Get common view with all jobs
     /// </summary>
     [HttpGet]
-    public ActionResult GetView()
+    public async Task<ActionResult> GetViewAsync(CancellationToken cancellationToken)
     {
-        return View("Jobs");
+        var username = HttpContext.GetUserName();
+        var userJobs = await userDbContext.GetUserJobsAsync(username, cancellationToken);
+        return View("Index", new IndexModel(userJobs));
+    }
+
+    /// <summary>
+    /// Get view with job results
+    /// </summary>
+    [HttpGet("jobs/{jobId}")]
+    public ActionResult GetJobResultsView([FromRoute] Guid jobId)
+    {
+        return View("JobResults", new JobResultsModel(jobId));
+    }
+
+    /// <summary>
+    /// Get view for Job creation
+    /// </summary>
+    [HttpGet("jobs/create")]
+    public ActionResult GetJobCreateView()
+    {
+        return View("JobCreation");
     }
 }

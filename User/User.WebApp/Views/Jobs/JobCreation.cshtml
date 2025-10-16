@@ -1,0 +1,13 @@
+@using User.WebApp.Views.Jobs;
+@using User.WebApp.Models;
+@model CreateUserJobRequest;
+
+@{
+    ViewData["Title"] = $"Jobs - Create";
+}
+
+<form method="post" enctype="multipart/form-data" action="api/jobs" asp-antiforgery="true">
+    <input asp-for="Script" />
+    <input asp-for="Timeout" placeholder="Timeout" />
+    <input type="submit" value="Upload" />
+</form>

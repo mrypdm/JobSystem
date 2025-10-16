@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS pgdbo."Jobs"
     "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
     "StartedAt" timestamp with time zone,
     "FinishedAt" timestamp with time zone,
-    "Steps" text[] COLLATE pg_catalog."default" NOT NULL,
+    "Script" text NOT NULL,
     "Results" bytea,
     CONSTRAINT "PK_JOBS_ID" PRIMARY KEY ("Id"),
     CONSTRAINT "CT_RESULTS_LESS_THAN_500MB" CHECK (octet_length("Results") <= (50 * 1024 * 1024))
@@ -70,12 +70,12 @@ ALTER TABLE IF EXISTS pgdbo."Jobs" OWNER to pg_database_owner;
 --
 
 -- Adding new Jobs
-CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_add_new(IN job_id uuid, IN timeout time without time zone, IN steps text[])
+CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_add_new(IN job_id uuid, IN timeout time without time zone, IN script text)
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
-    INSERT INTO pgdbo."Jobs" ("Id", "Timeout", "Steps")
-    VALUES (job_id, timeout, steps)
+    INSERT INTO pgdbo."Jobs" ("Id", "Timeout", "Script")
+    VALUES (job_id, timeout, script)
 $BODY$;
 
 ALTER PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) OWNER TO pg_database_owner;
@@ -105,11 +105,11 @@ GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO svc_jobs_webapi;
 
 -- Getting new Jobs
 CREATE OR REPLACE FUNCTION pgdbo.f_jobs_get_new(job_id uuid)
-RETURNS TABLE(id uuid, timeout time without time zone, steps text[])
+RETURNS TABLE(Id uuid, Timeout time without time zone, Script text)
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
-    SELECT "Id", "Timeout", "Steps"
+    SELECT "Id", "Timeout", "Script"
     FROM pgdbo."Jobs"
     WHERE "Id" = job_id
 $BODY$;

@@ -46,20 +46,20 @@ public class UserDbContext(DbContextOptions options) : DbContext(options)
     /// <summary>
     /// Add new user job
     /// </summary>
-    public async Task AddNewUserJobAsync(UserJobDbModel job, CancellationToken cancellationToken)
+    public async Task AddNewUserJobAsync(string username, Guid jobId, CancellationToken cancellationToken)
     {
         await Database.ExecuteSqlAsync(
-            $"exec p_users_add_new_job({job.Username}, {job.JobId})",
+            $"exec p_users_add_new_job({username}, {jobId})",
             cancellationToken);
     }
 
     /// <summary>
     /// Get all user jobs
     /// </summary>
-    public async Task<UserJobDbModel[]> GetUserJobsAsync(string username, CancellationToken cancellationToken)
+    public async Task<Guid[]> GetUserJobsAsync(string username, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<UserJobDbModel>($"select * from exec f_users_get_user_jobs({username})")
+            .SqlQuery<Guid>($"select * from exec f_users_get_user_jobs({username})")
             .ToArrayAsync(cancellationToken);
     }
 

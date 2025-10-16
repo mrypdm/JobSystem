@@ -1,0 +1,28 @@
+@using User.WebApp.Views.Jobs;
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Jobs";
+}
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+    </tr>
+
+@foreach (var jobId in Model.JobIds)
+{
+    <tr>
+        <td>@(jobId)</td>
+        <td>
+            <input
+                style="width: auto"
+                type="button"
+                value="View Results"
+                onclick="location.replace('/jobs/@(jobId)')" />
+        </td>
+    </tr>
+}
+
+</table>

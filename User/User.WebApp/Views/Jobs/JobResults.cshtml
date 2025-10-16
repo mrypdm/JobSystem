@@ -1,0 +1,19 @@
+@using User.WebApp.Views.Jobs;
+@model JobResultsModel
+
+@{
+    ViewData["Title"] = $"Jobs - {Model.JobId}";
+}
+
+<table id="job-results-table">
+    <tr>
+        <th>Status</th>
+        <th>Started At</th>
+        <th>Finished At</th>
+        <th>Results</th>
+    </tr>
+</table>
+
+<script>
+    onload = async () => { await getResults('@(Model.JobId)'); };
+</script>

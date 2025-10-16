@@ -39,9 +39,9 @@ public class JobDbModel
     public TimeSpan Timeout { get; set; }
 
     /// <summary>
-    /// Steps of Job
+    /// Script of Job
     /// </summary>
-    public string[] Steps { get; set; }
+    public string Script { get; set; }
 
     /// <summary>
     /// Results of Job

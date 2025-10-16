@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace User.WebApp.Models;
 
@@ -13,7 +14,7 @@ public class CreateUserJobRequest
     public TimeSpan Timeout { get; set; }
 
     /// <summary>
-    /// Steps of Job
+    /// Script of Job
     /// </summary>
-    public string[] Steps { get; set; }
+    public IFormFile Script { get; set; }
 }

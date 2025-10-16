@@ -1,15 +1,16 @@
 using System;
-using System.Linq;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Contract.Models;
 using User.Database.Contexts;
-using User.Database.Models;
+using User.WebApp.Extensions;
 using User.WebApp.Models;
 
 namespace User.WebApp.Controllers.Api;
@@ -29,33 +30,18 @@ public class JobsApiController(UserDbContext userDbContext, HttpClient jobApiCli
     [HttpPost]
     public async Task<IActionResult> CreateNewJobAsync(CreateUserJobRequest request, CancellationToken cancellationToken)
     {
-        var username = HttpContext.User.Claims.Single(m => m.Type == ClaimTypes.Name).Value;
+        var username = HttpContext.GetUserName();
         var jobId = Guid.NewGuid();
 
-        await userDbContext.AddNewUserJobAsync(new UserJobDbModel
-        {
-            Username = username,
-            JobId = jobId,
-        }, cancellationToken);
-
+        await userDbContext.AddNewUserJobAsync(username, jobId, cancellationToken);
         await jobApiClient.PostAsJsonAsync("api/jobs", new CreateJobRequest
         {
             Id = jobId,
             Timeout = request.Timeout,
-            Steps = request.Steps
+            Script = await ReadFileAsBase64(request.Script, cancellationToken)
         }, cancellationToken);
 
         return CreatedAtRoute("GetJobResult", jobId, request);
-    }
-
-    /// <summary>
-    /// Get all user Jobs
-    /// </summary>
-    [HttpGet]
-    public async Task<ActionResult<UserJobDbModel[]>> GetUserJobsAsync(CancellationToken cancellationToken)
-    {
-        var username = HttpContext.User.Claims.Single(m => m.Type == ClaimTypes.Name).Value;
-        return await userDbContext.GetUserJobsAsync(username, cancellationToken);
     }
 
     /// <summary>
@@ -65,8 +51,20 @@ public class JobsApiController(UserDbContext userDbContext, HttpClient jobApiCli
     public async Task<ActionResult<JobResultResponse>> GetUserJobResults([FromRoute] Guid jobId,
         CancellationToken cancellationToken)
     {
-        var username = HttpContext.User.Claims.Single(m => m.Type == ClaimTypes.Name).Value;
+        var username = HttpContext.GetUserName();
         var isUserJob = await userDbContext.IsUserJobAsync(username, jobId, cancellationToken);
+        if (!isUserJob)
+        {
+            return StatusCode(404, "Wrong Job");
+        }
+
         return await jobApiClient.GetFromJsonAsync<JobResultResponse>($"api/jobs/{jobId}", cancellationToken);
+    }
+
+    private static async Task<string> ReadFileAsBase64(IFormFile file, CancellationToken cancellationToken)
+    {
+        using var base64Stream = new CryptoStream(file.OpenReadStream(), new ToBase64Transform(), CryptoStreamMode.Read);
+        using var streamReader = new StreamReader(base64Stream);
+        return await streamReader.ReadToEndAsync(cancellationToken);
     }
 }
