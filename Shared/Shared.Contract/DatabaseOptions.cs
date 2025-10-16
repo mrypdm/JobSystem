@@ -1,9 +1,9 @@
-namespace Job.Database.Contexts;
+namespace Shared.Contract;
 
 /// <summary>
 /// Options for connecting to database
 /// </summary>
-public class DatabaseOptions
+public class DatabaseOptions : CertificateOptions
 {
     /// <summary>
     /// Hostname of database
@@ -19,9 +19,4 @@ public class DatabaseOptions
     /// Name of database
     /// </summary>
     public string DatabaseName { get; set; }
-
-    /// <summary>
-    /// Certificate options of client and database for secure and authenticated connection
-    /// </summary>
-    public PostgreCertificateOptions CertificateOptions { get; set; }
 }

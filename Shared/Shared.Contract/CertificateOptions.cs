@@ -1,19 +1,19 @@
-namespace Job.Database.Contexts;
+namespace Shared.Contract;
 
 /// <summary>
-/// Options for mTLS authentication for PostgreSQL
+/// Options for mTLS authentication
 /// </summary>
-public class PostgreCertificateOptions
+public class CertificateOptions
 {
-    /// <summary>
-    /// Path to truststore in PEM format
-    /// </summary>
-    public string TruststoreFilePath { get; set; }
-
     /// <summary>
     /// Username of client
     /// </summary>
     public string UserName { get; set; }
+
+    /// <summary>
+    /// Path to truststore in PEM format
+    /// </summary>
+    public string TruststoreFilePath { get; set; }
 
     /// <summary>
     /// Path to client certificate in PEM format
