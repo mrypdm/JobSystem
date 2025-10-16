@@ -23,8 +23,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker", "Job\Job.Worke
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{B44AB3AB-CEFF-4EBB-B935-17E849E1085D}"
 	ProjectSection(SolutionItems) = preProject
+		Certificates\clients.cnf = Certificates\clients.cnf
 		Certificates\generate.sh = Certificates\generate.sh
-		Certificates\openssl.cnf = Certificates\openssl.cnf
+		Certificates\common.cnf = Certificates\common.cnf
+		Certificates\root.cnf = Certificates\root.cnf
+		Certificates\servers.cnf = Certificates\servers.cnf
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{76A4D5B4-E733-4543-83A5-5BCB40A5F628}"
@@ -55,6 +58,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Broker", "Job\Job.Broker\Job.Broker.csproj", "{88D1C89F-DB80-4E5D-95C3-7B514C230612}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Contract", "Shared\Shared.Contract\Shared.Contract.csproj", "{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Database", "User\User.Database\User.Database.csproj", "{B0E0120C-C496-4CDC-A69C-21AA141B965C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,6 +95,10 @@ Global
 		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0E0120C-C496-4CDC-A69C-21AA141B965C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0E0120C-C496-4CDC-A69C-21AA141B965C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0E0120C-C496-4CDC-A69C-21AA141B965C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0E0120C-C496-4CDC-A69C-21AA141B965C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +113,7 @@ Global
 		{C8C6FC91-2146-4A98-AB1A-7272BB7A600A} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
 		{88D1C89F-DB80-4E5D-95C3-7B514C230612} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
 		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2} = {5A2B5FFB-59AD-4516-AC34-5F8E686BC94C}
+		{B0E0120C-C496-4CDC-A69C-21AA141B965C} = {8D298B9C-A21A-46C3-A611-79137AC4A422}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A09298-C745-4041-A133-65E3AF4E8E3E}
