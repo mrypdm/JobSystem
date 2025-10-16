@@ -11,6 +11,13 @@
 *.jks
 *.p12
 
+# Docker data Directories
+
+Tools/Database/pgadmin/
+Tools/Database/postgres/
+Tools/Broker/kafka/
+Tools/Broker/kafka-ui/
+
 # dotenv files
 .env
 

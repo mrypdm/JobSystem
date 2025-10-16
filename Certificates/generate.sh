@@ -213,27 +213,31 @@ function pem_to_pkcs12() {
 rm -rf kafka postgres webapi root
 
 generate_root_certificate
+
+# PostgreSQL
 generate_intermediate_certificate postgres
-generate_intermediate_certificate kafka
-generate_intermediate_certificate webapi
-
 create_pem_truststore postgres
-create_pkcs12_truststore kafka
-create_pkcs12_truststore webapi
-
 generate_server_certificate postgres svc_postgres
+generate_client_certificate postgres superuser
+generate_client_certificate postgres svc_jobs_webapi
+generate_client_certificate postgres svc_jobs_worker
 
+# Kafka
+generate_intermediate_certificate kafka
+create_pkcs12_truststore kafka
+create_pem_truststore kafka
 generate_server_certificate kafka svc_kafka
+generate_client_certificate kafka superuser
+generate_client_certificate kafka svc_jobs_webapi
+generate_client_certificate kafka svc_jobs_worker
 pem_to_pkcs12 kafka svc_kafka
+pem_to_pkcs12 kafka superuser
+pem_to_pkcs12 kafka svc_jobs_webapi
+pem_to_pkcs12 kafka svc_jobs_worker
 
+# Jobs.WebApi
+generate_intermediate_certificate webapi
 generate_server_certificate webapi svc_jobs_webapi
 pem_to_pkcs12 webapi svc_jobs_webapi
-
-generate_client_certificate postgres superuser
-pem_to_pkcs12 postgres superuser
-
-generate_client_certificate kafka superuser
-pem_to_pkcs12 kafka superuser
-
 generate_client_certificate webapi superuser
 pem_to_pkcs12 webapi superuser

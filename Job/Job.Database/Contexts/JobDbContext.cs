@@ -25,7 +25,7 @@ public class JobDbContext(DbContextOptions options) : DbContext(options)
     public async Task AddNewJobAsync(CreateJobRequest job, CancellationToken cancellationToken)
     {
         await Database
-            .ExecuteSqlAsync($"exec p_jobs_addnew {job.Id} {job.Timeout} {job.Steps}", cancellationToken);
+            .ExecuteSqlAsync($"call p_jobs_add_new({job.Id}, {job.Timeout}, {job.Steps})", cancellationToken);
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ public class JobDbContext(DbContextOptions options) : DbContext(options)
     public async Task<CreateJobRequest> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<CreateJobRequest>($"exec p_jobs_getnew {jobId}")
+            .SqlQuery<CreateJobRequest>($"select * from f_jobs_get_new({jobId})")
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -44,7 +44,7 @@ public class JobDbContext(DbContextOptions options) : DbContext(options)
     public async Task SetJobRunningAsync(Guid jobId, CancellationToken cancellationToken)
     {
         await Database
-            .ExecuteSqlAsync($"exec p_jobs_setrunning {jobId}", cancellationToken);
+            .ExecuteSqlAsync($"call p_jobs_set_running({jobId})", cancellationToken);
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public class JobDbContext(DbContextOptions options) : DbContext(options)
     public async Task SetJobResultsAsync(Guid jobId, JobStatus jobStatus, byte[] results, CancellationToken cancellationToken)
     {
         await Database
-            .ExecuteSqlAsync($"exec p_jobs_setresults {jobId} {jobStatus} {results}", cancellationToken);
+            .ExecuteSqlAsync($"call p_jobs_set_results({jobId}, {jobStatus}, {results})", cancellationToken);
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class JobDbContext(DbContextOptions options) : DbContext(options)
     public async Task<JobResultResponse> GetJobResults(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<JobResultResponse>($"exec p_jobs_getresults {jobId}")
+            .SqlQuery<JobResultResponse>($"select * from f_jobs_get_results({jobId})")
             .SingleOrDefaultAsync(cancellationToken);
     }
 
