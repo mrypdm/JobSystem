@@ -32,6 +32,7 @@ public sealed class JobProducer : IDisposable
             SslCertificateLocation = options.CertificateFilePath,
             SslKeyLocation = options.KeyFilePath,
             SslKeyPassword = options.Password,
+            SslCrlLocation = options.RevocationListFilePath,
 
             EnableDeliveryReports = true,
             DeliveryReportFields = "key",

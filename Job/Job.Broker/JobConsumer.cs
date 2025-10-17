@@ -29,6 +29,7 @@ public sealed class JobConsumer : IDisposable
             SslCertificateLocation = options.CertificateFilePath,
             SslKeyLocation = options.KeyFilePath,
             SslKeyPassword = options.Password,
+            SslCrlLocation = options.RevocationListFilePath,
 
             EnableAutoCommit = false,
             AutoOffsetReset = AutoOffsetReset.Earliest,
