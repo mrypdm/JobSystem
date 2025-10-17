@@ -57,6 +57,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Contract", "Shared\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Database", "User\User.Database\User.Database.csproj", "{B0E0120C-C496-4CDC-A69C-21AA141B965C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Database", "Shared\Shared.Database\Shared.Database.csproj", "{03DC5887-8B96-4886-8B5C-EBDB77FB0321}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{B0E0120C-C496-4CDC-A69C-21AA141B965C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0E0120C-C496-4CDC-A69C-21AA141B965C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0E0120C-C496-4CDC-A69C-21AA141B965C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03DC5887-8B96-4886-8B5C-EBDB77FB0321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03DC5887-8B96-4886-8B5C-EBDB77FB0321}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03DC5887-8B96-4886-8B5C-EBDB77FB0321}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03DC5887-8B96-4886-8B5C-EBDB77FB0321}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -105,6 +111,7 @@ Global
 		{88D1C89F-DB80-4E5D-95C3-7B514C230612} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
 		{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2} = {5A2B5FFB-59AD-4516-AC34-5F8E686BC94C}
 		{B0E0120C-C496-4CDC-A69C-21AA141B965C} = {8D298B9C-A21A-46C3-A611-79137AC4A422}
+		{03DC5887-8B96-4886-8B5C-EBDB77FB0321} = {5A2B5FFB-59AD-4516-AC34-5F8E686BC94C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A09298-C745-4041-A133-65E3AF4E8E3E}

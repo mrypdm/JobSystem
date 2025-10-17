@@ -1,11 +1,11 @@
 using Shared.Contract.SslOptions;
 
-namespace Shared.Contract.Options;
+namespace Shared.Database;
 
 /// <summary>
 /// Options for connecting to database
 /// </summary>
-public class DatabaseOptions : PemCertificateOptions
+public class DatabaseOptions : Pkcs12CertificateOptions
 {
     /// <summary>
     /// Hostname of database

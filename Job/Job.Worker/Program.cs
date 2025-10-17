@@ -3,16 +3,15 @@ using Job.Broker.Options;
 using Job.Database.Contexts;
 using Job.Worker.Options;
 using Job.Worker.Workers;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Shared.Contract.Options;
+using Shared.Database;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
-builder.Services.AddDbContext<JobsDbContext>(options => options.UseNpgsql(JobsDbContext.GetConnectionString(dbOptions)));
+builder.Services.AddDbContext<JobsDbContext>(options => JobsDbContext.BuildOptions(options, dbOptions));
 
 var consumerOptions = builder.Configuration.GetSection("ConsumerOptions").Get<ConsumerOptions>();
 builder.Services.AddSingleton(consumerOptions);

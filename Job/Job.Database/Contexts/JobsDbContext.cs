@@ -4,16 +4,15 @@ using System.Threading.Tasks;
 using Job.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Npgsql;
 using Shared.Contract.Models;
-using Shared.Contract.Options;
+using Shared.Database;
 
 namespace Job.Database.Contexts;
 
 /// <summary>
 /// Context for jobs
 /// </summary>
-public class JobsDbContext(DbContextOptions options, ILogger<JobsDbContext> logger) : DbContext(options)
+public class JobsDbContext(DbContextOptions options, ILogger<JobsDbContext> logger) : PostgreDbContext(options)
 {
     /// <summary>
     /// Table of <see cref="JobDbModel"/>
@@ -75,24 +74,5 @@ public class JobsDbContext(DbContextOptions options, ILogger<JobsDbContext> logg
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobsDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
-    }
-
-    /// <summary>
-    /// Create connection string for database
-    /// </summary>
-    public static string GetConnectionString(DatabaseOptions databaseOptions)
-    {
-        return new NpgsqlConnectionStringBuilder
-        {
-            Host = databaseOptions.HostName,
-            Port = databaseOptions.Port,
-            Database = databaseOptions.DatabaseName,
-            SslMode = SslMode.VerifyFull,
-            Username = databaseOptions.UserName,
-            RootCertificate = databaseOptions.TruststoreFilePath,
-            SslCertificate = databaseOptions.CertificateFilePath,
-            SslKey = databaseOptions.KeyFilePath,
-            SslPassword = databaseOptions.Password,
-        }.ConnectionString;
     }
 }

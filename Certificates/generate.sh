@@ -155,6 +155,10 @@ generate_client_certificate "svc_jobs_webapi@postgres"
 generate_client_certificate "svc_jobs_worker@postgres"
 generate_client_certificate "svc_users_webapp@postgres"
 generate_client_certificate "superuser@postgres"
+create_pkcs12_keystore "svc_jobs_webapi@postgres"
+create_pkcs12_keystore "svc_jobs_worker@postgres"
+create_pkcs12_keystore "svc_users_webapp@postgres"
+create_pkcs12_keystore "superuser@postgres"
 
 # Kafka
 create_pem_truststore "svc_kafka"

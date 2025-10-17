@@ -1,25 +1,32 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shared.Contract.Options;
+using Shared.Database;
 using User.Database.Contexts;
 using User.WebApp.Extensions;
 using User.WebApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddOpenApi();
+builder.Services
+    .AddEndpointsApiExplorer()
+    .AddSwaggerGen(opt =>
+    {
+        opt.IncludeXmlComments(
+            Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+    });
 
 var webServerOptions = builder.Configuration.GetSection("WebServerOptions").Get<WebServerOptions>();
 builder.Services.Configure<KestrelServerOptions>(options =>
@@ -61,7 +68,7 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
-builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(UserDbContext.GetConnectionString(dbOptions)));
+builder.Services.AddDbContext<UserDbContext>(options => UserDbContext.BuildOptions(options, dbOptions));
 
 var certificateCache = new MemoryCache(new MemoryCacheOptions() { ExpirationScanFrequency = TimeSpan.FromMinutes(15) });
 var jobWebApiOptions = builder.Configuration.GetSection("JobWebApiOptions").Get<JobWebApiOptions>();
@@ -99,30 +106,30 @@ builder.Services
         opt.HeaderName = "X-CSRF-TOKEN";
     });
 
-var app = builder.Build();
+var application = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+if (!application.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    application.UseExceptionHandler("/Home/Error");
 }
 
-app
+application
     .UseHsts()
     .UseHttpsRedirection()
     .UseRouting()
     .UseAuthentication()
-    .UseAuthorization();
+.UseAuthorization();
 
-if (app.Environment.IsDevelopment())
+if (application.Environment.IsDevelopment())
 {
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/openapi/v1.json", "v1");
-    });
-    app.MapOpenApi();
+    application
+    .UseSwagger()
+        .UseSwaggerUI();
+    application
+        .MapSwagger();
 }
 
-app.MapStaticAssets();
-app.MapControllers().WithStaticAssets();
+application.MapStaticAssets();
+application.MapControllers().WithStaticAssets();
 
-app.Run();
+application.Run();

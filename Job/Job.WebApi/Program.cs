@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Reflection;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -9,14 +11,20 @@ using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shared.Contract.Options;
+using Shared.Database;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddOpenApi();
+builder.Services
+    .AddEndpointsApiExplorer()
+    .AddSwaggerGen(opt =>
+    {
+        opt.IncludeXmlComments(
+            Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+    });
 
 var webServerOptions = builder.Configuration.GetSection("WebServerOptions").Get<WebServerOptions>();
 builder.Services.Configure<KestrelServerOptions>(options =>
@@ -73,30 +81,30 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
-builder.Services.AddDbContext<JobsDbContext>(options => options.UseNpgsql(JobsDbContext.GetConnectionString(dbOptions)));
+builder.Services.AddDbContext<JobsDbContext>(options => JobsDbContext.BuildOptions(options, dbOptions));
 
 var producerOptions = builder.Configuration.GetSection("ProducerOptions").Get<ProducerOptions>();
 builder.Services.AddSingleton(producerOptions);
 builder.Services.AddSingleton<JobProducer>();
 
-var app = builder.Build();
+var application = builder.Build();
 
-app
+application
     .UseHsts()
     .UseHttpsRedirection()
     .UseRouting()
     .UseAuthentication()
     .UseAuthorization();
 
-if (app.Environment.IsDevelopment())
+if (application.Environment.IsDevelopment())
 {
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/openapi/v1.json", "v1");
-    });
-    app.MapOpenApi();
+    application
+        .UseSwagger()
+        .UseSwaggerUI();
+    application
+        .MapSwagger();
 }
 
-app.MapControllers();
+application.MapControllers();
 
-app.Run();
+application.Run();

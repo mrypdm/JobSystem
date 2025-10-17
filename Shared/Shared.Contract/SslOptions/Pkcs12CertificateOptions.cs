@@ -41,6 +41,11 @@ public class Pkcs12CertificateOptions : CertificateOptions
     public X509Certificate2 Certificate => _certificateChain.Value.First();
 
     /// <summary>
+    /// Get common name (username) from certificate
+    /// </summary>
+    public string CommonName => Certificate.GetNameInfo(X509NameType.SimpleName, forIssuer: false);
+
+    /// <summary>
     /// Validates certificate with chain
     /// </summary>
     public bool ValidateCertificate(X509Certificate2 certificate)
