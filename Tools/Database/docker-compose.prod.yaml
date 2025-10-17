@@ -8,6 +8,7 @@ services:
         -c ssl_cert_file=/etc/postgres-config/svc_postgres.crt
         -c ssl_key_file=/etc/postgres-config/svc_postgres.key
         -c ssl_ca_file=/etc/postgres-config/svc_postgres.truststore.pem
+        -c ssl_crl_file=/etc/postgres-config/crl.pem
         -c ssl_passphrase_command='cat /etc/postgres-config/pass.txt'
         -c hba_file=/etc/postgres-config/pg_hba.conf
         -c logging_collector=on

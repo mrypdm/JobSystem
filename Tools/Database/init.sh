@@ -15,6 +15,7 @@ mkdir -p postgres/config
 
 cp pg_hba.conf postgres/config/
 cp ../../Certificates/certs/svc_postgres/* postgres/config/
+cp ../../Certificates/root/crl.pem              postgres/config/
 echo "$1" > postgres/config/pass.txt
 
 sudo chmod 700 postgres
