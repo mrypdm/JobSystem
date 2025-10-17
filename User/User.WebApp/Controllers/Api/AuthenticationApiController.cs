@@ -21,7 +21,6 @@ namespace User.WebApp.Controllers.Api;
 [AllowAnonymous]
 [Route("api/auth")]
 [ValidateAntiForgeryToken]
-[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public class AuthenticationApiController(UserDbContext userDbContext, WebServerOptions webServerOptions) : Controller
 {
     /// <summary>

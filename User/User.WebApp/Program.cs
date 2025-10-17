@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -62,6 +63,7 @@ builder.Services.AddAuthorization();
 var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
 builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(UserDbContext.GetConnectionString(dbOptions)));
 
+var certificateCache = new MemoryCache(new MemoryCacheOptions() { ExpirationScanFrequency = TimeSpan.FromMinutes(15) });
 var jobWebApiOptions = builder.Configuration.GetSection("JobWebApiOptions").Get<JobWebApiOptions>();
 builder.Services
     .AddHttpClient("Job.WebApi", options =>
@@ -70,17 +72,24 @@ builder.Services
     })
     .ConfigurePrimaryHttpMessageHandler(() =>
     {
-        var handler = new HttpClientHandler();
-        handler.ClientCertificates.Add(jobWebApiOptions.Certificate);
-        handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-        handler.CheckCertificateRevocationList = false; // TODO CRL
-        handler.ServerCertificateCustomValidationCallback = (message, cert, chain, policy) =>
+        var handler = new HttpClientHandler()
         {
-            return jobWebApiOptions.ValidateCertificate(cert);
+            ClientCertificateOptions = ClientCertificateOption.Manual,
+            CheckCertificateRevocationList = false, // TODO CRL
+            ServerCertificateCustomValidationCallback = (message, cert, chain, policy) =>
+            {
+                return certificateCache.GetOrCreate(cert.Thumbprint, enty =>
+                {
+                    var result = jobWebApiOptions.ValidateCertificate(cert);
+                    enty.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
+                    enty.Value = result;
+                    return result;
+                });
+            }
         };
-
+        handler.ClientCertificates.Add(jobWebApiOptions.Certificate);
         return handler;
-    }); ;
+    });
 
 builder.Services.AddControllersWithViews();
 

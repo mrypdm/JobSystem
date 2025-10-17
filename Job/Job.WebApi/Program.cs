@@ -1,3 +1,4 @@
+using System;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -61,6 +62,11 @@ builder.Services
                 return Task.CompletedTask;
             }
         };
+    })
+    .AddCertificateCache(options =>
+    {
+        options.CacheEntryExpiration = TimeSpan.FromMinutes(15);
+        options.CacheSize = 100;
     });
 builder.Services.AddAuthorization();
 

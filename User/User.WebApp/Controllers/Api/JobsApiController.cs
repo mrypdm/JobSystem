@@ -21,8 +21,7 @@ namespace User.WebApp.Controllers.Api;
 [Authorize]
 [Route("api/jobs")]
 [ValidateAntiForgeryToken]
-[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-public class JobsApiController(UserDbContext userDbContext, HttpClient jobApiClient) : Controller
+public class JobsApiController(UserDbContext userDbContext, IHttpClientFactory httpClientFactory) : Controller
 {
     /// <summary>
     /// Create new user Job
@@ -34,7 +33,7 @@ public class JobsApiController(UserDbContext userDbContext, HttpClient jobApiCli
         var jobId = Guid.NewGuid();
 
         await userDbContext.AddNewUserJobAsync(username, jobId, cancellationToken);
-        await jobApiClient.PostAsJsonAsync("api/jobs", new CreateJobRequest
+        await GetJobWebApiClient().PostAsJsonAsync("api/jobs", new CreateJobRequest
         {
             Id = jobId,
             Timeout = request.Timeout,
@@ -58,7 +57,7 @@ public class JobsApiController(UserDbContext userDbContext, HttpClient jobApiCli
             return StatusCode(404, "Wrong Job");
         }
 
-        return await jobApiClient.GetFromJsonAsync<JobResultResponse>($"api/jobs/{jobId}", cancellationToken);
+        return await GetJobWebApiClient().GetFromJsonAsync<JobResultResponse>($"api/jobs/{jobId}", cancellationToken);
     }
 
     private static async Task<string> ReadFileAsBase64(IFormFile file, CancellationToken cancellationToken)
@@ -66,5 +65,10 @@ public class JobsApiController(UserDbContext userDbContext, HttpClient jobApiCli
         using var base64Stream = new CryptoStream(file.OpenReadStream(), new ToBase64Transform(), CryptoStreamMode.Read);
         using var streamReader = new StreamReader(base64Stream);
         return await streamReader.ReadToEndAsync(cancellationToken);
+    }
+
+    private HttpClient GetJobWebApiClient()
+    {
+        return httpClientFactory.CreateClient("Job.WebApi");
     }
 }
