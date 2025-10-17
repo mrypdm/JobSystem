@@ -5,6 +5,7 @@ using Job.Broker;
 using Job.Database.Contexts;
 using Job.Worker.Models;
 using Job.Worker.Options;
+using Job.Worker.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

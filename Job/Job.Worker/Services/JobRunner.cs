@@ -12,7 +12,7 @@ using Job.Worker.Options;
 using Microsoft.Extensions.Logging;
 using Shared.Contract.Models;
 
-namespace Job.Worker.Workers;
+namespace Job.Worker.Services;
 
 /// <summary>
 /// Runner of Jobs
