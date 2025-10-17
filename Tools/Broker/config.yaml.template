@@ -8,10 +8,10 @@ kafka:
     properties:
       security.protocol: SSL
       ssl.keystore.password: <PASSWORD>
-      ssl.keystore.location: /etc/kafkaui/secrets/superuser.p12
+      ssl.keystore.location: /etc/kafkaui/secrets/superuser@kafka.keystore.p12
     readOnly: false
     ssl:
-      truststoreLocation: /etc/kafkaui/secrets/kafka.p12
+      truststoreLocation: /etc/kafkaui/secrets/svc_kafka.truststore.p12
       truststorePassword: <PASSWORD>
 
 rbac:

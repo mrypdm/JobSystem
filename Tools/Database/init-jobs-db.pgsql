@@ -1,7 +1,7 @@
 --
 -- Creating users
 --
-CREATE ROLE svc_jobs_webapi WITH
+CREATE ROLE "svc_jobs_webapi@postgres" WITH
     LOGIN
     NOSUPERUSER
     NOINHERIT
@@ -9,7 +9,7 @@ CREATE ROLE svc_jobs_webapi WITH
     NOCREATEROLE
     NOREPLICATION
     NOBYPASSRLS;
-CREATE ROLE svc_jobs_worker WITH
+CREATE ROLE "svc_jobs_worker@postgres" WITH
     LOGIN
     NOSUPERUSER
     NOINHERIT
@@ -33,16 +33,16 @@ CREATE DATABASE "Jobs"
     IS_TEMPLATE = False;
 
 GRANT ALL ON DATABASE "Jobs" TO pg_database_owner;
-GRANT CONNECT ON DATABASE "Jobs" TO svc_jobs_webapi;
-GRANT CONNECT ON DATABASE "Jobs" TO svc_jobs_worker;
+GRANT CONNECT ON DATABASE "Jobs" TO "svc_jobs_webapi@postgres";
+GRANT CONNECT ON DATABASE "Jobs" TO "svc_jobs_worker@postgres";
 
 --
 -- Create schema
 --
 CREATE SCHEMA IF NOT EXISTS pgdbo AUTHORIZATION pg_database_owner;
 GRANT ALL ON SCHEMA pgdbo TO pg_database_owner;
-GRANT USAGE ON SCHEMA pgdbo TO svc_jobs_webapi;
-GRANT USAGE ON SCHEMA pgdbo TO svc_jobs_worker;
+GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_webapi@postgres";
+GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_worker@postgres";
 
 --
 -- Creating table
@@ -80,7 +80,7 @@ $BODY$;
 
 ALTER PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) OWNER TO pg_database_owner;
 GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) TO svc_jobs_webapi;
+GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) TO "svc_jobs_webapi@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) FROM PUBLIC;
 
 -- Getting Jobs results
@@ -95,9 +95,9 @@ AS $BODY$
 $BODY$;
 
 ALTER FUNCTION pgdbo.f_jobs_get_results(uuid) OWNER TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO PUBLIC;
 GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO svc_jobs_webapi;
+GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@postgres";
+REVOKE ALL ON FUNCTIONpgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
 
 --
 -- Creaging functions for svc_jobs_worker
@@ -114,9 +114,9 @@ AS $BODY$
     WHERE "Id" = job_id
 $BODY$;
 
-ALTER FUNCTION pgdbo.f_jobs_get_new(uuid) OWNER TO superuser;
-GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_new(uuid) TO superuser;
-GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_new(uuid) TO svc_jobs_worker;
+ALTER FUNCTION pgdbo.f_jobs_get_new(uuid) OWNER TO pg_database_owner;
+GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_new(uuid) TO pg_database_owner;
+GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_new(uuid) TO "svc_jobs_worker@postgres";
 REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_new(uuid) FROM PUBLIC;
 
 -- Running new Jobs
@@ -145,7 +145,7 @@ $BODY$;
 
 ALTER PROCEDURE pgdbo.p_jobs_set_running(uuid) OWNER TO pg_database_owner;
 GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_running(uuid) TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_running(uuid) TO svc_jobs_worker;
+GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_running(uuid) TO "svc_jobs_worker@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_jobs_set_running(uuid) FROM PUBLIC;
 
 -- Saving Jobs results
@@ -174,5 +174,5 @@ $BODY$;
 
 ALTER PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea) OWNER TO pg_database_owner;
 GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea) TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea) TO svc_jobs_worker;
+GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea) TO "svc_jobs_worker@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea) FROM PUBLIC;

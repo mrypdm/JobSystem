@@ -28,15 +28,15 @@ services:
 
         KAFKA_SECURITY_PROTOCOL: SSL
         KAFKA_CSECURITY_INTER_BROKER_PROTOCOL: SSL
-        KAFKA_SSL_KEYSTORE_FILENAME: svc_kafka.p12
+        KAFKA_SSL_KEYSTORE_FILENAME: svc_kafka.keystore.p12
         KAFKA_SSL_KEYSTORE_CREDENTIALS: pass.txt
         KAFKA_SSL_KEY_CREDENTIALS: pass.txt
-        KAFKA_SSL_TRUSTSTORE_FILENAME: kafka.p12
+        KAFKA_SSL_TRUSTSTORE_FILENAME: svc_kafka.truststore.p12
         KAFKA_SSL_TRUSTSTORE_CREDENTIALS: pass.txt
         KAFKA_SSL_CLIENT_AUTH: required
 
         KAFKA_SSL_PRINCIPAL_MAPPING_RULES: 'RULE:^CN=(.*?),.*/$1/,DEFAULT'
-        KAFKA_SUPER_USERS: 'User:svc_kafka;User:superuser'
+        KAFKA_SUPER_USERS: 'User:svc_kafka;User:superuser@kafka'
         KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
       volumes:
         - ./kafka/data:/var/lib/kafka/data

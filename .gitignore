@@ -4,12 +4,8 @@
 ## Get latest from `dotnet new gitignore`
 
 # private information
-*.csr
-*.key
-*.crt
-*.srl
-*.jks
-*.p12
+Certificates/root/*
+Certificates/certs/*
 
 # Docker data Directories
 

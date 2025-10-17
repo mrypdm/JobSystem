@@ -1,6 +1,0 @@
-[ v3_mtls_client ]
-basicConstraints       = critical, @v3_mtls_common_basic_constraints
-subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always, issuer:always
-keyUsage               = critical, digitalSignature, keyAgreement
-extendedKeyUsage       = critical, clientAuth

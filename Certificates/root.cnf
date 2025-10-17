@@ -1,27 +1,51 @@
-#
-# Root certificate
-#
+[ ca ]
+default_ca              = v3_mtls_ca
+
+[ v3_mtls_ca ]
+database                = root/index.txt
+serial                  = root/root.srl
+certificate             = root/root.crt
+private_key             = root/root.key
+crlnumber               = root/crlnumber
+crl                     = root/crl.pem
+crl_dir                 = root/crl
+crl_extensions          = crl_ext
+
+new_certs_dir           = certs/tmp
+certs                   = certs
+
+default_days            = 365
+default_crl_days        = 30
+default_md              = sha256
+preserve                = no
+policy                  = policy_match
+copy_extensions         = copy
+
+[ policy_match ]
+countryName             = supplied
+stateOrProvinceName     = supplied
+organizationName        = supplied
+organizationalUnitName  = supplied
+commonName              = supplied
+
+[ crl_ext ]
+authorityKeyIdentifier  = keyid:always, issuer:always
 
 [ v3_mtls_root ]
-basicConstraints       = critical, @v3_mtls_root_constraints
-subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always, issuer:always
-keyUsage               = critical, keyCertSign, cRLSign
+basicConstraints        = critical, CA:true, pathlen:0
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always, issuer:always
+keyUsage                = critical, keyCertSign, cRLSign
 
-[ v3_mtls_root_constraints ]
-CA                     = true
-pathlen                = 1
+[ v3_mtls_server ]
+basicConstraints        = critical, CA:false
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always, issuer:always
+keyUsage                = critical, digitalSignature, keyEncipherment, keyAgreement
 
-#
-# Intermediate certificate
-#
-
-[ v3_mtls_intermediate ]
-basicConstraints       = critical, @v3_mtls_intermediate_constraints
-subjectKeyIdentifier   = hash
-authorityKeyIdentifier = keyid:always, issuer:always
-keyUsage               = critical, keyCertSign, cRLSign
-
-[ v3_mtls_intermediate_constraints ]
-CA                     = true
-pathlen                = 0
+[ v3_mtls_client ]
+basicConstraints        = critical, CA:false
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always, issuer:always
+keyUsage                = critical, digitalSignature, keyAgreement
+extendedKeyUsage        = critical, clientAuth

@@ -6,12 +6,12 @@
             "Host": "postgres",
             "Port": 5432,
             "MaintenanceDB": "postgres",
-            "Username": "superuser",
+            "Username": "superuser@postgres",
             "ConnectionParameters": {
                 "sslmode": "verify-full",
-                "sslrootcert": "/certs/postgres.chain.crt",
-                "sslcert": "/certs/superuser.crt",
-                "sslkey": "/certs/superuser.key",
+                "sslrootcert": "/certs/svc_postgres.truststore.pem",
+                "sslcert": "/certs/superuser@postgres.crt",
+                "sslkey": "/certs/superuser@postgres.key",
                 "sslpassword": "<PASSWORD>"
             }
         },
@@ -21,12 +21,12 @@
             "Host": "postgres",
             "Port": 5432,
             "MaintenanceDB": "Jobs",
-            "Username": "superuser",
+            "Username": "svc_jobs_webapi@postgres",
             "ConnectionParameters": {
                 "sslmode": "verify-full",
-                "sslrootcert": "/certs/postgres.chain.crt",
-                "sslcert": "/certs/svc_jobs_webapi.crt",
-                "sslkey": "/certs/svc_jobs_webapi.key",
+                "sslrootcert": "/certs/svc_postgres.truststore.pem",
+                "sslcert": "/certs/svc_jobs_webapi@postgres.crt",
+                "sslkey": "/certs/svc_jobs_webapi@postgres.key",
                 "sslpassword": "<PASSWORD>"
             }
         },
@@ -36,12 +36,12 @@
             "Host": "postgres",
             "Port": 5432,
             "MaintenanceDB": "Jobs",
-            "Username": "superuser",
+            "Username": "svc_jobs_worker@postgres",
             "ConnectionParameters": {
                 "sslmode": "verify-full",
-                "sslrootcert": "/certs/postgres.chain.crt",
-                "sslcert": "/certs/svc_jobs_worker.crt",
-                "sslkey": "/certs/svc_jobs_worker.key",
+                "sslrootcert": "/certs/svc_postgres.truststore.pem",
+                "sslcert": "/certs/svc_jobs_worker@postgres.crt",
+                "sslkey": "/certs/svc_jobs_worker@postgres.key",
                 "sslpassword": "<PASSWORD>"
             }
         },
@@ -51,12 +51,12 @@
             "Host": "postgres",
             "Port": 5432,
             "MaintenanceDB": "Users",
-            "Username": "superuser",
+            "Username": "svc_users_webapp@postgres",
             "ConnectionParameters": {
                 "sslmode": "verify-full",
-                "sslrootcert": "/certs/postgres.chain.crt",
-                "sslcert": "/certs/svc_user_webapp.crt",
-                "sslkey": "/certs/svc_user_webapp.key",
+                "sslrootcert": "/certs/svc_postgres.truststore.pem",
+                "sslcert": "/certs/svc_users_webapp@postgres.crt",
+                "sslkey": "/certs/svc_users_webapp@postgres.key",
                 "sslpassword": "<PASSWORD>"
             }
         }

@@ -7,7 +7,7 @@ services:
         -c ssl_min_protocol_version=TLSv1.3
         -c ssl_cert_file=/etc/postgres-config/svc_postgres.crt
         -c ssl_key_file=/etc/postgres-config/svc_postgres.key
-        -c ssl_ca_file=/etc/postgres-config/postgres.chain.crt
+        -c ssl_ca_file=/etc/postgres-config/svc_postgres.truststore.pem
         -c ssl_passphrase_command='cat /etc/postgres-config/pass.txt'
         -c hba_file=/etc/postgres-config/pg_hba.conf
         -c logging_collector=on
@@ -18,7 +18,7 @@ services:
       restart: unless-stopped
       user: 70:70
       environment:
-        POSTGRES_USER: superuser
+        POSTGRES_USER: superuser@postgres
         POSTGRES_PASSWORD: superuser
         POSTGRES_DB: postgres
       ports:

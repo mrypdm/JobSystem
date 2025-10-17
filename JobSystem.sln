@@ -23,11 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker", "Job\Job.Worke
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{B44AB3AB-CEFF-4EBB-B935-17E849E1085D}"
 	ProjectSection(SolutionItems) = preProject
-		Certificates\clients.cnf = Certificates\clients.cnf
 		Certificates\generate.sh = Certificates\generate.sh
-		Certificates\common.cnf = Certificates\common.cnf
 		Certificates\root.cnf = Certificates\root.cnf
-		Certificates\servers.cnf = Certificates\servers.cnf
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{76A4D5B4-E733-4543-83A5-5BCB40A5F628}"

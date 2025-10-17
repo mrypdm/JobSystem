@@ -14,9 +14,7 @@ mkdir -p postgres/logs
 mkdir -p postgres/config
 
 cp pg_hba.conf postgres/config/
-cp ../../Certificates/postgres/svc_postgres/svc_postgres.crt postgres/config/
-cp ../../Certificates/postgres/svc_postgres/svc_postgres.key postgres/config/
-cp ../../Certificates/postgres/postgres.chain.crt postgres/config/
+cp ../../Certificates/certs/svc_postgres/* postgres/config/
 echo "$1" > postgres/config/pass.txt
 
 sudo chmod 700 postgres
@@ -41,15 +39,11 @@ mkdir -p pgadmin/data
 mkdir -p pgadmin/certs
 
 sed "s/<PASSWORD>/$1/g" servers.json.template > pgadmin/servers.json
-cp ../../Certificates/postgres/superuser/superuser.crt pgadmin/certs/
-cp ../../Certificates/postgres/superuser/superuser.key pgadmin/certs/
-cp ../../Certificates/postgres/svc_jobs_worker/svc_jobs_worker.key pgadmin/certs/
-cp ../../Certificates/postgres/svc_jobs_worker/svc_jobs_worker.key pgadmin/certs/
-cp ../../Certificates/postgres/svc_jobs_webapi/svc_jobs_webapi.key pgadmin/certs/
-cp ../../Certificates/postgres/svc_jobs_webapi/svc_jobs_webapi.key pgadmin/certs/
-cp ../../Certificates/postgres/svc_user_webapp/svc_user_webapp.key pgadmin/certs/
-cp ../../Certificates/postgres/svc_user_webapp/svc_user_webapp.key pgadmin/certs/
-cp ../../Certificates/postgres/postgres.chain.crt pgadmin/certs/
+cp ../../Certificates/certs/svc_postgres/svc_postgres.truststore.pem    pgadmin/certs/
+cp ../../Certificates/certs/superuser@postgres/*                        pgadmin/certs/
+cp ../../Certificates/certs/svc_jobs_worker@postgres/*                  pgadmin/certs/
+cp ../../Certificates/certs/svc_jobs_webapi@postgres/*                  pgadmin/certs/
+cp ../../Certificates/certs/svc_users_webapp@postgres/*                  pgadmin/certs/
 
 sudo chmod 700 pgadmin
 sudo chmod 700 pgadmin/data
