@@ -13,6 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Shared.Contract;
 using Shared.Contract.Options;
 using Shared.Database;
 using User.Database.Contexts;
@@ -33,9 +34,9 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.ConfigureHttpsDefaults(httpsOptions =>
     {
-        httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+        httpsOptions.ClientCertificateMode = ClientCertificateMode.NoCertificate;
         httpsOptions.ServerCertificate = webServerOptions.Certificate;
-        httpsOptions.ServerCertificateChain = webServerOptions.Chain;
+        httpsOptions.ServerCertificateChain = webServerOptions.CertificateChain;
     });
 });
 
@@ -65,13 +66,13 @@ builder.Services
             return Task.CompletedTask;
         };
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(opt => opt.FallbackPolicy = opt.DefaultPolicy);
 
 var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
 builder.Services.AddDbContext<UserDbContext>(options => UserDbContext.BuildOptions(options, dbOptions));
 
-var certificateCache = new MemoryCache(new MemoryCacheOptions() { ExpirationScanFrequency = TimeSpan.FromMinutes(15) });
 var jobWebApiOptions = builder.Configuration.GetSection("JobWebApiOptions").Get<JobWebApiOptions>();
+var sslValidator = new SslValidator(jobWebApiOptions);
 builder.Services
     .AddHttpClient("Job.WebApi", options =>
     {
@@ -82,17 +83,9 @@ builder.Services
         var handler = new HttpClientHandler()
         {
             ClientCertificateOptions = ClientCertificateOption.Manual,
-            CheckCertificateRevocationList = false, // TODO CRL
-            ServerCertificateCustomValidationCallback = (message, cert, chain, policy) =>
-            {
-                return certificateCache.GetOrCreate(cert.Thumbprint, enty =>
-                {
-                    var result = jobWebApiOptions.ValidateCertificate(cert);
-                    enty.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
-                    enty.Value = result;
-                    return result;
-                });
-            }
+            CheckCertificateRevocationList = false,
+            ServerCertificateCustomValidationCallback
+                = (_, cert, chain, policy) => sslValidator.Validate(cert, chain, policy)
         };
         handler.ClientCertificates.Add(jobWebApiOptions.Certificate);
         return handler;

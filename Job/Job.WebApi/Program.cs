@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Shared.Contract;
 using Shared.Contract.Options;
 using Shared.Database;
 
@@ -27,13 +28,14 @@ builder.Services
     });
 
 var webServerOptions = builder.Configuration.GetSection("WebServerOptions").Get<WebServerOptions>();
+var sslValidator = new SslValidator(webServerOptions);
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.ConfigureHttpsDefaults(httpsOptions =>
     {
         httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
         httpsOptions.ServerCertificate = webServerOptions.Certificate;
-        httpsOptions.ServerCertificateChain = webServerOptions.Chain;
+        httpsOptions.ServerCertificateChain = webServerOptions.CertificateChain;
     });
 });
 
@@ -43,30 +45,42 @@ builder.Services
     {
         options.AllowedCertificateTypes = CertificateTypes.Chained;
         options.ChainTrustValidationMode = X509ChainTrustMode.CustomRootTrust;
-        options.CustomTrustStore = webServerOptions.Chain;
-        options.RevocationFlag = X509RevocationFlag.ExcludeRoot;
-        options.RevocationMode = X509RevocationMode.NoCheck; // TODO revocation list
+        options.CustomTrustStore = webServerOptions.CertificateChain;
+        options.RevocationMode = X509RevocationMode.NoCheck;
+        options.ValidateValidityPeriod = true;
+        options.ValidateCertificateUse = true;
 
         options.Events = new CertificateAuthenticationEvents
         {
             OnCertificateValidated = context =>
             {
-                var claims = new[]
+                if (sslValidator.IsRevoked(context.ClientCertificate))
                 {
-                    // TODO custom fields in certificate for authorization
-                    new Claim(ClaimTypes.Name, context.ClientCertificate.Subject, ClaimValueTypes.String,
+                    context.Fail("Client certificated is revoked");
+                    return Task.CompletedTask;
+                }
+
+                var claims = new Claim[]
+                {
+                    new(ClaimTypes.Name,
+                        context.ClientCertificate.GetNameInfo(X509NameType.SimpleName, forIssuer: false),
+                        ClaimValueTypes.String,
+                        context.ClientCertificate.Issuer),
+                    new(ClaimTypes.X500DistinguishedName,
+                        context.ClientCertificate.Subject,
+                        ClaimValueTypes.String,
                         context.ClientCertificate.Issuer)
                 };
 
                 context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name));
-                context.Success();
 
+                context.Success();
                 return Task.CompletedTask;
             },
 
             OnAuthenticationFailed = context =>
             {
-                context.Fail("");
+                context.Fail(context.Exception.Message);
                 return Task.CompletedTask;
             }
         };
@@ -76,7 +90,7 @@ builder.Services
         options.CacheEntryExpiration = TimeSpan.FromMinutes(15);
         options.CacheSize = 100;
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(opt => opt.FallbackPolicy = opt.DefaultPolicy);
 
 builder.Services.AddControllers();
 

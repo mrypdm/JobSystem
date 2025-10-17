@@ -6,6 +6,11 @@ namespace Shared.Contract.SslOptions;
 public class CertificateOptions
 {
     /// <summary>
+    /// Path to revocation list
+    /// </summary>
+    public string RevocationListFilePath { get; set; }
+
+    /// <summary>
     /// Path to client certificate
     /// </summary>
     public string CertificateFilePath { get; set; }

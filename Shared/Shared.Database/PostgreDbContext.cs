@@ -2,6 +2,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Shared.Contract;
 
 namespace Shared.Database;
 
@@ -23,21 +24,19 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
             Username = databaseOptions.CommonName
         }.ConnectionString;
 
-        var a = new NpgsqlDataSourceBuilder(connectionString).UseSslClientAuthenticationOptionsCallback(opt =>
-        {
-            opt.EnabledSslProtocols = SslProtocols.Tls13;
-            opt.TargetHost = $"{databaseOptions.HostName}:{databaseOptions.Port}";
-            opt.CertificateChainPolicy = new X509ChainPolicy();
-            opt.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
-            opt.CertificateChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
-            opt.CertificateChainPolicy.CustomTrustStore.AddRange(databaseOptions.Chain);
-            opt.ClientCertificates = [databaseOptions.Certificate];
-            opt.RemoteCertificateValidationCallback = (_, cert, _, _) =>
-            {
-                return databaseOptions.ValidateCertificate(new X509Certificate2(cert));
-            };
-        });
+        var validator = new SslValidator(databaseOptions);
 
-        builder.UseNpgsql(a.Build());
+        var postgresDataSource = new NpgsqlDataSourceBuilder(connectionString)
+            .UseSslClientAuthenticationOptionsCallback(opt =>
+            {
+                opt.EnabledSslProtocols = SslProtocols.Tls13;
+                opt.CertificateChainPolicy = validator.ChainPolicy;
+                opt.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
+                opt.ClientCertificates = databaseOptions.CertificateChain;
+                opt.RemoteCertificateValidationCallback = validator.Validate;
+            })
+            .Build();
+
+        builder.UseNpgsql(postgresDataSource);
     }
 }
