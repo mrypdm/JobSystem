@@ -74,8 +74,8 @@ CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_add_new(IN job_id uuid, IN timeout time
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
-    INSERT INTO pgdbo."Jobs" ("Id", "Timeout", "Script")
-    VALUES (job_id, timeout, script)
+    INSERT INTO pgdbo."Jobs" ("Id", "Timeout", "Script", "CreatedAt")
+    VALUES (job_id, timeout, script, NOW())
 $BODY$;
 
 ALTER PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) OWNER TO pg_database_owner;
@@ -131,14 +131,14 @@ BEGIN
 
     IF current_status = 1 THEN
         RAISE EXCEPTION 'Session is running';
-    END IF;
+    END IF
 
     IF current_status > 1 THEN
         RAISE EXCEPTION 'Session is finished';
-    END IF;
+    END IF
 
     UPDATE pgdbo."Jobs"
-    SET "Status" = 1
+    SET "Status" = 1, "StartedAt" = NOW()
     WHERE "Id" = job_id;
 END
 $BODY$;
@@ -156,14 +156,18 @@ AS $BODY$
 DECLARE
     current_status int;
 BEGIN
+    IF status < 2 OR status > 5 THEN
+        RAISE EXCEPTION 'Status must be >= 2 (Finished) and <= 5 (Lost)';
+    END IF
+
     SELECT "Status" into current_status FROM pgdbo."Jobs" WHERE "Id" = job_id;
 
     IF current_status <> 1 THEN
         RAISE EXCEPTION 'Session is not running. Cannot save results';
-    END IF;
+    END IF
 
     UPDATE pgdbo."Jobs"
-    SET "Status" = status, "Results" = results
+    SET "Status" = status, "Results" = results, "FinishedAt" = NOW()
     WHERE "Id" = job_id;
 END
 $BODY$;

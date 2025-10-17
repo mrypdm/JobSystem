@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Job.Database.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Shared.Contract.Models;
 using Shared.Contract.Options;
@@ -12,7 +13,7 @@ namespace Job.Database.Contexts;
 /// <summary>
 /// Context for jobs
 /// </summary>
-public class JobsDbContext(DbContextOptions options) : DbContext(options)
+public class JobsDbContext(DbContextOptions options, ILogger<JobsDbContext> logger) : DbContext(options)
 {
     /// <summary>
     /// Table of <see cref="JobDbModel"/>
@@ -26,6 +27,7 @@ public class JobsDbContext(DbContextOptions options) : DbContext(options)
     {
         await Database
             .ExecuteSqlAsync($"call p_jobs_add_new({job.Id}, {job.Timeout}, {job.Script})", cancellationToken);
+        logger.LogCritical("Job [{JobId}] was added to database", job.Id);
     }
 
     /// <summary>
@@ -45,6 +47,7 @@ public class JobsDbContext(DbContextOptions options) : DbContext(options)
     {
         await Database
             .ExecuteSqlAsync($"call p_jobs_set_running({jobId})", cancellationToken);
+        logger.LogCritical("Job [{JobId}] set as running", jobId);
     }
 
     /// <summary>
@@ -54,6 +57,7 @@ public class JobsDbContext(DbContextOptions options) : DbContext(options)
     {
         await Database
             .ExecuteSqlAsync($"call p_jobs_set_results({jobId}, {jobStatus}, {results})", cancellationToken);
+        logger.LogCritical("Job [{JobId}] results saved to database", jobId);
     }
 
     /// <summary>

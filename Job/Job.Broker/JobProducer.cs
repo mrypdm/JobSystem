@@ -48,6 +48,7 @@ public sealed class JobProducer : IDisposable
     {
         _producer.Flush();
         _producer.Dispose();
+        _logger.LogInformation("Producer closed");
     }
 
     /// <summary>
@@ -65,7 +66,7 @@ public sealed class JobProducer : IDisposable
         try
         {
             await _producer.ProduceAsync(_options.Topic, brokerMessage, cancellationToken).ConfigureAwait(false);
-            _logger.LogInformation("Message for Job [{JobId}] published", message.Id);
+            _logger.LogCritical("Message for Job [{JobId}] published", message.Id);
         }
         catch (Exception e)
         {

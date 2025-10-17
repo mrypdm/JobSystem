@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Confluent.Kafka;
 using Job.Broker.Options;
 using Microsoft.Extensions.Logging;
@@ -14,10 +13,9 @@ public sealed class JobConsumer : IDisposable
 {
     private readonly ConsumerOptions _options;
     private readonly ILogger<JobConsumer> _logger;
-    private readonly IMessageHandler _handler;
     private readonly IConsumer<Guid, JobMessage> _consumer;
 
-    public JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger, IMessageHandler handler)
+    public JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger)
     {
         var config = new ConsumerConfig
         {
@@ -39,17 +37,16 @@ public sealed class JobConsumer : IDisposable
 
         _options = options;
         _logger = logger;
-        _handler = handler;
         _consumer = new ConsumerBuilder<Guid, JobMessage>(config).Build();
     }
 
     /// <summary>
-    /// Start consuming
+    /// Subceribe to Broker
     /// </summary>
-    public Task StartAsync(CancellationToken cancellationToken)
+    public void Subscribe()
     {
         _consumer.Subscribe(_options.Topic);
-        return ConsumeLoopAsync(cancellationToken);
+        _logger.LogInformation("Subscribed to topic [{TopicName}]", _options.Topic);
     }
 
     /// <inheritdoc />
@@ -57,35 +54,13 @@ public sealed class JobConsumer : IDisposable
     {
         _consumer.Close();
         _consumer.Dispose();
+        _logger.LogInformation("Consumer closed");
     }
 
-    private async Task ConsumeLoopAsync(CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                var result = ConsumeSingle(cancellationToken);
-                await _handler.HandleAsync(result.Message.Value, cancellationToken);
-                _consumer.Commit(result);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Cannot consume message");
-            }
-
-            try
-            {
-                await Task.Delay(_options.IterationDeplay, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                // NOP
-            }
-        }
-    }
-
-    private ConsumeResult<Guid, JobMessage> ConsumeSingle(CancellationToken cancellationToken)
+    /// <summary>
+    /// Consume message
+    /// </summary>
+    public ConsumeResult<Guid, JobMessage> Consume(CancellationToken cancellationToken)
     {
         var result = _consumer.Consume(cancellationToken);
 
@@ -111,6 +86,17 @@ public sealed class JobConsumer : IDisposable
                 $"Key '{result.Message.Key}' is not equal to Value '{result.Message.Value.Id}'");
         }
 
+        _logger.LogCritical("Consumed messsage for Job [{JobId}]", result.Message.Value.Id);
+
         return result;
+    }
+
+    /// <summary>
+    /// Commit consumed message
+    /// </summary>
+    public void Commit(ConsumeResult<Guid, JobMessage> result)
+    {
+        _consumer.Commit(result);
+        _logger.LogCritical("Commited messsage for Job [{JobId}]", result.Message.Value.Id);
     }
 }

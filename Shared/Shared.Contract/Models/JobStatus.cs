@@ -9,5 +9,6 @@ public enum JobStatus
     Running = 1,
     Finished = 2,
     Timeout = 3,
-    Lost = 4
+    Fault = 4,
+    Lost = 5,
 }

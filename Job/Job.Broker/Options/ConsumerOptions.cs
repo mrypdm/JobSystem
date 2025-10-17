@@ -1,5 +1,3 @@
-using System;
-
 namespace Job.Broker.Options;
 
 /// <summary>
@@ -11,9 +9,4 @@ public class ConsumerOptions : BrokerOptions
     /// Group Id
     /// </summary>
     public string GroupId { get; set; }
-
-    /// <summary>
-    /// Delay between consume tries
-    /// </summary>
-    public TimeSpan IterationDeplay { get; set; }
 }

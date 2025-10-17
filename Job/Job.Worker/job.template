@@ -1,0 +1,7 @@
+services:
+    job-<JOB_ID>:
+      image: alpine
+      command: -c /etc/job/run.sh
+      user: 10000:10000
+      volumes:
+        - ./run.sh:/etc/job/run.sh
