@@ -60,6 +60,17 @@ public class JobsDbContext(DbContextOptions options, ILogger<JobsDbContext> logg
     }
 
     /// <summary>
+    /// Mark Jobs with timeout vialoation as lost
+    /// </summary>
+    public async Task MarkLostJobsAsync(TimeSpan timeout, CancellationToken cancellationToken)
+    {
+        var lostJobs = await Database
+            .SqlQuery<Guid>($"SELECT * FROM f_jobs_set_lost({timeout})")
+            .ToArrayAsync(cancellationToken);
+        logger.LogCritical("Job [{@JobIds}] marked as Lost", lostJobs);
+    }
+
+    /// <summary>
     /// Get Job results
     /// </summary>
     public async Task<JobResultResponse> GetJobResults(Guid jobId, CancellationToken cancellationToken)

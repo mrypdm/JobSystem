@@ -37,7 +37,7 @@ GRANT CONNECT ON DATABASE "Jobs" TO "svc_jobs_webapi@postgres";
 GRANT CONNECT ON DATABASE "Jobs" TO "svc_jobs_worker@postgres";
 
 --
--- Create schema
+-- Creating schema
 --
 CREATE SCHEMA IF NOT EXISTS pgdbo AUTHORIZATION pg_database_owner;
 GRANT ALL ON SCHEMA pgdbo TO pg_database_owner;
@@ -66,7 +66,7 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS pgdbo."Jobs" OWNER to pg_database_owner;
 
 --
--- Creaging functions for svc_jobs_webapi
+-- Creating functions for svc_jobs_webapi
 --
 
 -- Adding new Jobs
@@ -92,6 +92,23 @@ AS $BODY$
     SELECT "Status", "StartedAt", "FinishedAt", "Results"
     FROM pgdbo."Jobs"
     WHERE "Id" = job_id
+$BODY$;
+
+ALTER FUNCTION pgdbo.f_jobs_get_results(uuid) OWNER TO pg_database_owner;
+GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO pg_database_owner;
+GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@postgres";
+REVOKE ALL ON FUNCTIONpgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
+
+-- Marking Jobs as Lost
+CREATE OR REPLACE FUNCTION pgdbo.f_jobs_set_lost(timeout time without time zone)
+RETURNS TABLE(Id uuid)
+LANGUAGE 'sql'
+SECURITY DEFINER
+AS $BODY$
+    UPDATE pgdbo."Jobs"
+    SET "Status" = 5, "FinishedAt" = NOW()
+    WHERE "CreatedAt" + time < NOW()
+    RETURNING "Id"
 $BODY$;
 
 ALTER FUNCTION pgdbo.f_jobs_get_results(uuid) OWNER TO pg_database_owner;

@@ -102,7 +102,6 @@ public class ConsumerWorker(
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             logger.LogWarning("Consuming cancelled");
-            return;
         }
         catch (Exception e)
         {
