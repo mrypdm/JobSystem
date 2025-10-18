@@ -92,7 +92,7 @@ public class ConsumerWorker(
                 Id = job.Id,
                 Timeout = job.Timeout,
                 Script = job.Script
-            }, default);
+            });
 
             consumer.Commit(result);
         }

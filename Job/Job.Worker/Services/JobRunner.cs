@@ -67,19 +67,19 @@ public class JobRunner(JobDbContext jobsDbContext, JobRunnerOptions options, ILo
     /// <summary>
     /// Run Job
     /// </summary>
-    public void RunJob(RunJobModel runJobModel, CancellationToken cancellationToken)
+    public void RunJob(RunJobModel runJobModel)
     {
-        var jobTask = RunJobAsync(runJobModel, cancellationToken);
+        var jobTask = RunJobAsync(runJobModel);
         _jobs.TryAdd(runJobModel.Id, jobTask);
     }
 
-    private async Task RunJobAsync(RunJobModel runJobModel, CancellationToken cancellationToken)
+    private async Task RunJobAsync(RunJobModel runJobModel)
     {
         try
         {
             runJobModel.Directory = PrepareJobEnvironment(runJobModel);
-            await RunProcessAsync(runJobModel, cancellationToken);
-            await FinishJobAsync(runJobModel, cancellationToken);
+            await RunProcessAsync(runJobModel);
+            await FinishJobAsync(runJobModel);
         }
         catch (Exception e)
         {
@@ -91,7 +91,7 @@ public class JobRunner(JobDbContext jobsDbContext, JobRunnerOptions options, ILo
         }
     }
 
-    private async Task RunProcessAsync(RunJobModel runJobModel, CancellationToken cancellationToken)
+    private async Task RunProcessAsync(RunJobModel runJobModel)
     {
         using var jobTimeoutCancellation = new CancellationTokenSource(runJobModel.Timeout);
 
@@ -129,7 +129,7 @@ public class JobRunner(JobDbContext jobsDbContext, JobRunnerOptions options, ILo
         }
     }
 
-    private async Task FinishJobAsync(RunJobModel runJobModel, CancellationToken cancellationToken)
+    private async Task FinishJobAsync(RunJobModel runJobModel)
     {
         using var process = new Process
         {
@@ -142,17 +142,15 @@ public class JobRunner(JobDbContext jobsDbContext, JobRunnerOptions options, ILo
         logger.LogInformation("Collecting Job [{JobId}] results", runJobModel.Id);
 
         process.Start();
-        await process.WaitForExitAsync(cancellationToken);
+        await process.WaitForExitAsync();
 
         runJobModel.Results = await File.ReadAllBytesAsync(
-            Path.Combine(runJobModel.Directory, "results.zip"),
-            cancellationToken);
+            Path.Combine(runJobModel.Directory, "results.zip"));
 
         logger.LogInformation("Job [{JobId}] results collected [{ResultsSize} MB]",
             runJobModel.Id, runJobModel.Results.LongLength / 1024.0 / 1024.0);
 
-        await jobsDbContext.SetJobResultsAsync(runJobModel.Id, runJobModel.Status, runJobModel.Results,
-            cancellationToken);
+        await jobsDbContext.SetJobResultsAsync(runJobModel.Id, runJobModel.Status, runJobModel.Results, default);
 
         _jobs.TryRemove(runJobModel.Id, out _);
     }
