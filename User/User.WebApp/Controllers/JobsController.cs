@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using User.Database.Contexts;
 using User.WebApp.Extensions;
-using User.WebApp.Views.Jobs;
+using User.WebApp.Models;
 
 namespace User.WebApp.Controllers;
 
@@ -21,7 +21,7 @@ public class JobsController(UserDbContext userDbContext) : Controller
     {
         var username = HttpContext.GetUserName();
         var userJobs = await userDbContext.GetUserJobsAsync(username, cancellationToken);
-        return View("Index", new IndexModel(userJobs));
+        return View("Index", userJobs);
     }
 
     /// <summary>
@@ -30,7 +30,7 @@ public class JobsController(UserDbContext userDbContext) : Controller
     [HttpGet("jobs/{jobId}")]
     public ActionResult GetJobResultsView([FromRoute] Guid jobId)
     {
-        return View("JobResults", new JobResultsModel(jobId));
+        return View("JobResults", jobId);
     }
 
     /// <summary>
@@ -39,6 +39,6 @@ public class JobsController(UserDbContext userDbContext) : Controller
     [HttpGet("jobs/create")]
     public ActionResult GetJobCreateView()
     {
-        return View("JobCreation");
+        return View("JobCreation", new CreateUserJobRequest());
     }
 }

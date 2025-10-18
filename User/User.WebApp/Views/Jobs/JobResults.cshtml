@@ -1,8 +1,7 @@
-@using User.WebApp.Views.Jobs;
-@model JobResultsModel
+@model Guid
 
 @{
-    ViewData["Title"] = $"Jobs - {Model.JobId}";
+    ViewData["Title"] = $"Jobs - {Model}";
 }
 
 <table id="job-results-table">
@@ -15,5 +14,5 @@
 </table>
 
 <script>
-    onload = async () => { await getResults('@(Model.JobId)'); };
+    onload = async () => { await getResults('@(Model)'); };
 </script>

@@ -1,5 +1,4 @@
-@using User.WebApp.Views.Jobs;
-@model IndexModel
+@model Guid[]
 
 @{
     ViewData["Title"] = "Jobs";
@@ -11,7 +10,7 @@
         <th>Name</th>
     </tr>
 
-@foreach (var jobId in Model.JobIds)
+@foreach (var jobId in Model)
 {
     <tr>
         <td>@(jobId)</td>

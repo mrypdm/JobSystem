@@ -1,3 +1,30 @@
+// Requests
+async function send(url, method, body, headers = {}) {
+    if (body !== null) {
+        body = JSON.stringify(body)
+        headers["Content-Type"] = "application/json"
+    }
+
+    let response = await fetch(url, {
+        method: method,
+        headers: headers,
+        body: body
+    });
+
+    if (response.ok) {
+        return response
+    }
+
+    throw response;
+}
+
+function getCsrfTokenHeader() {
+    return {
+        "X-CSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+    }
+}
+
+// Jobs
 async function getResults(jobId) {
     let table = document.getElementById("job-results-table")
 
@@ -37,4 +64,36 @@ function saveBase64File(base64Data, filename, mimeType) {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+}
+
+// Auth
+async function logout() {
+    await send("/api/auth", "DELETE", null, getCsrfTokenHeader());
+    location.replace("/auth/login");
+}
+
+async function login(redirect) {
+    let usernameBox = document.getElementById("username");
+    let passwordBox = document.getElementById("password");
+    let data = {
+        "Username": usernameBox.value,
+        "Password": passwordBox.value,
+    }
+
+    try {
+        await send("/api/auth", "POST", data, getCsrfTokenHeader());
+        location.replace(redirect)
+    } catch (response) {
+        let text = await response.text()
+        alert(text);
+    }
+}
+
+function showPassword(passwordBoxId) {
+    let passwordBox = document.getElementById(passwordBoxId);
+    if (passwordBox.type === "password") {
+        passwordBox.type = "text";
+    } else {
+        passwordBox.type = "password";
+    }
 }
