@@ -1,4 +1,4 @@
-namespace Job.Worker.Models;
+namespace Job.Worker.Services;
 
 /// <summary>
 /// Monitor for system resources
