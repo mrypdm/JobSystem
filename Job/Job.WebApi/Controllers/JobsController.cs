@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Job.Broker;
 using Job.Contract;
 using Job.Database.Contexts;

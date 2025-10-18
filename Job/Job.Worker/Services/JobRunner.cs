@@ -1,11 +1,7 @@
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Threading;
-using System.Threading.Tasks;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Models;

@@ -1,5 +1,3 @@
-using System;
-
 namespace Job.Contract;
 
 /// <summary>

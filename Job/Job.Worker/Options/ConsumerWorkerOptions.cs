@@ -1,4 +1,3 @@
-using System;
 using Job.Worker.Workers;
 
 namespace Job.Worker.Options;

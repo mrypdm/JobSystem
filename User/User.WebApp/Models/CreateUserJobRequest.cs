@@ -1,6 +1,3 @@
-using System;
-using Microsoft.AspNetCore.Http;
-
 namespace User.WebApp.Models;
 
 /// <summary>

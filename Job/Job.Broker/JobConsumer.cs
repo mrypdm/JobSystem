@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using Confluent.Kafka;
 using Job.Broker.Options;
 using Microsoft.Extensions.Logging;

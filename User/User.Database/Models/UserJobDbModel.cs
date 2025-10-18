@@ -1,5 +1,3 @@
-using System;
-
 namespace User.Database.Models;
 
 /// <summary>

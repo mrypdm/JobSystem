@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Job.Contract;
 using Job.Database.Models;
 using Microsoft.EntityFrameworkCore;

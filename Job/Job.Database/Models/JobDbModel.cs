@@ -1,6 +1,3 @@
-using System;
-using Shared.Contract.Models;
-
 namespace Job.Database.Models;
 
 /// <summary>

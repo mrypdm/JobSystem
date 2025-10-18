@@ -1,5 +1,4 @@
-using System;
-using Shared.Contract.Models;
+using Job.Contract;
 
 namespace Job.Worker.Models;
 
