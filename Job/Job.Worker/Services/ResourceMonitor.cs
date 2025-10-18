@@ -15,24 +15,19 @@ public class ResourceMonitor
     /// </summary>
     public static async Task<double> GetCpuLoadAsync(CancellationToken cancellationToken)
     {
-        var cpuStatTotal = await File.ReadAllLinesAsync("/proc/stat", cancellationToken);
-        var cpuStat = cpuStatTotal[0];
+        var first = await GetCurrentCpuStateAsync(cancellationToken);
+        await Task.Delay(500, cancellationToken);
+        var second = await GetCurrentCpuStateAsync(cancellationToken);
 
-        // cpu user nice system idle iowait irq softirq steal guest guest_nice
-        var parts = cpuStat
-            .Split(' ', StringSplitOptions.TrimEntries)
-            .Select(ParseOrDefault)
-            .ToArray();
+        var diffIdle = second.Idle - first.Idle;
+        var diffTotal = second.Total - first.Total;
 
-        var idleTime = parts[4];
-        var totalTime = parts.Sum();
-
-        if (totalTime == 0)
+        if (diffTotal == 0)
         {
             throw new InvalidDataException("Total time of CPU is zero");
         }
 
-        var cpuUsage = 1 - (double)idleTime / totalTime;
+        var cpuUsage = 1 - (double)diffIdle / diffTotal;
         return cpuUsage;
     }
 
@@ -62,6 +57,22 @@ public class ResourceMonitor
         var drive = new DriveInfo(path);
         var driveUsage = 1 - (double)drive.TotalFreeSpace / drive.TotalSize;
         return driveUsage;
+    }
+
+    private static async Task<(long Idle, long Total)> GetCurrentCpuStateAsync(CancellationToken cancellationToken)
+    {
+        var cpuStatTotal = await File.ReadAllLinesAsync("/proc/stat", cancellationToken);
+        var cpuStat = cpuStatTotal[0];
+
+        // cpu user nice system idle iowait irq softirq steal guest guest_nice
+        var parts = cpuStat
+            .Split(' ', StringSplitOptions.TrimEntries)
+            .Select(ParseOrDefault)
+            .ToArray();
+
+        var idleTime = parts[4];
+        var totalTime = parts.Sum();
+        return (idleTime, totalTime);
     }
 
     private static long ParseOrDefault(string str)
