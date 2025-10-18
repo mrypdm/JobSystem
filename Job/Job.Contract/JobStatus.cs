@@ -1,4 +1,4 @@
-namespace Shared.Contract.Models;
+namespace Job.Contract;
 
 /// <summary>
 /// Status of Job

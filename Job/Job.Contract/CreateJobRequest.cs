@@ -1,6 +1,6 @@
 using System;
 
-namespace Shared.Contract.Models;
+namespace Job.Contract;
 
 /// <summary>
 /// Request for creating new Job

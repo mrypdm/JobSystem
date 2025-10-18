@@ -2,10 +2,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Job.Broker;
+using Job.Contract;
 using Job.Database.Contexts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Contract.Models;
 
 namespace Job.WebApi.Controllers;
 

@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Models;
 using Job.Worker.Options;
 using Microsoft.Extensions.Logging;
-using Shared.Contract.Models;
 
 namespace Job.Worker.Services;
 
