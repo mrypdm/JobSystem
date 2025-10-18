@@ -7,15 +7,10 @@ namespace Job.Broker;
 /// <summary>
 /// Broker consumer of Jobs
 /// </summary>
-public sealed class JobConsumer : IDisposable
+public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IDisposable
 {
-    private readonly ConsumerOptions _options;
-    private readonly ILogger<JobConsumer> _logger;
-    private readonly IConsumer<Guid, JobMessage> _consumer;
-
-    public JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger)
-    {
-        var config = new ConsumerConfig
+    private readonly IConsumer<Guid, JobMessage> _consumer = new ConsumerBuilder<Guid, JobMessage>(
+        new ConsumerConfig
         {
             BootstrapServers = options.Servers,
             ClientId = options.ClientId,
@@ -32,20 +27,16 @@ public sealed class JobConsumer : IDisposable
             EnableAutoCommit = false,
             AutoOffsetReset = AutoOffsetReset.Earliest,
             Acks = Acks.Leader
-        };
-
-        _options = options;
-        _logger = logger;
-        _consumer = new ConsumerBuilder<Guid, JobMessage>(config).Build();
-    }
+        })
+        .Build();
 
     /// <summary>
     /// Subceribe to Broker
     /// </summary>
     public void Subscribe()
     {
-        _consumer.Subscribe(_options.Topic);
-        _logger.LogInformation("Subscribed to topic [{TopicName}]", _options.Topic);
+        _consumer.Subscribe(options.Topic);
+        logger.LogInformation("Subscribed to topic [{TopicName}]", options.Topic);
     }
 
     /// <inheritdoc />
@@ -53,7 +44,7 @@ public sealed class JobConsumer : IDisposable
     {
         _consumer.Close();
         _consumer.Dispose();
-        _logger.LogInformation("Consumer closed");
+        logger.LogInformation("Consumer closed");
     }
 
     /// <summary>
@@ -85,7 +76,7 @@ public sealed class JobConsumer : IDisposable
                 $"Key '{result.Message.Key}' is not equal to Value '{result.Message.Value.Id}'");
         }
 
-        _logger.LogCritical("Consumed messsage for Job [{JobId}]", result.Message.Value.Id);
+        logger.LogCritical("Consumed messsage for Job [{JobId}]", result.Message.Value.Id);
 
         return result;
     }
@@ -96,6 +87,6 @@ public sealed class JobConsumer : IDisposable
     public void Commit(ConsumeResult<Guid, JobMessage> result)
     {
         _consumer.Commit(result);
-        _logger.LogCritical("Commited messsage for Job [{JobId}]", result.Message.Value.Id);
+        logger.LogCritical("Commited messsage for Job [{JobId}]", result.Message.Value.Id);
     }
 }

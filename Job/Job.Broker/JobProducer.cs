@@ -7,18 +7,10 @@ namespace Job.Broker;
 /// <summary>
 /// Broker producer of Jobs
 /// </summary>
-public sealed class JobProducer : IDisposable
+public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IDisposable
 {
-    private readonly ProducerOptions _options;
-    private readonly ILogger<JobProducer> _logger;
-    private readonly IProducer<Guid, JobMessage> _producer;
-
-    /// <summary>
-    /// Creates new instance
-    /// </summary>
-    public JobProducer(ProducerOptions options, ILogger<JobProducer> logger)
-    {
-        var config = new ProducerConfig()
+    private readonly IProducer<Guid, JobMessage> _producer = new ProducerBuilder<Guid, JobMessage>(
+        new ProducerConfig()
         {
             BootstrapServers = options.Servers,
             ClientId = options.ClientId,
@@ -34,19 +26,15 @@ public sealed class JobProducer : IDisposable
             EnableDeliveryReports = true,
             DeliveryReportFields = "key",
             Acks = Acks.Leader
-        };
-
-        _options = options;
-        _logger = logger;
-        _producer = new ProducerBuilder<Guid, JobMessage>(config).Build();
-    }
+        })
+        .Build();
 
     /// <inheritdoc />
     public void Dispose()
     {
         _producer.Flush();
         _producer.Dispose();
-        _logger.LogInformation("Producer closed");
+        logger.LogInformation("Producer closed");
     }
 
     /// <summary>
@@ -63,12 +51,12 @@ public sealed class JobProducer : IDisposable
 
         try
         {
-            await _producer.ProduceAsync(_options.Topic, brokerMessage, cancellationToken).ConfigureAwait(false);
-            _logger.LogCritical("Message for Job [{JobId}] published", message.Id);
+            await _producer.ProduceAsync(options.Topic, brokerMessage, cancellationToken).ConfigureAwait(false);
+            logger.LogCritical("Message for Job [{JobId}] published", message.Id);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Cannot publish message for Job [{JobId}]", message.Id);
+            logger.LogError(e, "Cannot publish message for Job [{JobId}]", message.Id);
         }
     }
 }
