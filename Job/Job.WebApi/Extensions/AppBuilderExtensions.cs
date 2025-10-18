@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using Job.Broker;
 using Job.Broker.Options;
 using Job.Database.Contexts;
+using Job.WebApi.Workers;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
@@ -40,6 +41,16 @@ public static class AppBuilderExtensions
     {
         var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
         builder.Services.AddDbContext<JobDbContext>(options => JobDbContext.BuildOptions(options, dbOptions));
+        return builder;
+    }
+
+    /// <summary>
+    /// Add lost Jobs worker
+    /// </summary>
+    public static WebApplicationBuilder AddLostJobsWorker(this WebApplicationBuilder builder)
+    {
+        var dbOptions = builder.Configuration.GetSection("LostJobWorkerOptions").Get<LostJobWorkerOptions>();
+        builder.Services.AddHostedService<LostJobWorker>();
         return builder;
     }
 

@@ -6,6 +6,7 @@ builder.AddSwagger()
     .ConfigureHttps()
     .AddCertificateAuthentication()
     .AddDatabase()
+    .AddLostJobsWorker()
     .AddBroker();
 builder.Services.AddControllers();
 
