@@ -24,6 +24,9 @@
                             <a class="nav-link text-dark" asp-controller="Jobs" asp-action="GetView">Jobs</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Jobs" asp-action="GetJobCreate">Create</a>
+                        </li>
+                        <li class="nav-item">
                             @if (User.Identity?.IsAuthenticated == true)
                             {
                                 <a class="nav-link text-dark" asp-controller="Authentication" asp-action="GetLogoutView">Sign Out</a>
