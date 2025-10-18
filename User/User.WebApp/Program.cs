@@ -3,8 +3,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
-using Microsoft.Extensions.Caching.Memory;
 using Shared.Contract;
+using Shared.Contract.Extensions;
 using Shared.Contract.Options;
 using Shared.Database;
 using User.Database.Contexts;
@@ -20,7 +20,7 @@ builder.Services
             Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
     });
 
-var webServerOptions = builder.Configuration.GetSection("WebServerOptions").Get<WebServerOptions>();
+var webServerOptions = builder.Configuration.GetOptions<WebServerOptions>();
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.ConfigureHttpsDefaults(httpsOptions =>
@@ -59,10 +59,10 @@ builder.Services
     });
 builder.Services.AddAuthorization(opt => opt.FallbackPolicy = opt.DefaultPolicy);
 
-var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
+var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
 builder.Services.AddDbContext<UserDbContext>(options => UserDbContext.BuildOptions(options, dbOptions));
 
-var jobWebApiOptions = builder.Configuration.GetSection("JobWebApiOptions").Get<JobWebApiOptions>();
+var jobWebApiOptions = builder.Configuration.GetOptions<JobWebApiOptions>();
 var sslValidator = new SslValidator(jobWebApiOptions);
 builder.Services
     .AddHttpClient("Job.WebApi", options =>

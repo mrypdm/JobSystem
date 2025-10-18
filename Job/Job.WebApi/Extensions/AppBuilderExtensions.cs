@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Shared.Contract;
+using Shared.Contract.Extensions;
 using Shared.Contract.Options;
 using Shared.Database;
 
@@ -39,7 +40,7 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
     {
-        var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
+        var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
         builder.Services.AddDbContext<JobDbContext>(options => JobDbContext.BuildOptions(options, dbOptions));
         return builder;
     }
@@ -49,7 +50,7 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddLostJobsWorker(this WebApplicationBuilder builder)
     {
-        var dbOptions = builder.Configuration.GetSection("LostJobWorkerOptions").Get<LostJobWorkerOptions>();
+        var dbOptions = builder.Configuration.GetOptions<LostJobWorkerOptions>();
         builder.Services.AddHostedService<LostJobWorker>();
         return builder;
     }
@@ -59,7 +60,7 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddBroker(this WebApplicationBuilder builder)
     {
-        var producerOptions = builder.Configuration.GetSection("ProducerOptions").Get<ProducerOptions>();
+        var producerOptions = builder.Configuration.GetOptions<ProducerOptions>();
         builder.Services.AddSingleton(producerOptions);
         builder.Services.AddSingleton<JobProducer>();
         return builder;
@@ -70,7 +71,7 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder ConfigureHttps(this WebApplicationBuilder builder)
     {
-        var webServerOptions = builder.Configuration.GetSection("WebServerOptions").Get<WebServerOptions>();
+        var webServerOptions = builder.Configuration.GetOptions<WebServerOptions>();
         builder.Services.Configure<KestrelServerOptions>(kestrelOptions =>
         {
             kestrelOptions.ConfigureHttpsDefaults(httpsOptions =>
@@ -88,7 +89,7 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddCertificateAuthentication(this WebApplicationBuilder builder)
     {
-        var webServerOptions = builder.Configuration.GetSection("WebServerOptions").Get<WebServerOptions>();
+        var webServerOptions = builder.Configuration.GetOptions<WebServerOptions>();
         var sslValidator = new SslValidator(webServerOptions);
         builder.Services
             .AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)

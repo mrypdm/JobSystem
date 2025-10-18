@@ -57,11 +57,11 @@ public class ResourceMonitor
     /// <summary>
     /// Get disk load in percent
     /// </summary>
-    public static double GetDiskLoad(string path)
+    public static double GetDriveLoad(string path)
     {
         var drive = new DriveInfo(path);
-        var diskUsage = 1 - (double)drive.TotalFreeSpace / drive.TotalSize;
-        return diskUsage;
+        var driveUsage = 1 - (double)drive.TotalFreeSpace / drive.TotalSize;
+        return driveUsage;
     }
 
     private static long ParseOrDefault(string str)

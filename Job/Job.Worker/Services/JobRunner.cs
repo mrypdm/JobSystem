@@ -24,13 +24,35 @@ public class JobRunner(JobDbContext jobsDbContext, JobRunnerOptions options, ILo
     {
         var cpu = await ResourceMonitor.GetCpuLoadAsync(cancellationToken);
         var memory = await ResourceMonitor.GetMemLoadAsync(cancellationToken);
-        var drive = ResourceMonitor.GetDiskLoad(options.JobsDirectory);
+        var drive = ResourceMonitor.GetDriveLoad(options.JobsDirectory);
         var memoryUsageOfOneJob = options.MemoryUsage / memory.TotalMemory;
 
-        return cpu <= options.ThresholdCpuUsage
-            && memory.Usage + memoryUsageOfOneJob <= options.ThresholdMemoryUsage
-            && drive <= options.ThresholdDriveUsage
-            && _jobs.Count <= options.ThresholdRunningJobs;
+        if (_jobs.Count > options.ThresholdRunningJobs)
+        {
+            logger.LogInformation("Running Jobs count is [{RunningJobs}], cannot run new job",
+                _jobs.Count);
+        }
+
+        if (cpu > options.ThresholdCpuUsage)
+        {
+            logger.LogCritical("CPU usage is [{CpuUsage}], cannot run new Job", cpu);
+            return false;
+        }
+
+        if (memory.Usage + memoryUsageOfOneJob > options.ThresholdMemoryUsage)
+        {
+            logger.LogCritical("Memory usage is [{MemoryUsage}, {EnrichedMemoryUsage}], cannot run new Job",
+                memory.Usage, memory.Usage + memoryUsageOfOneJob);
+            return false;
+        }
+
+        if (drive > options.ThresholdDriveUsage)
+        {
+            logger.LogCritical("Drive usage is [{DriveUsage}], cannot run new Job", drive);
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>
