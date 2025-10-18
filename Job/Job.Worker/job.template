@@ -2,6 +2,14 @@ services:
     job-<JOB_ID>:
       image: alpine
       command: -c /etc/job/run.sh
+      restart: no
       user: 10000:10000
+      deploy:
+        resources:
+          limits:
+            cpus: <JOB_CPU>
+            memory: <JOB_MEMORY>M
       volumes:
-        - ./run.sh:/etc/job/run.sh
+        - <JOB_DIR>/run.sh:/etc/job/run.sh
+        - <JOB_DIR>/stdout.txt:/dev/stdout
+        - <JOB_DIR>/stderr.txt:/dev/stderr

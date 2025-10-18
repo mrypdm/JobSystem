@@ -56,31 +56,13 @@ public class ConsumerWorker(
         {
             logger.LogDebug("Consume iteration started");
 
-            try
+            if (await runner.CanRunNewJob(cancellationToken))
             {
-                var result = consumer.Consume(cancellationToken);
-
-                var job = await jobsDbContext.GetNewJobAsync(result.Message.Value.Id, cancellationToken);
-                logger.LogInformation("Job [{JobId}] loaded from database", result.Message.Value.Id);
-
-                await jobsDbContext.SetJobRunningAsync(result.Message.Value.Id, cancellationToken);
-
-                runner.RunJob(new RunJobModel
-                {
-                    Id = job.Id,
-                    Timeout = job.Timeout,
-                    Script = job.Script
-                }, default);
-                consumer.Commit(result);
+                await ConsumeOnceAsync(cancellationToken);
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            else
             {
-                logger.LogWarning("Consuming cancelled");
-                return;
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "Cannot consume message");
+                logger.LogInformation("Consuming skipped because there are no resources for new Job");
             }
 
             logger.LogDebug("Consume iteration ended");
@@ -94,6 +76,37 @@ public class ConsumerWorker(
             {
                 // NOP
             }
+        }
+    }
+
+    private async Task ConsumeOnceAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = consumer.Consume(cancellationToken);
+
+            var job = await jobsDbContext.GetNewJobAsync(result.Message.Value.Id, cancellationToken);
+            logger.LogInformation("Job [{JobId}] loaded from database", result.Message.Value.Id);
+
+            await jobsDbContext.SetJobRunningAsync(result.Message.Value.Id, cancellationToken);
+
+            runner.RunJob(new RunJobModel
+            {
+                Id = job.Id,
+                Timeout = job.Timeout,
+                Script = job.Script
+            }, default);
+
+            consumer.Commit(result);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            logger.LogWarning("Consuming cancelled");
+            return;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Cannot consume message");
         }
     }
 }

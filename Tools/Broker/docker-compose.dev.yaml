@@ -7,6 +7,7 @@ services:
         - '8000:8000'
         - '8500:8500'
         - '9000:9000'
+      restart: unless-stopped
       environment:
         KAFKA_NODE_ID: 1
         CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'

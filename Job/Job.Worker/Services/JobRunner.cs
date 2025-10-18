@@ -22,6 +22,22 @@ public class JobRunner(JobsDbContext jobsDbContext, JobRunnerOptions options, IL
     private readonly ConcurrentDictionary<Guid, Task> _jobs = [];
 
     /// <summary>
+    /// Check if we can run new Job
+    /// </summary>
+    public async Task<bool> CanRunNewJob(CancellationToken cancellationToken)
+    {
+        var cpu = await ResourceMonitor.GetCpuLoadAsync(cancellationToken);
+        var memory = await ResourceMonitor.GetMemLoadAsync(cancellationToken);
+        var drive = ResourceMonitor.GetDiskLoad(options.JobsDirectory);
+        var memoryUsageOfOneJob = options.MemoryUsage / memory.TotalMemory;
+
+        return cpu <= options.ThresholdCpuUsage
+            && memory.Usage + memoryUsageOfOneJob <= options.ThresholdMemoryUsage
+            && drive <= options.ThresholdDriveUsage
+            && _jobs.Count <= options.ThresholdRunningJobs;
+    }
+
+    /// <summary>
     /// Waiting for all Jobs to complete
     /// </summary>
     public async Task WaitForAllJobs()
@@ -64,22 +80,11 @@ public class JobRunner(JobsDbContext jobsDbContext, JobRunnerOptions options, IL
         using var process = new Process
         {
             StartInfo = new ProcessStartInfo("docker", ["compose", "up"])
-            {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-            }
         };
-
         process.Start();
 
         logger.LogCritical("Process for Job [{JobId}] started with timeout [{Timeout}]",
             runJobModel.Id, runJobModel.Timeout);
-
-        using var stdout = File.OpenWrite(Path.Combine(runJobModel.Directory, "stdout.txt"));
-        using var stderr = File.OpenWrite(Path.Combine(runJobModel.Directory, "stderr.txt"));
-        var logsTask = Task.WhenAll(
-            process.StandardOutput.BaseStream.CopyToAsync(stdout),
-            process.StandardError.BaseStream.CopyToAsync(stderr));
 
         try
         {
@@ -101,7 +106,6 @@ public class JobRunner(JobsDbContext jobsDbContext, JobRunnerOptions options, IL
         }
         finally
         {
-            await logsTask;
             logger.LogCritical("Process for Job [{JobId}] ended with status [{JobStatus}]",
                 runJobModel.Id, runJobModel.Status);
         }
@@ -147,10 +151,14 @@ public class JobRunner(JobsDbContext jobsDbContext, JobRunnerOptions options, IL
 
         var dockerFile = File.ReadAllText("job.template")
             .Replace("<JOB_ID>", runJobModel.Id.ToString())
+            .Replace("<JOB_CPU>", options.CpuUsage.ToString())
+            .Replace("<JOB_MEMORY>", options.MemoryUsage.ToString())
             .Replace("<JOB_DIR>", jobDirectory);
 
         Directory.CreateDirectory(jobDirectory);
         File.WriteAllText(Path.Combine(jobDirectory, "docker-compose.yaml"), dockerFile);
+        File.Create(Path.Combine(jobDirectory, "stdout.txt")).Close();
+        File.Create(Path.Combine(jobDirectory, "sterr.txt")).Close();
 
         var scriptFile = Path.Combine(jobDirectory, "run.sh");
         using var file = File.OpenWrite(scriptFile);
@@ -162,6 +170,10 @@ public class JobRunner(JobsDbContext jobsDbContext, JobRunnerOptions options, IL
         {
             File.SetUnixFileMode(scriptFile,
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherRead);
+            File.SetUnixFileMode(Path.Combine(jobDirectory, "stdout.txt"),
+                UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite);
+            File.SetUnixFileMode(Path.Combine(jobDirectory, "sterr.txt"),
+                UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite);
         }
 
         logger.LogInformation("Environment [{JobEnvironment}] prepared", jobDirectory);
