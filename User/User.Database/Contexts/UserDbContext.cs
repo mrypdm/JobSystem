@@ -11,16 +11,6 @@ namespace User.Database.Contexts;
 public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logger) : PostgreDbContext(options)
 {
     /// <summary>
-    /// Table of <see cref="UserDbModel"/>
-    /// </summary>
-    public DbSet<UserDbModel> Users { get; set; }
-
-    /// <summary>
-    /// Table of <see cref="UserJobDbModel"/>
-    /// </summary>
-    public DbSet<UserJobDbModel> UserJobs { get; set; }
-
-    /// <summary>
     /// Add new user
     /// </summary>
     public async Task AddNewUserAsync(UserDbModel user, CancellationToken cancellationToken)
@@ -71,12 +61,5 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
             .SqlQuery<int>($"select * from f_users_check_user_job({username}, {jobId})")
             .SingleOrDefaultAsync(cancellationToken);
         return res == 1;
-    }
-
-    /// <inheritdoc />
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserDbContext).Assembly);
-        base.OnModelCreating(modelBuilder);
     }
 }

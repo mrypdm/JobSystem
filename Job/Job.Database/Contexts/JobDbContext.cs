@@ -1,5 +1,4 @@
 using Job.Contract;
-using Job.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Shared.Database;
@@ -11,11 +10,6 @@ namespace Job.Database.Contexts;
 /// </summary>
 public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger) : PostgreDbContext(options)
 {
-    /// <summary>
-    /// Table of <see cref="JobDbModel"/>
-    /// </summary>
-    public DbSet<JobDbModel> Jobs { get; set; }
-
     /// <summary>
     /// Add new Job to database
     /// </summary>
@@ -75,12 +69,5 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
         return await Database
             .SqlQuery<JobResultResponse>($"select * from f_jobs_get_results({jobId})")
             .SingleOrDefaultAsync(cancellationToken);
-    }
-
-    /// <inheritdoc />
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobDbContext).Assembly);
-        base.OnModelCreating(modelBuilder);
     }
 }
