@@ -12,7 +12,7 @@ namespace Job.Database.Contexts;
 /// <summary>
 /// Context for jobs
 /// </summary>
-public class JobsDbContext(DbContextOptions options, ILogger<JobsDbContext> logger) : PostgreDbContext(options)
+public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger) : PostgreDbContext(options)
 {
     /// <summary>
     /// Table of <see cref="JobDbModel"/>
@@ -83,7 +83,7 @@ public class JobsDbContext(DbContextOptions options, ILogger<JobsDbContext> logg
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobsDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
 }

@@ -12,7 +12,7 @@ using Shared.Database;
 var builder = Host.CreateApplicationBuilder(args);
 
 var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
-builder.Services.AddDbContext<JobsDbContext>(options => JobsDbContext.BuildOptions(options, dbOptions));
+builder.Services.AddDbContext<JobDbContext>(options => JobDbContext.BuildOptions(options, dbOptions));
 
 var consumerOptions = builder.Configuration.GetSection("ConsumerOptions").Get<ConsumerOptions>();
 builder.Services.AddSingleton(consumerOptions);

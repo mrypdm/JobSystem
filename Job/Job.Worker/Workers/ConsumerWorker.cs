@@ -17,7 +17,7 @@ namespace Job.Worker.Workers;
 public class ConsumerWorker(
     JobConsumer consumer,
     JobRunner runner,
-    JobsDbContext jobsDbContext,
+    JobDbContext jobsDbContext,
     ConsumerWorkerOptions consumerWorkerOptions,
     ILogger<ConsumerWorker> logger)
     : IHostedService

@@ -95,7 +95,7 @@ builder.Services.AddAuthorization(opt => opt.FallbackPolicy = opt.DefaultPolicy)
 builder.Services.AddControllers();
 
 var dbOptions = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
-builder.Services.AddDbContext<JobsDbContext>(options => JobsDbContext.BuildOptions(options, dbOptions));
+builder.Services.AddDbContext<JobDbContext>(options => JobDbContext.BuildOptions(options, dbOptions));
 
 var producerOptions = builder.Configuration.GetSection("ProducerOptions").Get<ProducerOptions>();
 builder.Services.AddSingleton(producerOptions);

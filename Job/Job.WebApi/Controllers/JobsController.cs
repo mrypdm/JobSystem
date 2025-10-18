@@ -14,7 +14,7 @@ namespace Job.WebApi.Controllers;
 /// </summary>
 [Authorize]
 [Route("api/jobs")]
-public class JobsController(JobsDbContext jobDbContext, JobProducer jobProducer) : Controller
+public class JobsController(JobDbContext jobDbContext, JobProducer jobProducer) : Controller
 {
     /// <summary>
     /// Add new job

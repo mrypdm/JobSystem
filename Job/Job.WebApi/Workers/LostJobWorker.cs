@@ -11,7 +11,7 @@ namespace Job.WebApi.Workers;
 /// Worker for finding Lost jobs
 /// </summary>
 public class LostJobWorker(
-    JobsDbContext jobsDbContext,
+    JobDbContext jobsDbContext,
     ILogger<LostJobWorker> logger,
     LostJobWorkerOptions options) : IHostedService
 {
