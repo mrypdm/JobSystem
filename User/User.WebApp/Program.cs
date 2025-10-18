@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using User.WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,10 @@ builder
     .AddJobApi()
     .AddCookieAuthentication();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
 builder.Services.AddControllersWithViews();
 builder.Services.AddAntiforgery(opt =>
 {
@@ -22,6 +27,7 @@ if (!application.Environment.IsDevelopment())
 }
 
 application
+    .UseForwardedHeaders()
     .UseHsts()
     .UseHttpsRedirection()
     .UseRouting()

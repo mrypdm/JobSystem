@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Contract.Options;
 using User.Database.Contexts;
 using User.Database.Models;
 using User.WebApp.Extensions;
@@ -18,7 +17,7 @@ namespace User.WebApp.Controllers.Api;
 [AllowAnonymous]
 [Route("api/auth")]
 [ValidateAntiForgeryToken]
-public class AuthenticationApiController(UserDbContext userDbContext, WebServerOptions webServerOptions) : Controller
+public class AuthenticationApiController(UserDbContext userDbContext) : Controller
 {
     /// <summary>
     /// Sign in user with cookie
@@ -50,7 +49,7 @@ public class AuthenticationApiController(UserDbContext userDbContext, WebServerO
             return StatusCode(403, "Wrong username and/or password");
         }
 
-        await HttpContext.SignInAsync(userModel, webServerOptions.IsProxyUsed);
+        await HttpContext.SignInAsync(userModel);
         return Ok();
     }
 

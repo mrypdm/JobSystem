@@ -102,8 +102,7 @@ public static class AppBuilderExtensions
 
                 opt.Events.OnValidatePrincipal = context =>
                 {
-                    var ip = context.HttpContext.GetUserIpAddress(webServerOptions.IsProxyUsed);
-
+                    var ip = context.HttpContext.GetUserIpAddress();
                     if (context.Principal.Claims
                             .SingleOrDefault(m => m.Type == HttpContextExtensions.IpAddressClaim)?.Value != ip)
                     {
@@ -119,7 +118,6 @@ public static class AppBuilderExtensions
                     return Task.CompletedTask;
                 };
             });
-        builder.Services.AddAuthorization(opt => opt.FallbackPolicy = opt.DefaultPolicy);
         return builder;
     }
 }
