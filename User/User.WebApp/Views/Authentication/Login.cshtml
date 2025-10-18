@@ -1,5 +1,5 @@
 @using User.WebApp.Views.Authentication;
-@model LoginModel;
+@model string;
 
 @{
     ViewData["Title"] = "Login";
@@ -28,5 +28,5 @@
         </div>
     </div>
 
-    <input type="button" value="Login" onclick="login('@(Model.ReturnUrl)')" />
+    <input type="button" value="Login" onclick="login('@(Model)')" />
 </div>
