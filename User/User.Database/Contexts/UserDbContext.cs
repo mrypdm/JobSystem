@@ -58,8 +58,8 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
     public async Task<bool> IsUserJobAsync(string username, Guid jobId, CancellationToken cancellationToken)
     {
         var res = await Database
-            .SqlQuery<int>($"select * from f_users_check_user_job({username}, {jobId})")
+            .SqlQuery<Guid>($"select * from f_users_check_user_job({username}, {jobId})")
             .SingleOrDefaultAsync(cancellationToken);
-        return res == 1;
+        return res != Guid.Empty;
     }
 }

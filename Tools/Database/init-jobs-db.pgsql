@@ -60,9 +60,7 @@ CREATE TABLE IF NOT EXISTS pgdbo."Jobs"
     CONSTRAINT "PK_JOBS_ID" PRIMARY KEY ("Id"),
     CONSTRAINT "CT_RESULTS_LESS_THAN_500MB" CHECK (octet_length("Results") <= (50 * 1024 * 1024))
 )
-
 TABLESPACE pg_default;
-
 ALTER TABLE IF EXISTS pgdbo."Jobs" OWNER to pg_database_owner;
 
 --
@@ -78,10 +76,10 @@ AS $BODY$
     VALUES (job_id, timeout, script, NOW())
 $BODY$;
 
-ALTER PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) OWNER TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) TO "svc_jobs_webapi@postgres";
-REVOKE ALL ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text[]) FROM PUBLIC;
+ALTER PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text) OWNER TO pg_database_owner;
+GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text) TO pg_database_owner;
+GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text) TO "svc_jobs_webapi@postgres";
+REVOKE ALL ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text) FROM PUBLIC;
 
 -- Getting Jobs results
 CREATE OR REPLACE FUNCTION pgdbo.f_jobs_get_results(job_id uuid)
@@ -97,7 +95,7 @@ $BODY$;
 ALTER FUNCTION pgdbo.f_jobs_get_results(uuid) OWNER TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@postgres";
-REVOKE ALL ON FUNCTIONpgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
 
 -- Marking Jobs as Lost
 CREATE OR REPLACE FUNCTION pgdbo.f_jobs_set_lost(timeout time without time zone)
@@ -107,14 +105,14 @@ SECURITY DEFINER
 AS $BODY$
     UPDATE pgdbo."Jobs"
     SET "Status" = 5, "FinishedAt" = NOW()
-    WHERE "CreatedAt" + time < NOW()
+    WHERE "CreatedAt" + timeout < NOW()
     RETURNING "Id"
 $BODY$;
 
 ALTER FUNCTION pgdbo.f_jobs_get_results(uuid) OWNER TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@postgres";
-REVOKE ALL ON FUNCTIONpgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
 
 --
 -- Creaging functions for svc_jobs_worker
@@ -148,11 +146,11 @@ BEGIN
 
     IF current_status = 1 THEN
         RAISE EXCEPTION 'Session is running';
-    END IF
+    END IF;
 
     IF current_status > 1 THEN
         RAISE EXCEPTION 'Session is finished';
-    END IF
+    END IF;
 
     UPDATE pgdbo."Jobs"
     SET "Status" = 1, "StartedAt" = NOW()
@@ -175,13 +173,13 @@ DECLARE
 BEGIN
     IF status < 2 OR status > 5 THEN
         RAISE EXCEPTION 'Status must be >= 2 (Finished) and <= 5 (Lost)';
-    END IF
+    END IF;
 
     SELECT "Status" into current_status FROM pgdbo."Jobs" WHERE "Id" = job_id;
 
     IF current_status <> 1 THEN
         RAISE EXCEPTION 'Session is not running. Cannot save results';
-    END IF
+    END IF;
 
     UPDATE pgdbo."Jobs"
     SET "Status" = status, "Results" = results, "FinishedAt" = NOW()
