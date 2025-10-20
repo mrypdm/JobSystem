@@ -2,6 +2,8 @@
     ViewData["Title"] = "Logout";
 }
 
+@Html.AntiForgeryToken()
+
 <script>
     onload = async () => { await logout(); };
 </script>

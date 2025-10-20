@@ -4,6 +4,8 @@
     ViewData["Title"] = $"Jobs - {Model}";
 }
 
+@Html.AntiForgeryToken()
+
 <table id="job-results-table">
     <tr>
         <th>Status</th>
