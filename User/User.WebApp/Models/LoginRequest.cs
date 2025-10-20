@@ -6,6 +6,11 @@ namespace User.WebApp.Models;
 public class LoginRequest
 {
     /// <summary>
+    /// Where user should be redirected after login
+    /// </summary>
+    public string ReturnUrl { get; set; }
+
+    /// <summary>
     /// Name of user
     /// </summary>
     public string Username { get; set; }

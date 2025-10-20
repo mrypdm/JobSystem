@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using User.WebApp.Models;
 
 namespace User.WebApp.Controllers;
 
@@ -16,7 +17,7 @@ public class AuthenticationController : Controller
     [HttpGet("login")]
     public ActionResult GetLoginView([FromQuery] string returnUrl)
     {
-        return View("Login", returnUrl);
+        return View("Login", new LoginRequest() { ReturnUrl = returnUrl ?? "/" });
     }
 
     /// <summary>

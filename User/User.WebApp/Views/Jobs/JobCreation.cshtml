@@ -5,7 +5,7 @@
     ViewData["Title"] = $"Jobs - Create";
 }
 
-<form method="post" enctype="multipart/form-data" action="api/jobs" asp-antiforgery="true">
+<form action="api/jobs" method="post" enctype="multipart/form-data" asp-antiforgery="true">
     <input asp-for="Script" />
     <input asp-for="Timeout" placeholder="Timeout" />
     <input type="submit" value="Upload" />

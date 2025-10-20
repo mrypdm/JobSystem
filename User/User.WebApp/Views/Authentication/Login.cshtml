@@ -1,31 +1,16 @@
-@model string;
+@model LoginRequest;
 
 @{
     ViewData["Title"] = "Login";
 }
 
-<div>
-    <div class="row">
-        <div style="float: left; width: 35%">
-            <label for="username">Username</label>
-        </div>
-        <div style="float: left; width: 65%">
-            <input id="username"
-                   type="text"
-                   placeholder="Username" />
-        </div>
-    </div>
-    <div class="row">
-        <div style="float: left; width: 35%">
-            <label for="password">Password</label>
-        </div>
-        <div style="float: left; width: 65%">
-            <input id="password"
-                   type="password"
-                   placeholder="Password" />
-            <input type="checkbox" onclick="showPassword('password')" />
-        </div>
-    </div>
+<form action="/api/auth" method="post" enctype="multipart/form-data" asp-antiforgery="true">
+    <input asp-for="ReturnUrl" type="hidden" value="@(Model.ReturnUrl)" />
 
-    <input type="button" value="Login" onclick="login('@(Model)')" />
-</div>
+    <input asp-for="Username" type="text" /><br />
+
+    <input id="password-box" asp-for="Password" type="password" placeholder="Password" />
+    <input type="checkbox" onclick="showPassword('password-box')" /><br />
+
+    <input type="submit" value="Login" />
+</form>

@@ -23,7 +23,7 @@ public class AuthenticationApiController(UserDbContext userDbContext) : Controll
     /// Sign in user with cookie
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult> SignInAsync([FromBody] LoginRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult> SignInAsync([FromForm] LoginRequest request, CancellationToken cancellationToken)
     {
         var user = await userDbContext.GetUserAsync(request.Username, cancellationToken);
 
@@ -50,7 +50,7 @@ public class AuthenticationApiController(UserDbContext userDbContext) : Controll
         }
 
         await HttpContext.SignInAsync(userModel);
-        return Ok();
+        return Redirect(request.ReturnUrl);
     }
 
     /// <summary>

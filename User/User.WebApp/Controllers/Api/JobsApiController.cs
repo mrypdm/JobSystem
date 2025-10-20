@@ -20,7 +20,8 @@ public class JobsApiController(UserDbContext userDbContext, IHttpClientFactory h
     /// Create new user Job
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> CreateNewJobAsync(CreateUserJobRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateNewJobAsync([FromForm] CreateUserJobRequest request,
+        CancellationToken cancellationToken)
     {
         var username = HttpContext.GetUserName();
         var jobId = Guid.NewGuid();
