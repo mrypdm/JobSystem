@@ -3,44 +3,48 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Caching.Memory;
 using Org.BouncyCastle.X509;
 using Shared.Contract.SslOptions;
-using X509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate;
+using SystemX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate;
 
 namespace Shared.Contract;
 
 /// <summary>
 /// Validator for SSL certificates
 /// </summary>
-public class SslValidator(Pkcs12CertificateOptions options)
+public class SslValidator
 {
-    private readonly Lazy<X509Chain> _validationChain = new(() =>
-    {
-        var chain = X509Chain.Create();
-        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-        chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
-        chain.ChainPolicy.CustomTrustStore.Clear();
-        chain.ChainPolicy.CustomTrustStore.AddRange(options.CertificateChain);
-        return chain;
-    });
-    private readonly Lazy<HashSet<string>> _revokedCertificates = new(() =>
-    {
-        var crlParser = new X509CrlParser();
-        var crl = crlParser.ReadCrl(File.ReadAllBytes(options.RevocationListFilePath));
-        return [.. crl.GetRevokedCertificates().Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray()))];
-    });
+    private readonly X509Chain _validationChain;
+    private readonly HashSet<string> _revokedCertificates;
     private readonly MemoryCache CertificateCache = new(new MemoryCacheOptions()
     {
         ExpirationScanFrequency = TimeSpan.FromMinutes(15)
     });
 
+    public SslValidator(Pkcs12CertificateOptions options)
+    {
+        _validationChain = X509Chain.Create();
+        _validationChain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+        _validationChain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+        _validationChain.ChainPolicy.CustomTrustStore.Clear();
+        _validationChain.ChainPolicy.CustomTrustStore.AddRange(options.CertificateChain);
+
+        var rootPublicKey = new X509CertificateParser()
+            .ReadCertificate(_validationChain.ChainElements.First().Certificate.GetRawCertData())
+            .GetPublicKey();
+        var crl = new X509CrlParser()
+            .ReadCrl(File.ReadAllBytes(options.RevocationListFilePath));
+        crl.IsSignatureValid(rootPublicKey);
+        _revokedCertificates = [.. crl.GetRevokedCertificates().Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray()))];
+    }
+
     /// <summary>
     /// Chain policy for validation
     /// </summary>
-    public X509ChainPolicy ChainPolicy => _validationChain.Value.ChainPolicy;
+    public X509ChainPolicy ChainPolicy => _validationChain.ChainPolicy;
 
     /// <summary>
     /// Validate certificate
     /// </summary>
-    public bool Validate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+    public bool Validate(object sender, SystemX509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
     {
         return Validate((X509Certificate2)certificate, chain, errors);
     }
@@ -55,7 +59,7 @@ public class SslValidator(Pkcs12CertificateOptions options)
             var result = certificate is not null
                 && errors == SslPolicyErrors.None
                 && !IsRevoked(certificate)
-                && _validationChain.Value.Build(certificate);
+                && _validationChain.Build(certificate);
 
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
             entry.Value = result;
@@ -68,6 +72,6 @@ public class SslValidator(Pkcs12CertificateOptions options)
     /// </summary>
     public bool IsRevoked(X509Certificate2 certificate)
     {
-        return _revokedCertificates.Value.Contains(certificate.SerialNumber);
+        return _revokedCertificates.Contains(certificate.SerialNumber);
     }
 }
