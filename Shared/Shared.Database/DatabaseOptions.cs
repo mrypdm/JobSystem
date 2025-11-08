@@ -21,4 +21,15 @@ public class DatabaseOptions : Pkcs12CertificateOptions
     /// Name of database
     /// </summary>
     public string DatabaseName { get; set; }
+
+    /// <summary>
+    /// Count of retries on failure
+    /// </summary>
+    public int RetriesCount { get; set; } = 10;
+
+    /// <summary>
+    /// Delay between retries
+    /// </summary>
+    public TimeSpan RetryDelay { get; set; } = TimeSpan.FromSeconds(30);
+
 }

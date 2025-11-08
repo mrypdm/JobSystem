@@ -26,17 +26,20 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
 
         var validator = new SslValidator(databaseOptions);
 
-        var postgresDataSource = new NpgsqlDataSourceBuilder(connectionString)
-            .UseSslClientAuthenticationOptionsCallback(opt =>
-            {
-                opt.EnabledSslProtocols = SslProtocols.Tls13;
-                opt.CertificateChainPolicy = validator.ChainPolicy;
-                opt.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
-                opt.ClientCertificates = databaseOptions.CertificateChain;
-                opt.RemoteCertificateValidationCallback = validator.Validate;
-            })
-            .Build();
-
-        builder.UseNpgsql(postgresDataSource);
+        builder.UseNpgsql(
+            connectionString,
+            options => options
+                .EnableRetryOnFailure(databaseOptions.RetriesCount, databaseOptions.RetryDelay, errorCodesToAdd: null)
+                .ConfigureDataSource(dataSource =>
+                {
+                    dataSource.UseSslClientAuthenticationOptionsCallback(sslOptions =>
+                    {
+                        sslOptions.EnabledSslProtocols = SslProtocols.Tls13;
+                        sslOptions.CertificateChainPolicy = validator.ChainPolicy;
+                        sslOptions.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
+                        sslOptions.ClientCertificates = databaseOptions.CertificateChain;
+                        sslOptions.RemoteCertificateValidationCallback = validator.Validate;
+                    });
+                }));
     }
 }
