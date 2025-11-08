@@ -1,19 +1,10 @@
-namespace Job.Worker.Services;
+namespace Job.Worker.Monitors;
 
-/// <summary>
-/// Monitor for system resources
-/// </summary>
-public class ResourceMonitor
+/// <inheritdoc />
+public partial class LinuxResourceMonitor : IResourceMonitor
 {
-    /// <summary>
-    /// Record for memory stats
-    /// </summary>
-    public record MemStat(long TotalMemory, long AvailableMemory, double Usage);
-
-    /// <summary>
-    /// Load average load of CPU in percent
-    /// </summary>
-    public static async Task<double> GetCpuLoadAsync(CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public async Task<double> GetCpuLoadAsync(CancellationToken cancellationToken)
     {
         var first = await GetCurrentCpuStateAsync(cancellationToken);
         await Task.Delay(500, cancellationToken);
@@ -31,10 +22,8 @@ public class ResourceMonitor
         return cpuUsage;
     }
 
-    /// <summary>
-    /// Get memory load in percent
-    /// </summary>
-    public static async Task<MemStat> GetMemLoadAsync(CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public async Task<MemStat> GetMemLoadAsync(CancellationToken cancellationToken)
     {
         var memInfoTotal = await File.ReadAllLinesAsync("/proc/meminfo", cancellationToken);
         var memTotal = ParseOrDefault(memInfoTotal[0].Split(":", StringSplitOptions.TrimEntries)[1]);
@@ -49,14 +38,12 @@ public class ResourceMonitor
         return new(memTotal, memAvailable, memUsage);
     }
 
-    /// <summary>
-    /// Get disk load in percent
-    /// </summary>
-    public static double GetDriveLoad(string path)
+    /// <inheritdoc />
+    public Task<double> GetDriveLoad(string path)
     {
         var drive = new DriveInfo(path);
         var driveUsage = 1 - (double)drive.TotalFreeSpace / drive.TotalSize;
-        return driveUsage;
+        return Task.FromResult(driveUsage);
     }
 
     private static async Task<(long Idle, long Total)> GetCurrentCpuStateAsync(CancellationToken cancellationToken)

@@ -5,23 +5,27 @@ using System.Security.Cryptography;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Models;
+using Job.Worker.Monitors;
 using Job.Worker.Options;
-using Job.Worker.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Job.Worker.Runners;
 
 /// <inheritdoc />
-public class JobRunner(IJobDbContext jobsDbContext, JobRunnerOptions options, ILogger<JobRunner> logger) : IJobRunner
+public class JobRunner(
+    IJobDbContext jobsDbContext,
+    IResourceMonitor resourceMonitor,
+    JobRunnerOptions options,
+    ILogger<JobRunner> logger) : IJobRunner
 {
     private readonly ConcurrentDictionary<Guid, Task> _jobs = [];
 
     /// <inheritdoc />
     public async Task<bool> CanRunNewJob(CancellationToken cancellationToken)
     {
-        var cpu = await ResourceMonitor.GetCpuLoadAsync(cancellationToken);
-        var memory = await ResourceMonitor.GetMemLoadAsync(cancellationToken);
-        var drive = ResourceMonitor.GetDriveLoad(options.JobsDirectory);
+        var cpu = await resourceMonitor.GetCpuLoadAsync(cancellationToken);
+        var memory = await resourceMonitor.GetMemLoadAsync(cancellationToken);
+        var drive = await resourceMonitor.GetDriveLoad(options.JobsDirectory);
         var memoryUsageOfOneJob = options.MemoryUsage / memory.TotalMemory;
 
         if (_jobs.Count > options.ThresholdRunningJobs)

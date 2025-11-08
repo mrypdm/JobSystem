@@ -1,6 +1,7 @@
 using Job.Broker.Consumers;
 using Job.Broker.Options;
 using Job.Database.Contexts;
+using Job.Worker.Monitors;
 using Job.Worker.Options;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
@@ -17,6 +18,8 @@ builder.Services.AddDbContext<IJobDbContext, JobDbContext>(options => JobDbConte
 var consumerOptions = builder.Configuration.GetOptions<ConsumerOptions>();
 builder.Services.AddSingleton(consumerOptions);
 builder.Services.AddSingleton<IJobConsumer, JobConsumer>();
+
+builder.Services.AddSingleton<IResourceMonitor, LinuxResourceMonitor>();
 
 var jobRunnerOptions = builder.Configuration.GetOptions<JobRunnerOptions>();
 builder.Services.AddSingleton(jobRunnerOptions);
