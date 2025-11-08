@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS pgdbo."Jobs"
 (
     "Id" uuid NOT NULL,
     "Status" integer NOT NULL DEFAULT 0,
-    "Timeout" time without time zone NOT NULL,
+    "Timeout" interval NOT NULL,
     "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
     "StartedAt" timestamp with time zone,
     "FinishedAt" timestamp with time zone,
@@ -68,22 +68,32 @@ ALTER TABLE IF EXISTS pgdbo."Jobs" OWNER to pg_database_owner;
 --
 
 -- Adding new Jobs
-CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_add_new(IN job_id uuid, IN timeout time without time zone, IN script text)
-LANGUAGE 'sql'
+CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_add_new(IN job_id uuid, IN timeout interval, IN script text)
+LANGUAGE 'plpgsql'
 SECURITY DEFINER
 AS $BODY$
+DECLARE
+    current_job boolean;
+BEGIN
+    SELECT EXISTS(SELECT 1 FROM pgdbo."Jobs" WHERE "Id" = job_id) into current_job;
+
+    IF current_job THEN
+        RAISE EXCEPTION 'Job has been already added';
+    END IF;
+
     INSERT INTO pgdbo."Jobs" ("Id", "Timeout", "Script", "CreatedAt")
-    VALUES (job_id, timeout, script, NOW())
+    VALUES (job_id, timeout, script, NOW());
+END
 $BODY$;
 
-ALTER PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text) OWNER TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text) TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text) TO "svc_jobs_webapi@postgres";
-REVOKE ALL ON PROCEDURE pgdbo.p_jobs_add_new(uuid, time without time zone, text) FROM PUBLIC;
+ALTER PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) OWNER TO pg_database_owner;
+GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) TO pg_database_owner;
+GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) TO "svc_jobs_webapi@postgres";
+REVOKE ALL ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) FROM PUBLIC;
 
 -- Getting Jobs results
 CREATE OR REPLACE FUNCTION pgdbo.f_jobs_get_results(job_id uuid)
-RETURNS TABLE(Status integer, StartedAt timestamp without time zone, FinishedAt timestamp without time zone, Results bytea)
+RETURNS TABLE("Status" integer, "StartedAt" timestamp without time zone, "FinishedAt" timestamp without time zone, "Results" bytea)
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
@@ -98,8 +108,8 @@ GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@pos
 REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
 
 -- Marking Jobs as Lost
-CREATE OR REPLACE FUNCTION pgdbo.f_jobs_set_lost(timeout time without time zone)
-RETURNS TABLE(Id uuid)
+CREATE OR REPLACE FUNCTION pgdbo.f_jobs_set_lost(timeout interval)
+RETURNS TABLE("Id" uuid)
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
@@ -120,7 +130,7 @@ REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
 
 -- Getting new Jobs
 CREATE OR REPLACE FUNCTION pgdbo.f_jobs_get_new(job_id uuid)
-RETURNS TABLE(Id uuid, Timeout time without time zone, Script text)
+RETURNS TABLE("Id" uuid, "Timeout" interval, "Script" text)
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
@@ -145,11 +155,11 @@ BEGIN
     SELECT "Status" into current_status FROM pgdbo."Jobs" WHERE "Id" = job_id;
 
     IF current_status = 1 THEN
-        RAISE EXCEPTION 'Session is running';
+        RAISE EXCEPTION 'Job is running';
     END IF;
 
     IF current_status > 1 THEN
-        RAISE EXCEPTION 'Session is finished';
+        RAISE EXCEPTION 'Job is finished';
     END IF;
 
     UPDATE pgdbo."Jobs"
@@ -178,7 +188,7 @@ BEGIN
     SELECT "Status" into current_status FROM pgdbo."Jobs" WHERE "Id" = job_id;
 
     IF current_status <> 1 THEN
-        RAISE EXCEPTION 'Session is not running. Cannot save results';
+        RAISE EXCEPTION 'Job is not running. Cannot save results';
     END IF;
 
     UPDATE pgdbo."Jobs"

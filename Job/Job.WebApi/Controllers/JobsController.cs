@@ -29,9 +29,16 @@ public class JobsController(IJobDbContext jobDbContext, IJobProducer jobProducer
     /// Get job results
     /// </summary>
     [HttpGet("{jobId}")]
-    public async Task<JobResultResponse> GetJobResultsAsync([FromRoute] Guid jobId,
+    public async Task<ActionResult<JobResultResponse>> GetJobResultsAsync([FromRoute] Guid jobId,
         CancellationToken cancellationToken)
     {
-        return await jobDbContext.GetJobResults(jobId, cancellationToken);
+        var results = await jobDbContext.GetJobResults(jobId, cancellationToken);
+
+        if (results is null)
+        {
+            return NotFound($"Cannot found results for job '{jobId}'");
+        }
+
+        return results;
     }
 }

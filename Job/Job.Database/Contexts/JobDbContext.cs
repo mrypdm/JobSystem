@@ -1,6 +1,7 @@
 using Job.Contract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using Shared.Database;
 
 namespace Job.Database.Contexts;
@@ -12,16 +13,23 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     /// <inheritdoc />
     public async Task AddNewJobAsync(CreateJobRequest job, CancellationToken cancellationToken)
     {
-        await Database
-            .ExecuteSqlAsync($"call p_jobs_add_new({job.Id}, {job.Timeout}, {job.Script})", cancellationToken);
-        logger.LogCritical("Job [{JobId}] was added to database", job.Id);
+        try
+        {
+            await Database
+                .ExecuteSqlAsync($"call pgdbo.p_jobs_add_new({job.Id}, {job.Timeout}, {job.Script})", cancellationToken);
+            logger.LogCritical("Job [{JobId}] was added to database", job.Id);
+        }
+        catch (PostgresException e) when (e.MessageText == "Job has been already added")
+        {
+            logger.LogWarning("Attempt to add duplicate job [{JobId}] to database", job.Id);
+        }
     }
 
     /// <inheritdoc />
     public async Task<CreateJobRequest> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<CreateJobRequest>($"select * from f_jobs_get_new({jobId})")
+            .SqlQuery<CreateJobRequest>($"select * from pgdbo.f_jobs_get_new({jobId})")
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -29,7 +37,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     public async Task SetJobRunningAsync(Guid jobId, CancellationToken cancellationToken)
     {
         await Database
-            .ExecuteSqlAsync($"call p_jobs_set_running({jobId})", cancellationToken);
+            .ExecuteSqlAsync($"call pgdbo.p_jobs_set_running({jobId})", cancellationToken);
         logger.LogCritical("Job [{JobId}] set as running", jobId);
     }
 
@@ -38,7 +46,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
         CancellationToken cancellationToken)
     {
         await Database
-            .ExecuteSqlAsync($"call p_jobs_set_results({jobId}, {jobStatus}, {results})", cancellationToken);
+            .ExecuteSqlAsync($"call pgdbo.p_jobs_set_results({jobId}, {jobStatus}, {results})", cancellationToken);
         logger.LogCritical("Job [{JobId}] results saved to database", jobId);
     }
 
@@ -46,7 +54,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     public async Task MarkLostJobsAsync(TimeSpan timeout, CancellationToken cancellationToken)
     {
         var lostJobs = await Database
-            .SqlQuery<Guid>($"SELECT * FROM f_jobs_set_lost({timeout})")
+            .SqlQuery<Guid>($"SELECT * FROM pgdbo.f_jobs_set_lost({timeout})")
             .ToArrayAsync(cancellationToken);
         logger.LogCritical("Job [{@JobIds}] marked as Lost", lostJobs);
     }
@@ -55,7 +63,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     public async Task<JobResultResponse> GetJobResults(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<JobResultResponse>($"select * from f_jobs_get_results({jobId})")
+            .SqlQuery<JobResultResponse>($"select * from pgdbo.f_jobs_get_results({jobId})")
             .SingleOrDefaultAsync(cancellationToken);
     }
 }

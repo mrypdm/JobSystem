@@ -5,7 +5,7 @@ namespace Job.Database.Contexts;
 /// <summary>
 /// Context for jobs
 /// </summary>
-public interface IJobDbContext
+public interface IJobDbContext : IDisposable
 {
     /// <summary>
     /// Add new Job to database

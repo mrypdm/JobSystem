@@ -1,3 +1,4 @@
+using Job.Broker;
 using Job.Broker.Consumers;
 using Job.Database.Contexts;
 using Job.Worker.Models;
@@ -12,7 +13,7 @@ namespace Job.Worker.Workers;
 /// Worker for Jobs
 /// </summary>
 public class ConsumerWorker(
-    IJobConsumer consumer,
+    IJobConsumer<Guid, JobMessage> consumer,
     IJobRunner runner,
     IJobDbContext jobsDbContext,
     ConsumerWorkerOptions consumerWorkerOptions,

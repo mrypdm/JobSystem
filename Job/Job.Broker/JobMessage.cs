@@ -9,4 +9,12 @@ public class JobMessage
     /// Job Id
     /// </summary>
     public Guid Id { get; set; }
+
+    /// <summary>
+    /// Serializes message to byte array
+    /// </summary>
+    public byte[] ToByteArray()
+    {
+        return Id.ToByteArray();
+    }
 }

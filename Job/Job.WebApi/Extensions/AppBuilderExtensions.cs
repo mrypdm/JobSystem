@@ -52,7 +52,8 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddLostJobsWorker(this WebApplicationBuilder builder)
     {
-        var dbOptions = builder.Configuration.GetOptions<LostJobWorkerOptions>();
+        var workerOptions = builder.Configuration.GetOptions<LostJobWorkerOptions>();
+        builder.Services.AddSingleton(workerOptions);
         builder.Services.AddHostedService<LostJobWorker>();
         return builder;
     }

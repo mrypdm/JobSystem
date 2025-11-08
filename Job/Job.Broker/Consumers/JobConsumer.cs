@@ -1,11 +1,12 @@
 using Confluent.Kafka;
+using Job.Broker.Converters;
 using Job.Broker.Options;
 using Microsoft.Extensions.Logging;
 
 namespace Job.Broker.Consumers;
 
 /// <inheritdoc cref="IJobConsumer" />
-public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IDisposable, IJobConsumer
+public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IJobConsumer<Guid, JobMessage>
 {
     private readonly IConsumer<Guid, JobMessage> _consumer = new ConsumerBuilder<Guid, JobMessage>(
         new ConsumerConfig
@@ -25,6 +26,14 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
             EnableAutoCommit = false,
             AutoOffsetReset = AutoOffsetReset.Earliest,
             Acks = Acks.Leader
+        })
+        .SetKeyDeserializer(new GuidConverter())
+        .SetValueDeserializer(new JobMessageConverter())
+        .SetLogHandler((_, logMessage) =>
+        {
+            logger.Log(
+                (LogLevel)logMessage.LevelAs(LogLevelType.MicrosoftExtensionsLogging),
+                "[{ConsumerName}] {Message}", logMessage.Name, logMessage.Message);
         })
         .Build();
 

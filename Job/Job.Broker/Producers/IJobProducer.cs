@@ -4,7 +4,7 @@ namespace Job.Broker.Producers;
 /// <summary>
 /// Broker producer of Jobs
 /// </summary>
-public interface IJobProducer
+public interface IJobProducer : IDisposable
 {
     /// <summary>
     /// Publish message to broker

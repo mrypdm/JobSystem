@@ -1,11 +1,12 @@
 using Confluent.Kafka;
+using Job.Broker.Converters;
 using Job.Broker.Options;
 using Microsoft.Extensions.Logging;
 
 namespace Job.Broker.Producers;
 
 /// <inheritdoc cref="IJobProducer"/>
-public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IDisposable, IJobProducer
+public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IJobProducer
 {
     private readonly IProducer<Guid, JobMessage> _producer = new ProducerBuilder<Guid, JobMessage>(
         new ProducerConfig()
@@ -23,7 +24,15 @@ public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> lo
 
             EnableDeliveryReports = true,
             DeliveryReportFields = "key",
-            Acks = Acks.Leader
+            Acks = Acks.Leader,
+        })
+        .SetKeySerializer(new GuidConverter())
+        .SetValueSerializer(new JobMessageConverter())
+        .SetLogHandler((_, logMessage) =>
+        {
+            logger.Log(
+                (LogLevel)logMessage.LevelAs(LogLevelType.MicrosoftExtensionsLogging),
+                "[{ProducerName}] {Message}", logMessage.Name, logMessage.Message);
         })
         .Build();
 
@@ -53,6 +62,7 @@ public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> lo
         catch (Exception e)
         {
             logger.LogError(e, "Cannot publish message for Job [{JobId}]", message.Id);
+            throw;
         }
     }
 }

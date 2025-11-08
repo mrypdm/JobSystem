@@ -6,7 +6,7 @@ namespace Job.WebApi.Workers;
 /// Worker for finding Lost jobs
 /// </summary>
 public class LostJobWorker(
-    IJobDbContext jobsDbContext,
+    IServiceScopeFactory scopeFactory,
     ILogger<LostJobWorker> logger,
     LostJobWorkerOptions options) : IHostedService
 {
@@ -51,6 +51,8 @@ public class LostJobWorker(
     {
         try
         {
+            using var scope = scopeFactory.CreateAsyncScope();
+            using var jobsDbContext = scope.ServiceProvider.GetRequiredService<IJobDbContext>();
             await jobsDbContext.MarkLostJobsAsync(options.LostTimeoutForJobs, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

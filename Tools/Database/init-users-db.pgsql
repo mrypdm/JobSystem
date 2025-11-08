@@ -76,7 +76,7 @@ REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) FROM PUBLIC
 
 -- Getting User
 CREATE OR REPLACE FUNCTION pgdbo.f_users_get_user(username text)
-RETURNS TABLE(Username text, PasswordHash text, PasswordSalt text)
+RETURNS TABLE("Username" text, "PasswordHash" text, "PasswordSalt" text)
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
@@ -106,7 +106,7 @@ REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) FROM PUBLIC;
 
 -- Getting User
 CREATE OR REPLACE FUNCTION pgdbo.f_users_get_user_jobs(username text)
-RETURNS TABLE(JobId uuid)
+RETURNS TABLE("JobId" uuid)
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
@@ -122,7 +122,7 @@ REVOKE ALL ON FUNCTION pgdbo.f_users_get_user_jobs(text) FROM PUBLIC;
 
 -- Checking that Job is belongs to User
 CREATE OR REPLACE FUNCTION pgdbo.f_users_check_user_job(username text, job_id uuid)
-RETURNS TABLE(JobId uuid)
+RETURNS TABLE("JobId" uuid)
 LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$

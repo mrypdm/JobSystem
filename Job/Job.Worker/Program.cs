@@ -1,3 +1,4 @@
+using Job.Broker;
 using Job.Broker.Consumers;
 using Job.Broker.Options;
 using Job.Database.Contexts;
@@ -20,7 +21,7 @@ builder.Services.AddDbContext<IJobDbContext, JobDbContext>(
 
 var consumerOptions = builder.Configuration.GetOptions<ConsumerOptions>();
 builder.Services.AddSingleton(consumerOptions);
-builder.Services.AddSingleton<IJobConsumer, JobConsumer>();
+builder.Services.AddSingleton<IJobConsumer<Guid, JobMessage>, JobConsumer>();
 
 builder.Services.AddSingleton<IResourceMonitor, LinuxResourceMonitor>();
 

@@ -10,6 +10,7 @@
 
         "WebServerOptions:CertificateFilePath": "../../Certificates/certs/svc_jobs_webapi/svc_jobs_webapi.keystore.p12",
         "WebServerOptions:Password": "qwerty-123",
+        "WebServerOptions:RevocationListFilePath": "../../Certificates/root/crl.pem",
 
         "DatabaseOptions:CertificateFilePath": "../../Certificates/certs/svc_jobs_webapi@postgres/svc_jobs_webapi@postgres.keystore.p12",
         "DatabaseOptions:Password": "qwerty-123",
