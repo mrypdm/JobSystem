@@ -1,3 +1,5 @@
+using Job.Broker.Producers;
+
 namespace Job.Broker.Options;
 
 /// <summary>

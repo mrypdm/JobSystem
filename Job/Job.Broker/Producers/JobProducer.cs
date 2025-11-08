@@ -2,12 +2,10 @@ using Confluent.Kafka;
 using Job.Broker.Options;
 using Microsoft.Extensions.Logging;
 
-namespace Job.Broker;
+namespace Job.Broker.Producers;
 
-/// <summary>
-/// Broker producer of Jobs
-/// </summary>
-public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IDisposable
+/// <inheritdoc cref="IJobProducer"/>
+public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IDisposable, IJobProducer
 {
     private readonly IProducer<Guid, JobMessage> _producer = new ProducerBuilder<Guid, JobMessage>(
         new ProducerConfig()
@@ -37,9 +35,7 @@ public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> lo
         logger.LogInformation("Producer closed");
     }
 
-    /// <summary>
-    /// Publish message to broker
-    /// </summary>
+    /// <inheritdoc />
     public async Task PublishAsync(JobMessage message, CancellationToken cancellationToken)
     {
         var brokerMessage = new Message<Guid, JobMessage>()
