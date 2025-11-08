@@ -1,3 +1,5 @@
+using Job.Broker.Consumers;
+
 namespace Job.Broker.Options;
 
 /// <summary>

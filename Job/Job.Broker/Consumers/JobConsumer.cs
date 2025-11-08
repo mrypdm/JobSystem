@@ -2,12 +2,10 @@ using Confluent.Kafka;
 using Job.Broker.Options;
 using Microsoft.Extensions.Logging;
 
-namespace Job.Broker;
+namespace Job.Broker.Consumers;
 
-/// <summary>
-/// Broker consumer of Jobs
-/// </summary>
-public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IDisposable
+/// <inheritdoc cref="IJobConsumer" />
+public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IDisposable, IJobConsumer
 {
     private readonly IConsumer<Guid, JobMessage> _consumer = new ConsumerBuilder<Guid, JobMessage>(
         new ConsumerConfig
@@ -30,15 +28,6 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
         })
         .Build();
 
-    /// <summary>
-    /// Subceribe to Broker
-    /// </summary>
-    public void Subscribe()
-    {
-        _consumer.Subscribe(options.Topic);
-        logger.LogInformation("Subscribed to topic [{TopicName}]", options.Topic);
-    }
-
     /// <inheritdoc />
     public void Dispose()
     {
@@ -47,9 +36,15 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
         logger.LogInformation("Consumer closed");
     }
 
-    /// <summary>
-    /// Consume message
-    /// </summary>
+    /// <inheritdoc />
+
+    public void Subscribe()
+    {
+        _consumer.Subscribe(options.Topic);
+        logger.LogInformation("Subscribed to topic [{TopicName}]", options.Topic);
+    }
+
+    /// <inheritdoc />
     public ConsumeResult<Guid, JobMessage> Consume(CancellationToken cancellationToken)
     {
         var result = _consumer.Consume(cancellationToken);
@@ -81,9 +76,7 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
         return result;
     }
 
-    /// <summary>
-    /// Commit consumed message
-    /// </summary>
+    /// <inheritdoc />
     public void Commit(ConsumeResult<Guid, JobMessage> result)
     {
         _consumer.Commit(result);

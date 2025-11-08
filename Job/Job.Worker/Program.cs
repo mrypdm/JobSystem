@@ -1,4 +1,4 @@
-using Job.Broker;
+using Job.Broker.Consumers;
 using Job.Broker.Options;
 using Job.Database.Contexts;
 using Job.Worker.Options;
@@ -16,7 +16,7 @@ builder.Services.AddDbContext<JobDbContext>(options => JobDbContext.BuildOptions
 
 var consumerOptions = builder.Configuration.GetOptions<ConsumerOptions>();
 builder.Services.AddSingleton(consumerOptions);
-builder.Services.AddSingleton<JobConsumer>();
+builder.Services.AddSingleton<IJobConsumer, JobConsumer>();
 
 var jobRunnerOptions = builder.Configuration.GetOptions<JobRunnerOptions>();
 builder.Services.AddSingleton(jobRunnerOptions);
