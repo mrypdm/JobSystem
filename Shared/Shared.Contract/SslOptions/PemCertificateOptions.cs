@@ -1,11 +1,17 @@
+using System.Security.Cryptography.X509Certificates;
+
 namespace Shared.Contract.SslOptions;
 
 public class PemCertificateOptions : CertificateOptions
 {
+    private string _username;
+
     /// <summary>
     /// Username of client
     /// </summary>
-    public string UserName { get; set; }
+    public string UserName => _username ??= X509Certificate2
+        .CreateFromEncryptedPemFile(CertificateFilePath, Password, KeyFilePath)
+        .GetNameInfo(X509NameType.SimpleName, forIssuer: false);
 
     /// <summary>
     /// Path to truststore

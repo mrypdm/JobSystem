@@ -6,7 +6,18 @@
       "dotnetRunMessages": true,
       "launchBrowser": false,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+
+        "WebServerOptions:CertificateFilePath": "../../Certificates/certs/svc_users_webapp/svc_users_webapp.keystore.p12",
+        "WebServerOptions:Password": "qwerty-123",
+
+        "DatabaseOptions:CertificateFilePath": "../../Certificates/certs/svc_users_webapp@postgres/svc_users_webapp@postgres.keystore.p12",
+        "DatabaseOptions:Password": "qwerty-123",
+        "DatabaseOptions:RevocationListFilePath": "../../Certificates/root/crl.pem",
+
+        "JobWebApiOptions:CertificateFilePath": "../../Certificates/certs/svc_users_webapp@webapi/svc_users_webapp@webapi.keystore.p12",
+        "JobWebApiOptions:Password": "qwerty-123",
+        "JobWebApiOptions:RevocationListFilePath": "../../Certificates/root/crl.pem"
       }
     }
   }
