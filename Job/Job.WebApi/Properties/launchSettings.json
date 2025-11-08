@@ -1,12 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "https": {
+    "Dev (HTTP w/o Auth)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://*:4000",
+        "ASPNETCORE_HTTPS_PORT": "",
+        "Urls": "http://*:4000",
 
         "WebServerOptions:CertificateFilePath": "../../Certificates/certs/svc_jobs_webapi/svc_jobs_webapi.keystore.p12",
         "WebServerOptions:Password": "qwerty-123",
@@ -22,6 +25,31 @@
         "ProducerOptions:Password": "qwerty-123",
         "ProducerOptions:RevocationListFilePath": "../../Certificates/root/crl.pem"
       }
-    }
+    },
+    "Staging (HTTPS w/ Auth)": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Staging",
+        "ASPNETCORE_URLS": "https://*:5000;http://*:4000",
+        "ASPNETCORE_HTTPS_PORT": "5000",
+        "Urls": "https://*:5000;http://*:4000",
+
+        "WebServerOptions:CertificateFilePath": "../../Certificates/certs/svc_jobs_webapi/svc_jobs_webapi.keystore.p12",
+        "WebServerOptions:Password": "qwerty-123",
+        "WebServerOptions:RevocationListFilePath": "../../Certificates/root/crl.pem",
+
+        "DatabaseOptions:CertificateFilePath": "../../Certificates/certs/svc_jobs_webapi@postgres/svc_jobs_webapi@postgres.keystore.p12",
+        "DatabaseOptions:Password": "qwerty-123",
+        "DatabaseOptions:RevocationListFilePath": "../../Certificates/root/crl.pem",
+
+        "ProducerOptions:TruststoreFilePath": "../../Certificates/certs/svc_kafka/svc_kafka.truststore.pem",
+        "ProducerOptions:CertificateFilePath": "../../Certificates/certs/svc_jobs_webapi@kafka/svc_jobs_webapi@kafka.crt",
+        "ProducerOptions:KeyFilePath": "../../Certificates/certs/svc_jobs_webapi@kafka/svc_jobs_webapi@kafka.key",
+        "ProducerOptions:Password": "qwerty-123",
+        "ProducerOptions:RevocationListFilePath": "../../Certificates/root/crl.pem"
+      }
+    },
   }
 }

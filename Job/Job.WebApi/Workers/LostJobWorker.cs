@@ -1,4 +1,5 @@
 using Job.Database.Contexts;
+using Job.WebApi.Options;
 
 namespace Job.WebApi.Workers;
 

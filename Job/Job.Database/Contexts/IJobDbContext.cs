@@ -28,12 +28,12 @@ public interface IJobDbContext : IDisposable
     Task SetJobResultsAsync(Guid jobId, JobStatus jobStatus, byte[] results, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Mark Jobs with timeout vialoation as lost
-    /// </summary>
-    Task MarkLostJobsAsync(TimeSpan timeout, CancellationToken cancellationToken);
-
-    /// <summary>
     /// Get Job results
     /// </summary>
     Task<JobResultResponse> GetJobResults(Guid jobId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Mark Jobs with timeout vialoation as lost
+    /// </summary>
+    Task MarkLostJobsAsync(TimeSpan timeout, CancellationToken cancellationToken);
 }

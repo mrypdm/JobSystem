@@ -1,4 +1,6 @@
-namespace Job.WebApi.Workers;
+using Job.WebApi.Workers;
+
+namespace Job.WebApi.Options;
 
 /// <summary>
 /// Options for <see cref="LostJobWorker"/>

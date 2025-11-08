@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using Job.Broker.Options;
 using Job.Broker.Producers;
 using Job.Database.Contexts;
+using Job.WebApi.Options;
 using Job.WebApi.Workers;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -72,11 +73,12 @@ public static class AppBuilderExtensions
     /// <summary>
     /// Configure HTTPS options
     /// </summary>
-    public static WebApplicationBuilder ConfigureHttps(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ConfigureWebServer(this WebApplicationBuilder builder)
     {
         var webServerOptions = builder.Configuration.GetOptions<WebServerOptions>();
         builder.Services.Configure<KestrelServerOptions>(kestrelOptions =>
         {
+            kestrelOptions.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB;
             kestrelOptions.ConfigureHttpsDefaults(httpsOptions =>
             {
                 httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
@@ -88,10 +90,26 @@ public static class AppBuilderExtensions
     }
 
     /// <summary>
+    /// Configure controllers
+    /// </summary>
+    public static WebApplicationBuilder AddControllers(this WebApplicationBuilder builder)
+    {
+        var jobsControllerOptions = builder.Configuration.GetOptions<JobsControllerOptions>();
+        builder.Services.AddSingleton(jobsControllerOptions);
+        builder.Services.AddControllers();
+        return builder;
+    }
+
+    /// <summary>
     /// Add certificate authentication
     /// </summary>
     public static WebApplicationBuilder AddCertificateAuthentication(this WebApplicationBuilder builder)
     {
+        if (builder.Environment.IsDevelopment())
+        {
+            return builder;
+        }
+
         var webServerOptions = builder.Configuration.GetOptions<WebServerOptions>();
         var sslValidator = new SslValidator(webServerOptions);
         builder.Services

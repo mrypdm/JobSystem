@@ -3,8 +3,8 @@ using User.WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder
+    .ConfigureWebServer()
     .AddSwagger()
-    .ConfigureHttps()
     .AddDatabase()
     .AddJobApi()
     .AddCookieAuthentication();
@@ -32,7 +32,7 @@ application
     .UseHttpsRedirection()
     .UseRouting()
     .UseAuthentication()
-.UseAuthorization();
+    .UseAuthorization();
 
 if (application.Environment.IsDevelopment())
 {

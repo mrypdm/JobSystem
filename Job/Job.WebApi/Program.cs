@@ -2,22 +2,28 @@ using Job.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddSwagger()
-    .ConfigureHttps()
+builder
+    .ConfigureWebServer()
+    .AddSwagger()
     .AddCertificateAuthentication()
     .AddDatabase()
     .AddLostJobsWorker()
-    .AddBroker();
-builder.Services.AddControllers();
+    .AddBroker()
+    .AddControllers();
 
 var application = builder.Build();
 
 application
     .UseHsts()
     .UseHttpsRedirection()
-    .UseRouting()
-    .UseAuthentication()
-    .UseAuthorization();
+    .UseRouting();
+
+if (!application.Environment.IsDevelopment())
+{
+    application
+        .UseAuthentication()
+        .UseAuthorization();
+}
 
 if (application.Environment.IsDevelopment())
 {

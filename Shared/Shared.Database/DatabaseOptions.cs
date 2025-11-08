@@ -25,11 +25,11 @@ public class DatabaseOptions : Pkcs12CertificateOptions
     /// <summary>
     /// Count of retries on failure
     /// </summary>
-    public int RetriesCount { get; set; } = 10;
+    public int RetriesCount { get; set; }
 
     /// <summary>
     /// Delay between retries
     /// </summary>
-    public TimeSpan RetryDelay { get; set; } = TimeSpan.FromSeconds(30);
+    public TimeSpan RetryDelay { get; set; }
 
 }

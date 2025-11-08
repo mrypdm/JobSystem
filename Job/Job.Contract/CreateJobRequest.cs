@@ -8,12 +8,12 @@ public class CreateJobRequest
     /// <summary>
     /// Job Id
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
     /// <summary>
     /// Timeout of Job
     /// </summary>
-    public TimeSpan Timeout { get; set; }
+    public TimeSpan? Timeout { get; set; }
 
     /// <summary>
     /// Script of Job

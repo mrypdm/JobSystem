@@ -74,11 +74,12 @@ public static class AppBuilderExtensions
     /// <summary>
     /// Configure HTTPS options
     /// </summary>
-    public static WebApplicationBuilder ConfigureHttps(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ConfigureWebServer(this WebApplicationBuilder builder)
     {
         var webServerOptions = builder.Configuration.GetOptions<WebServerOptions>();
         builder.Services.Configure<KestrelServerOptions>(kestrelOptions =>
         {
+            kestrelOptions.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB;
             kestrelOptions.ConfigureHttpsDefaults(httpsOptions =>
             {
                 httpsOptions.ClientCertificateMode = ClientCertificateMode.NoCertificate;
