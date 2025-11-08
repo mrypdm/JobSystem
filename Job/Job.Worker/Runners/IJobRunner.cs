@@ -1,6 +1,6 @@
 using Job.Worker.Models;
 
-namespace Job.Worker.Services;
+namespace Job.Worker.Runners;
 
 /// <summary>
 /// Runner of Jobs

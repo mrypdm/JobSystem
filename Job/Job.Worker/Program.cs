@@ -2,7 +2,7 @@ using Job.Broker.Consumers;
 using Job.Broker.Options;
 using Job.Database.Contexts;
 using Job.Worker.Options;
-using Job.Worker.Services;
+using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

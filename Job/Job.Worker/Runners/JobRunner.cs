@@ -6,9 +6,10 @@ using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Models;
 using Job.Worker.Options;
+using Job.Worker.Services;
 using Microsoft.Extensions.Logging;
 
-namespace Job.Worker.Services;
+namespace Job.Worker.Runners;
 
 /// <inheritdoc />
 public class JobRunner(IJobDbContext jobsDbContext, JobRunnerOptions options, ILogger<JobRunner> logger) : IJobRunner
