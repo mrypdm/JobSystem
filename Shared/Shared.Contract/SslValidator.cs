@@ -28,12 +28,12 @@ public class SslValidator
         _validationChain.ChainPolicy.CustomTrustStore.AddRange(options.CertificateChain);
 
         var rootPublicKey = new X509CertificateParser()
-            .ReadCertificate(_validationChain.ChainElements.First().Certificate.GetRawCertData())
+            .ReadCertificate(_validationChain.ChainPolicy.CustomTrustStore.Last().GetRawCertData())
             .GetPublicKey();
         var crl = new X509CrlParser()
             .ReadCrl(File.ReadAllBytes(options.RevocationListFilePath));
         crl.IsSignatureValid(rootPublicKey);
-        _revokedCertificates = [.. crl.GetRevokedCertificates().Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray()))];
+        _revokedCertificates = [.. crl.GetRevokedCertificates()?.Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray())) ?? []];
     }
 
     /// <summary>

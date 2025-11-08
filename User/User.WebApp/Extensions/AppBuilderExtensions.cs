@@ -38,8 +38,9 @@ public static class AppBuilderExtensions
     public static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
     {
         var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
+        var sslValidator = new SslValidator(dbOptions);
         builder.Services.AddDbContext<IUserDbContext, UserDbContext>(
-            options => PostgreDbContext.BuildOptions(options, dbOptions));
+            options => PostgreDbContext.BuildOptions(options, dbOptions, sslValidator));
         return builder;
     }
 

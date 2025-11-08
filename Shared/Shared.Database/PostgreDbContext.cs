@@ -14,7 +14,8 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
     /// <summary>
     /// Build options for <see cref="PostgreDbContext"/>
     /// </summary>
-    public static void BuildOptions(DbContextOptionsBuilder builder, DatabaseOptions databaseOptions)
+    public static void BuildOptions(DbContextOptionsBuilder builder, DatabaseOptions databaseOptions,
+        SslValidator sslValidator)
     {
         var connectionString = new NpgsqlConnectionStringBuilder
         {
@@ -23,8 +24,6 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
             Database = databaseOptions.DatabaseName,
             Username = databaseOptions.CommonName
         }.ConnectionString;
-
-        var validator = new SslValidator(databaseOptions);
 
         builder.UseNpgsql(
             connectionString,
@@ -35,10 +34,10 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
                     dataSource.UseSslClientAuthenticationOptionsCallback(sslOptions =>
                     {
                         sslOptions.EnabledSslProtocols = SslProtocols.Tls13;
-                        sslOptions.CertificateChainPolicy = validator.ChainPolicy;
+                        sslOptions.CertificateChainPolicy = sslValidator.ChainPolicy;
                         sslOptions.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
                         sslOptions.ClientCertificates = databaseOptions.CertificateChain;
-                        sslOptions.RemoteCertificateValidationCallback = validator.Validate;
+                        sslOptions.RemoteCertificateValidationCallback = sslValidator.Validate;
                     });
                 }));
     }
