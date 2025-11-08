@@ -13,7 +13,7 @@ namespace Job.Worker.Services;
 /// <summary>
 /// Runner of Jobs
 /// </summary>
-public class JobRunner(JobDbContext jobsDbContext, JobRunnerOptions options, ILogger<JobRunner> logger)
+public class JobRunner(IJobDbContext jobsDbContext, JobRunnerOptions options, ILogger<JobRunner> logger)
 {
     private readonly ConcurrentDictionary<Guid, Task> _jobs = [];
 

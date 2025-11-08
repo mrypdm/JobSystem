@@ -5,14 +5,11 @@ using Shared.Database;
 
 namespace Job.Database.Contexts;
 
-/// <summary>
-/// Context for jobs
-/// </summary>
-public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger) : PostgreDbContext(options)
+/// <inheritdoc />
+public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger)
+    : PostgreDbContext(options), IJobDbContext
 {
-    /// <summary>
-    /// Add new Job to database
-    /// </summary>
+    /// <inheritdoc />
     public async Task AddNewJobAsync(CreateJobRequest job, CancellationToken cancellationToken)
     {
         await Database
@@ -20,9 +17,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
         logger.LogCritical("Job [{JobId}] was added to database", job.Id);
     }
 
-    /// <summary>
-    /// Get Job for running
-    /// </summary>
+    /// <inheritdoc />
     public async Task<CreateJobRequest> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
@@ -30,9 +25,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
             .SingleOrDefaultAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Set Job as running
-    /// </summary>
+    /// <inheritdoc />
     public async Task SetJobRunningAsync(Guid jobId, CancellationToken cancellationToken)
     {
         await Database
@@ -40,19 +33,16 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
         logger.LogCritical("Job [{JobId}] set as running", jobId);
     }
 
-    /// <summary>
-    /// Set Job results
-    /// </summary>
-    public async Task SetJobResultsAsync(Guid jobId, JobStatus jobStatus, byte[] results, CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public async Task SetJobResultsAsync(Guid jobId, JobStatus jobStatus, byte[] results,
+        CancellationToken cancellationToken)
     {
         await Database
             .ExecuteSqlAsync($"call p_jobs_set_results({jobId}, {jobStatus}, {results})", cancellationToken);
         logger.LogCritical("Job [{JobId}] results saved to database", jobId);
     }
 
-    /// <summary>
-    /// Mark Jobs with timeout vialoation as lost
-    /// </summary>
+    /// <inheritdoc />
     public async Task MarkLostJobsAsync(TimeSpan timeout, CancellationToken cancellationToken)
     {
         var lostJobs = await Database
@@ -61,9 +51,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
         logger.LogCritical("Job [{@JobIds}] marked as Lost", lostJobs);
     }
 
-    /// <summary>
-    /// Get Job results
-    /// </summary>
+    /// <inheritdoc />
     public async Task<JobResultResponse> GetJobResults(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database

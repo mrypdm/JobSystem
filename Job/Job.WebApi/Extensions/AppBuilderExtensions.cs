@@ -41,7 +41,7 @@ public static class AppBuilderExtensions
     public static WebApplicationBuilder AddDatabase(this WebApplicationBuilder builder)
     {
         var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
-        builder.Services.AddDbContext<JobDbContext>(options => JobDbContext.BuildOptions(options, dbOptions));
+        builder.Services.AddDbContext<IJobDbContext, JobDbContext>(options => JobDbContext.BuildOptions(options, dbOptions));
         return builder;
     }
 
