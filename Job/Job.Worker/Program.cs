@@ -20,7 +20,7 @@ builder.Services.AddSingleton<IJobConsumer, JobConsumer>();
 
 var jobRunnerOptions = builder.Configuration.GetOptions<JobRunnerOptions>();
 builder.Services.AddSingleton(jobRunnerOptions);
-builder.Services.AddSingleton<JobRunner>();
+builder.Services.AddSingleton<IJobRunner, JobRunner>();
 
 var consumerWorkerOptions = builder.Configuration.GetOptions<ConsumerWorkerOptions>();
 builder.Services.AddSingleton(consumerWorkerOptions);

@@ -10,16 +10,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Job.Worker.Services;
 
-/// <summary>
-/// Runner of Jobs
-/// </summary>
-public class JobRunner(IJobDbContext jobsDbContext, JobRunnerOptions options, ILogger<JobRunner> logger)
+/// <inheritdoc />
+public class JobRunner(IJobDbContext jobsDbContext, JobRunnerOptions options, ILogger<JobRunner> logger) : IJobRunner
 {
     private readonly ConcurrentDictionary<Guid, Task> _jobs = [];
 
-    /// <summary>
-    /// Check if we can run new Job
-    /// </summary>
+    /// <inheritdoc />
     public async Task<bool> CanRunNewJob(CancellationToken cancellationToken)
     {
         var cpu = await ResourceMonitor.GetCpuLoadAsync(cancellationToken);
@@ -55,18 +51,14 @@ public class JobRunner(IJobDbContext jobsDbContext, JobRunnerOptions options, IL
         return true;
     }
 
-    /// <summary>
-    /// Waiting for all Jobs to complete
-    /// </summary>
+    /// <inheritdoc />
     public async Task WaitForAllJobs()
     {
         await Task.WhenAll(_jobs.Values);
         _jobs.Clear();
     }
 
-    /// <summary>
-    /// Run Job
-    /// </summary>
+    /// <inheritdoc />
     public void RunJob(RunJobModel runJobModel)
     {
         var jobTask = RunJobAsync(runJobModel);

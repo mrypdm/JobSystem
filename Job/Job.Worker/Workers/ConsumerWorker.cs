@@ -13,7 +13,7 @@ namespace Job.Worker.Workers;
 /// </summary>
 public class ConsumerWorker(
     IJobConsumer consumer,
-    JobRunner runner,
+    IJobRunner runner,
     IJobDbContext jobsDbContext,
     ConsumerWorkerOptions consumerWorkerOptions,
     ILogger<ConsumerWorker> logger)
