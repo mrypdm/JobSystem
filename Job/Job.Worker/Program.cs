@@ -13,7 +13,8 @@ using Shared.Database;
 var builder = Host.CreateApplicationBuilder(args);
 
 var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
-builder.Services.AddDbContext<IJobDbContext, JobDbContext>(options => JobDbContext.BuildOptions(options, dbOptions));
+builder.Services.AddDbContext<IJobDbContext, JobDbContext>(
+    options => PostgreDbContext.BuildOptions(options, dbOptions));
 
 var consumerOptions = builder.Configuration.GetOptions<ConsumerOptions>();
 builder.Services.AddSingleton(consumerOptions);

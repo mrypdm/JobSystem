@@ -17,7 +17,7 @@ namespace User.WebApp.Controllers.Api;
 [AllowAnonymous]
 [Route("api/auth")]
 [ValidateAntiForgeryToken]
-public class AuthenticationApiController(UserDbContext userDbContext) : Controller
+public class AuthenticationApiController(IUserDbContext userDbContext) : Controller
 {
     /// <summary>
     /// Sign in user with cookie

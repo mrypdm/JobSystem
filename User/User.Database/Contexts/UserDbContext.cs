@@ -5,14 +5,10 @@ using User.Database.Models;
 
 namespace User.Database.Contexts;
 
-/// <summary>
-/// Context for jobs
-/// </summary>
-public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logger) : PostgreDbContext(options)
+/// <inheritdoc />
+public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logger) : PostgreDbContext(options), IUserDbContext
 {
-    /// <summary>
-    /// Add new user
-    /// </summary>
+    /// <inheritdoc />
     public async Task AddNewUserAsync(UserDbModel user, CancellationToken cancellationToken)
     {
         await Database.ExecuteSqlAsync(
@@ -21,9 +17,7 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
         logger.LogCritical("User [{Username}] registered", user.Username);
     }
 
-    /// <summary>
-    /// Get user
-    /// </summary>
+    /// <inheritdoc />
     public async Task<UserDbModel> GetUserAsync(string username, CancellationToken cancellationToken)
     {
         return await Database
@@ -31,9 +25,7 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
             .SingleOrDefaultAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Add new user job
-    /// </summary>
+    /// <inheritdoc />
     public async Task AddNewUserJobAsync(string username, Guid jobId, CancellationToken cancellationToken)
     {
         await Database.ExecuteSqlAsync(
@@ -42,9 +34,7 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
         logger.LogCritical("New Job [{JobId}] created by user [{Username}]", jobId, username);
     }
 
-    /// <summary>
-    /// Get all user jobs
-    /// </summary>
+    /// <inheritdoc />
     public async Task<Guid[]> GetUserJobsAsync(string username, CancellationToken cancellationToken)
     {
         return await Database
@@ -52,9 +42,7 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
             .ToArrayAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// If Job belongs to user
-    /// </summary>
+    /// <inheritdoc />
     public async Task<bool> IsUserJobAsync(string username, Guid jobId, CancellationToken cancellationToken)
     {
         var res = await Database
