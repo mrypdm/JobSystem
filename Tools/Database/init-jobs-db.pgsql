@@ -115,7 +115,7 @@ SECURITY DEFINER
 AS $BODY$
     UPDATE pgdbo."Jobs"
     SET "Status" = 5, "FinishedAt" = NOW()
-    WHERE "CreatedAt" + timeout < NOW()
+    WHERE "Status" <> 5 AND "CreatedAt" + timeout < NOW()
     RETURNING "Id"
 $BODY$;
 
