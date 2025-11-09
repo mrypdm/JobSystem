@@ -18,17 +18,13 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="ConsumerWorker"/>
 /// </summary>
 [TestFixture]
-internal class ConsumerWorkerTests
+internal class ConsumerWorkerTests : TestBase
 {
     private readonly Mock<IJobConsumer<Guid, JobMessage>> _consumer = new();
     private readonly Mock<IJobRunner> _runner = new();
     private readonly Mock<IResourceMonitor> _resourceMonitor = new();
     private readonly Mock<IJobDbContext> _jobDbContext = new();
-    private readonly ILogger<ConsumerWorker> _logger = new Logger<ConsumerWorker>(LoggerFactory.Create(builder =>
-    {
-        builder.AddConsole().AddNUnit();
-        builder.SetMinimumLevel(LogLevel.Trace);
-    }));
+    private readonly ILogger<ConsumerWorker> _logger = CreateLogger<ConsumerWorker>();
     private readonly ConsumerWorkerOptions _consumerWorkerOptions = new()
     {
         IterationDeplay = TimeSpan.FromSeconds(1)
