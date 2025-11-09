@@ -20,6 +20,11 @@ public class DockerJobProcessRunner(IProcessRunner processRunner, ILogger<Docker
             throw new InvalidOperationException(
                 $"Cannot run process for Job '{jobModel.Id}' because its environment is not initialized");
         }
+        if (jobModel.Status > JobStatus.Running)
+        {
+            throw new InvalidOperationException(
+                $"Cannot run process for Job '{jobModel.Id}' because it is marked as '{jobModel.Status}'");
+        }
 
         using var jobTimeoutCancellation = new CancellationTokenSource(jobModel.Timeout);
         logger.LogCritical("Starting process for Job [{JobId}] with timeout [{Timeout}]",
