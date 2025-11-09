@@ -159,7 +159,7 @@ BEGIN
     END IF;
 
     IF current_status > 1 THEN
-        RAISE EXCEPTION 'Job is finished';
+        RAISE EXCEPTION 'Job is finished with status %', current_status;
     END IF;
 
     UPDATE pgdbo."Jobs"

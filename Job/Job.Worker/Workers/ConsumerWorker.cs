@@ -1,3 +1,4 @@
+using Confluent.Kafka;
 using Job.Broker;
 using Job.Broker.Consumers;
 using Job.Database.Contexts;
@@ -6,6 +7,7 @@ using Job.Worker.Options;
 using Job.Worker.Runners;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace Job.Worker.Workers;
 
@@ -23,13 +25,17 @@ public class ConsumerWorker(
     private readonly CancellationTokenSource _consumingLoopCancellation = new();
     private Task _consumingLoopTask;
 
+    private ConsumeResult<Guid, JobMessage> _lastConsumed;
+
     /// <inheritdoc />
     public Task StartAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Starting consuming Jobs");
 
         consumer.Subscribe();
-        _consumingLoopTask = ConsumingLooop(_consumingLoopCancellation.Token);
+        _consumingLoopTask = Task.Run(
+            () => ConsumingLooop(_consumingLoopCancellation.Token),
+            _consumingLoopCancellation.Token);
 
         return Task.CompletedTask;
     }
@@ -77,25 +83,29 @@ public class ConsumerWorker(
         }
     }
 
-    private async Task ConsumeOnceAsync(CancellationToken cancellationToken)
+    internal async Task ConsumeOnceAsync(CancellationToken cancellationToken)
     {
         try
         {
-            var result = consumer.Consume(cancellationToken);
+            _lastConsumed ??= consumer.Consume(cancellationToken);
 
-            var job = await jobsDbContext.GetNewJobAsync(result.Message.Value.Id, cancellationToken);
-            logger.LogInformation("Job [{JobId}] loaded from database", result.Message.Value.Id);
+            var job = await jobsDbContext.GetNewJobAsync(_lastConsumed.Message.Value.Id, cancellationToken);
+            logger.LogInformation("Job [{JobId}] loaded from database", _lastConsumed.Message.Value.Id);
 
-            await jobsDbContext.SetJobRunningAsync(result.Message.Value.Id, cancellationToken);
+            var needToRun = await SetJobAsRunning(job.Id, cancellationToken);
 
-            runner.RunJob(new RunJobModel
+            if (needToRun)
             {
-                Id = job.Id,
-                Timeout = job.Timeout,
-                Script = job.Script
-            });
+                runner.RunJob(new RunJobModel
+                {
+                    Id = job.Id,
+                    Timeout = job.Timeout,
+                    Script = job.Script
+                });
+            }
 
-            consumer.Commit(result);
+            consumer.Commit(_lastConsumed);
+            _lastConsumed = null;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -105,5 +115,24 @@ public class ConsumerWorker(
         {
             logger.LogError(e, "Cannot consume message");
         }
+    }
+
+    private async Task<bool> SetJobAsRunning(Guid jobId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await jobsDbContext.SetJobRunningAsync(_lastConsumed.Message.Value.Id, cancellationToken);
+        }
+        catch (PostgresException e) when (e.MessageText == "Job is running")
+        {
+            // NOP
+        }
+        catch (PostgresException e) when (e.MessageText.Contains("Job is finished"))
+        {
+            logger.LogWarning("Job is finished already. Skipping it");
+            return false;
+        }
+
+        return true;
     }
 }

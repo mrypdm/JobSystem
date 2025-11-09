@@ -66,6 +66,12 @@ public class JobRunner(
     /// <inheritdoc />
     public void RunJob(RunJobModel runJobModel)
     {
+        if (_jobs.ContainsKey(runJobModel.Id))
+        {
+            logger.LogWarning("Job [{JobId}] is already running", runJobModel.Id);
+            return;
+        }
+
         var jobTask = RunJobAsync(runJobModel);
         _jobs.TryAdd(runJobModel.Id, jobTask);
     }
