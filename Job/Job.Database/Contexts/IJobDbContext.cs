@@ -10,12 +10,12 @@ public interface IJobDbContext : IDisposable
     /// <summary>
     /// Add new Job to database
     /// </summary>
-    Task AddNewJobAsync(CreateJobRequest job, CancellationToken cancellationToken);
+    Task AddNewJobAsync(NewJobModel job, CancellationToken cancellationToken);
 
     /// <summary>
     /// Get Job for running
     /// </summary>
-    Task<CreateJobRequest> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken);
+    Task<NewJobModel> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Set Job as running

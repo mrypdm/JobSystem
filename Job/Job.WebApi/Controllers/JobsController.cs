@@ -19,31 +19,35 @@ public class JobsController(IJobDbContext jobDbContext, IJobProducer jobProducer
     /// Add new job
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<CreateJobRequest>> AddNewJobAsync([FromBody] CreateJobRequest request,
+    public async Task<ActionResult<NewJobModel>> AddNewJobAsync([FromBody] CreateJobRequest request,
         CancellationToken cancellationToken)
     {
-        request.Id ??= Guid.NewGuid();
-        request.Timeout ??= options.DefaultTimeout;
+        var newJob = new NewJobModel
+        {
+            Id = request.Id ?? Guid.NewGuid(),
+            Timeout = request.Timeout ?? options.DefaultTimeout,
+            Script = request.Script
+        };
 
-        if (request.Timeout > options.MaxTimeout)
+        if (newJob.Timeout > options.MaxTimeout)
         {
             return BadRequest($"Maximum allowed timeout for Job is '{options.MaxTimeout}'");
         }
 
-        if (string.IsNullOrWhiteSpace(request.Script))
+        if (string.IsNullOrWhiteSpace(newJob.Script))
         {
             return BadRequest("Job script cannot be empty");
         }
 
-        if (!Base64.IsValid(request.Script))
+        if (!Base64.IsValid(newJob.Script))
         {
             return BadRequest("Job script must be base64 encoded");
         }
 
-        await jobDbContext.AddNewJobAsync(request, cancellationToken);
-        await jobProducer.PublishAsync(new JobMessage() { Id = request.Id.Value }, cancellationToken);
+        await jobDbContext.AddNewJobAsync(newJob, cancellationToken);
+        await jobProducer.PublishAsync(new JobMessage() { Id = newJob.Id }, cancellationToken);
 
-        return request;
+        return newJob;
     }
 
     /// <summary>

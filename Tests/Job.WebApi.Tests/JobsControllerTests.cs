@@ -83,7 +83,7 @@ internal class JobsControllerTests
         var result = await controller.AddNewJobAsync(request, default);
 
         // assert
-        Assert.That(result.Value.Id, Is.Not.Null);
+        Assert.That(result.Value.Id, Is.Not.EqualTo(Guid.Empty));
     }
 
     [Test]
@@ -97,7 +97,6 @@ internal class JobsControllerTests
         var result = await controller.AddNewJobAsync(request, default);
 
         // assert
-        Assert.That(result.Value.Timeout, Is.Not.Null);
         Assert.That(result.Value.Timeout, Is.EqualTo(_jobsControllerOptions.DefaultTimeout));
     }
 
@@ -105,16 +104,16 @@ internal class JobsControllerTests
     public async Task AddNewJobAsync_ShouldAddToDatabase_ThenSendToBroker()
     {
         // arrange
-        var request = new CreateJobRequest() { Script = Convert.ToBase64String([0]) };
+        var request = new CreateJobRequest() { Id = Guid.NewGuid(), Script = Convert.ToBase64String([0]) };
         var controller = CreateController();
 
         // act
         var result = await controller.AddNewJobAsync(request, default);
 
         // assert
-        Assert.That(result.Value, Is.SameAs(request));
+        Assert.That(result.Value.Script, Is.SameAs(request.Script));
         _jobDbContext.Verify(
-            m => m.AddNewJobAsync(request, It.IsAny<CancellationToken>()),
+            m => m.AddNewJobAsync(It.Is<NewJobModel>(m => m.Id == request.Id), It.IsAny<CancellationToken>()),
             Times.Once);
         _jobProducer.Verify(
             m => m.PublishAsync(It.Is<JobMessage>(m => m.Id == request.Id), It.IsAny<CancellationToken>()),

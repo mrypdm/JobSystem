@@ -11,7 +11,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     : PostgreDbContext(options), IJobDbContext
 {
     /// <inheritdoc />
-    public async Task AddNewJobAsync(CreateJobRequest job, CancellationToken cancellationToken)
+    public async Task AddNewJobAsync(NewJobModel job, CancellationToken cancellationToken)
     {
         try
         {
@@ -28,10 +28,10 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     }
 
     /// <inheritdoc />
-    public async Task<CreateJobRequest> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken)
+    public async Task<NewJobModel> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<CreateJobRequest>($"select * from pgdbo.f_jobs_get_new({jobId})")
+            .SqlQuery<NewJobModel>($"select * from pgdbo.f_jobs_get_new({jobId})")
             .SingleOrDefaultAsync(cancellationToken);
     }
 
