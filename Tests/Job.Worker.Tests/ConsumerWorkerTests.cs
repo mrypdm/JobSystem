@@ -8,7 +8,6 @@ using Job.Worker.Monitors;
 using Job.Worker.Options;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Npgsql;
 
@@ -24,7 +23,6 @@ internal class ConsumerWorkerTests : TestBase
     private readonly Mock<IJobRunner> _runner = new();
     private readonly Mock<IResourceMonitor> _resourceMonitor = new();
     private readonly Mock<IJobDbContext> _jobDbContext = new();
-    private readonly ILogger<ConsumerWorker> _logger = CreateLogger<ConsumerWorker>();
     private readonly ConsumerWorkerOptions _consumerWorkerOptions = new()
     {
         IterationDeplay = TimeSpan.FromSeconds(1)
@@ -288,6 +286,6 @@ internal class ConsumerWorkerTests : TestBase
     private ConsumerWorker CreateWorker()
     {
         return new ConsumerWorker(_consumer.Object, _runner.Object, _resourceMonitor.Object,
-            _jobDbContext.Object, _consumerWorkerOptions, _logger);
+            _jobDbContext.Object, _consumerWorkerOptions, CreateLogger<ConsumerWorker>());
     }
 }

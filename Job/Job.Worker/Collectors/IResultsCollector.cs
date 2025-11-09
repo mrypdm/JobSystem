@@ -10,5 +10,5 @@ public interface IResultsCollector
     /// <summary>
     /// Collect results of Job
     /// </summary>
-    Task CollectResults(RunJobModel jobModel);
+    Task CollectResultsAsync(RunJobModel jobModel);
 }

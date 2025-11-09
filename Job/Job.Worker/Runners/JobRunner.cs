@@ -47,7 +47,7 @@ public class JobRunner(
         {
             jobEnvironment.PrepareEnvironment(runJobModel);
             await processRunner.RunProcessAsync(runJobModel);
-            await resultsCollector.CollectResults(runJobModel);
+            await resultsCollector.CollectResultsAsync(runJobModel);
             await jobsDbContext.SetJobResultsAsync(runJobModel.Id, runJobModel.Status, runJobModel.Results, default);
         }
         catch (Exception e)

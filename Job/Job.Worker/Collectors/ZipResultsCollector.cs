@@ -11,8 +11,15 @@ public class ZipResultsCollector(IProcessRunner processRunner, ILogger<ZipResult
     : IResultsCollector
 {
     /// <inheritdoc />
-    public async Task CollectResults(RunJobModel jobModel)
+    public async Task CollectResultsAsync(RunJobModel jobModel)
     {
+        ArgumentNullException.ThrowIfNull(jobModel);
+        if (string.IsNullOrWhiteSpace(jobModel.Directory))
+        {
+            throw new InvalidOperationException(
+                $"Cannot collect results of Job '{jobModel.Id}' because its environment is not initialized");
+        }
+
         logger.LogInformation("Collecting Job [{JobId}] results", jobModel.Id);
 
         await processRunner.RunProcessAsync(["zip", "results.zip", "stdout.txt", "stderr.txt"], jobModel.Directory,
