@@ -4,6 +4,7 @@ using Job.Broker.Consumers;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Models;
+using Job.Worker.Monitors;
 using Job.Worker.Options;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
@@ -21,6 +22,7 @@ internal class ConsumerWorkerTests
 {
     private readonly Mock<IJobConsumer<Guid, JobMessage>> _consumer = new();
     private readonly Mock<IJobRunner> _runner = new();
+    private readonly Mock<IResourceMonitor> _resourceMonitor = new();
     private readonly Mock<IJobDbContext> _jobDbContext = new();
     private readonly ILogger<ConsumerWorker> _logger = new Logger<ConsumerWorker>(LoggerFactory.Create(builder =>
     {
@@ -222,8 +224,8 @@ internal class ConsumerWorkerTests
         _consumer
             .Setup(m => m.Subscribe())
             .Callback(() => Assert.That(++order, Is.EqualTo(1)));
-        _runner
-            .Setup(m => m.CanRunNewJob(It.IsAny<CancellationToken>()))
+        _resourceMonitor
+            .Setup(m => m.CanRunNewJobAsync(It.IsAny<CancellationToken>()))
             .Callback(() => Assert.That(++order, Is.EqualTo(2)))
             .ReturnsAsync(true);
         _consumer
@@ -272,8 +274,8 @@ internal class ConsumerWorkerTests
         // arrange
         var worker = CreateWorker();
 
-        _runner
-            .Setup(m => m.CanRunNewJob(It.IsAny<CancellationToken>()))
+        _resourceMonitor
+            .Setup(m => m.CanRunNewJobAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         // act
@@ -289,7 +291,7 @@ internal class ConsumerWorkerTests
 
     private ConsumerWorker CreateWorker()
     {
-        return new ConsumerWorker(_consumer.Object, _runner.Object, _jobDbContext.Object, _consumerWorkerOptions,
-            _logger);
+        return new ConsumerWorker(_consumer.Object, _runner.Object, _resourceMonitor.Object,
+            _jobDbContext.Object, _consumerWorkerOptions, _logger);
     }
 }

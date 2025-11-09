@@ -105,12 +105,23 @@ internal class JobsControllerTests
     {
         // arrange
         var request = new CreateJobRequest() { Id = Guid.NewGuid(), Script = Convert.ToBase64String([0]) };
+
+        var order = 0;
+
+        _jobDbContext
+            .Setup(m => m.AddNewJobAsync(It.Is<NewJobModel>(m => m.Id == request.Id), It.IsAny<CancellationToken>()))
+            .Callback(() => Assert.That(++order, Is.EqualTo(1)));
+        _jobProducer
+            .Setup(m => m.PublishAsync(It.Is<JobMessage>(m => m.Id == request.Id), It.IsAny<CancellationToken>()))
+            .Callback(() => Assert.That(++order, Is.EqualTo(2)));
+
         var controller = CreateController();
 
         // act
         var result = await controller.AddNewJobAsync(request, default);
 
         // assert
+        Assert.That(order, Is.EqualTo(2));
         Assert.That(result.Value.Script, Is.SameAs(request.Script));
         _jobDbContext.Verify(
             m => m.AddNewJobAsync(It.Is<NewJobModel>(m => m.Id == request.Id), It.IsAny<CancellationToken>()),
