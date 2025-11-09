@@ -3,8 +3,8 @@ using Job.Broker;
 using Job.Broker.Consumers;
 using Job.Database.Contexts;
 using Job.Worker.Models;
-using Job.Worker.Monitors;
 using Job.Worker.Options;
+using Job.Worker.Resources.Analyzers;
 using Job.Worker.Runners;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,7 +18,7 @@ namespace Job.Worker.Workers;
 public class ConsumerWorker(
     IJobConsumer<Guid, JobMessage> consumer,
     IJobRunner runner,
-    IResourceMonitor resourceMonitor,
+    IResourcesAnalyzer resourceMonitor,
     IJobDbContext jobsDbContext,
     ConsumerWorkerOptions consumerWorkerOptions,
     ILogger<ConsumerWorker> logger)

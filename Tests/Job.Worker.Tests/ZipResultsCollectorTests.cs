@@ -43,7 +43,7 @@ internal class ZipResultsCollectorTests : TestBase
     public async Task CollectResults_ShouldCallZip_AndSaveToModel()
     {
         // arrange
-        var tempDir = Directory.CreateTempSubdirectory();
+        var tempDir = CreateTempDir();
 
         var expectedCommand = new string[] { "zip", "results.zip", "stdout.log", "stderr.log" };
         var expectedResults = new byte[] { 0x00, 0x11 };
@@ -51,10 +51,10 @@ internal class ZipResultsCollectorTests : TestBase
         var jobModel = new RunJobModel
         {
             Id = Guid.NewGuid(),
-            Directory = tempDir.FullName
+            Directory = tempDir
         };
 
-        File.WriteAllBytes(Path.Combine(tempDir.FullName, "results.zip"), expectedResults);
+        File.WriteAllBytes(Path.Combine(tempDir, "results.zip"), expectedResults);
 
         var collector = CreateCollector();
 
@@ -68,8 +68,6 @@ internal class ZipResultsCollectorTests : TestBase
             m => m.RunProcessAsync(It.Is<string[]>(m => m.SequenceEqual(expectedCommand)), jobModel.Directory,
                 It.IsAny<CancellationToken>()),
             Times.Once);
-
-        tempDir.Delete(true);
     }
 
     private ZipResultsCollector CreateCollector()

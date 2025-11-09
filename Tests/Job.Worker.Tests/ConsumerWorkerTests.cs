@@ -4,8 +4,8 @@ using Job.Broker.Consumers;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Models;
-using Job.Worker.Monitors;
 using Job.Worker.Options;
+using Job.Worker.Resources.Analyzers;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Moq;
@@ -21,7 +21,7 @@ internal class ConsumerWorkerTests : TestBase
 {
     private readonly Mock<IJobConsumer<Guid, JobMessage>> _consumer = new();
     private readonly Mock<IJobRunner> _runner = new();
-    private readonly Mock<IResourceMonitor> _resourceMonitor = new();
+    private readonly Mock<IResourcesAnalyzer> _resourceMonitor = new();
     private readonly Mock<IJobDbContext> _jobDbContext = new();
     private readonly ConsumerWorkerOptions _consumerWorkerOptions = new()
     {

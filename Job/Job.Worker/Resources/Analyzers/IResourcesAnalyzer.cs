@@ -1,10 +1,9 @@
-
-namespace Job.Worker.Monitors;
+namespace Job.Worker.Resources.Analyzers;
 
 /// <summary>
-/// Monitor for system resources
+/// Analyzer for system resources
 /// </summary>
-public interface IResourceMonitor
+public interface IResourcesAnalyzer
 {
     /// <summary>
     /// Check if new Job can be started

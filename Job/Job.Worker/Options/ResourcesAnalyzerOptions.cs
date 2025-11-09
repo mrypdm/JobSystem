@@ -1,11 +1,11 @@
-using Job.Worker.Monitors;
+using Job.Worker.Resources.Analyzers;
 
 namespace Job.Worker.Options;
 
 /// <summary>
-/// Options for <see cref="IResourceMonitor"/>
+/// Options for <see cref="IResourcesAnalyzer"/>
 /// </summary>
-public class ResourceMonitorOptions
+public class ResourcesAnalyzerOptions
 {
     /// <summary>
     /// Maximum allowed percent of CPU usage
