@@ -55,7 +55,7 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherRead);
             File.SetUnixFileMode(Path.Combine(jobModel.Directory, "stdout.txt"),
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite);
-            File.SetUnixFileMode(Path.Combine(jobModel.Directory, "sterr.txt"),
+            File.SetUnixFileMode(Path.Combine(jobModel.Directory, "stderr.txt"),
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite);
         }
 
