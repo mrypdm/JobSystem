@@ -3,6 +3,7 @@ using Job.Broker;
 using Job.Broker.Consumers;
 using Job.Database.Contexts;
 using Job.Worker.Models;
+using Job.Worker.Monitors;
 using Job.Worker.Options;
 using Job.Worker.Runners;
 using Microsoft.Extensions.Hosting;
@@ -17,6 +18,7 @@ namespace Job.Worker.Workers;
 public class ConsumerWorker(
     IJobConsumer<Guid, JobMessage> consumer,
     IJobRunner runner,
+    IResourceMonitor resourceMonitor,
     IJobDbContext jobsDbContext,
     ConsumerWorkerOptions consumerWorkerOptions,
     ILogger<ConsumerWorker> logger)
@@ -60,7 +62,7 @@ public class ConsumerWorker(
         {
             logger.LogDebug("Consume iteration started");
 
-            if (await runner.CanRunNewJob(cancellationToken))
+            if (await resourceMonitor.CanRunNewJobAsync(cancellationToken))
             {
                 await ConsumeOnceAsync(cancellationToken);
             }

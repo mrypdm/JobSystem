@@ -7,17 +7,7 @@ namespace Job.Worker.Monitors;
 public interface IResourceMonitor
 {
     /// <summary>
-    /// Load average load of CPU in percent
+    /// Check if new Job can be started
     /// </summary>
-    Task<double> GetCpuLoadAsync(CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Get memory load in percent
-    /// </summary>
-    Task<MemStat> GetMemLoadAsync(CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Get drive load in percent
-    /// </summary>
-    Task<double> GetDriveLoad(string path);
+    Task<bool> CanRunNewJobAsync(CancellationToken cancellationToken);
 }

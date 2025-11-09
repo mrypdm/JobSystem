@@ -8,9 +8,9 @@ namespace Job.Worker.Runners;
 public interface IJobRunner
 {
     /// <summary>
-    /// Check if we can run new Job
+    /// Count of running Jobs
     /// </summary>
-    Task<bool> CanRunNewJob(CancellationToken cancellationToken);
+    long RunningJobsCount { get; }
 
     /// <summary>
     /// Waiting for all Jobs to complete

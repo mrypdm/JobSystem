@@ -1,10 +1,54 @@
+using Job.Worker.Options;
+using Job.Worker.Runners;
+using Microsoft.Extensions.Logging;
+
 namespace Job.Worker.Monitors;
 
 /// <inheritdoc />
-public partial class LinuxResourceMonitor : IResourceMonitor
+public partial class LinuxResourceMonitor(
+    JobEnvironmentOptions jobEnvironmentOptions,
+    ResourceMonitorOptions resourceMonitorOptions,
+    ILogger<LinuxResourceMonitor> logger,
+    IJobRunner jobRunner) : IResourceMonitor
 {
     /// <inheritdoc />
-    public async Task<double> GetCpuLoadAsync(CancellationToken cancellationToken)
+    public async Task<bool> CanRunNewJobAsync(CancellationToken cancellationToken)
+    {
+        if (jobRunner.RunningJobsCount > resourceMonitorOptions.ThresholdRunningJobs)
+        {
+            logger.LogInformation("Running Jobs count is [{RunningJobs}], cannot run new job",
+                jobRunner.RunningJobsCount);
+            return false;
+        }
+
+        var cpu = await GetCpuLoadAsync(cancellationToken);
+        var memory = await GetMemLoadAsync(cancellationToken);
+        var drive = GetDriveLoad(jobEnvironmentOptions.JobsDirectory);
+        var memoryUsageOfOneJob = jobEnvironmentOptions.MemoryUsage / memory.TotalMemory;
+
+        if (cpu > resourceMonitorOptions.ThresholdCpuUsage)
+        {
+            logger.LogCritical("CPU usage is [{CpuUsage}], cannot run new Job", cpu);
+            return false;
+        }
+
+        if (memory.Usage + memoryUsageOfOneJob > resourceMonitorOptions.ThresholdMemoryUsage)
+        {
+            logger.LogCritical("Memory usage is [{MemoryUsage}, {EnrichedMemoryUsage}], cannot run new Job",
+                memory.Usage, memory.Usage + memoryUsageOfOneJob);
+            return false;
+        }
+
+        if (drive > resourceMonitorOptions.ThresholdDriveUsage)
+        {
+            logger.LogCritical("Drive usage is [{DriveUsage}], cannot run new Job", drive);
+            return false;
+        }
+
+        return true;
+    }
+
+    private static async Task<double> GetCpuLoadAsync(CancellationToken cancellationToken)
     {
         var first = await GetCurrentCpuStateAsync(cancellationToken);
         await Task.Delay(500, cancellationToken);
@@ -22,8 +66,7 @@ public partial class LinuxResourceMonitor : IResourceMonitor
         return cpuUsage;
     }
 
-    /// <inheritdoc />
-    public async Task<MemStat> GetMemLoadAsync(CancellationToken cancellationToken)
+    private static async Task<MemStat> GetMemLoadAsync(CancellationToken cancellationToken)
     {
         var memInfoTotal = await File.ReadAllLinesAsync("/proc/meminfo", cancellationToken);
         var memTotal = ParseOrDefault(memInfoTotal[0].Split(":", StringSplitOptions.TrimEntries)[1]);
@@ -38,12 +81,11 @@ public partial class LinuxResourceMonitor : IResourceMonitor
         return new(memTotal, memAvailable, memUsage);
     }
 
-    /// <inheritdoc />
-    public Task<double> GetDriveLoad(string path)
+    private static double GetDriveLoad(string path)
     {
         var drive = new DriveInfo(path);
         var driveUsage = 1 - (double)drive.TotalFreeSpace / drive.TotalSize;
-        return Task.FromResult(driveUsage);
+        return driveUsage;
     }
 
     private static async Task<(long Idle, long Total)> GetCurrentCpuStateAsync(CancellationToken cancellationToken)
