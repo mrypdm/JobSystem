@@ -28,7 +28,7 @@ internal class ProcessRunnerTests : TestBase
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return ["cmd", "/c", "timeout /t 5"];
+            return ["cmd", "/c", "timeout /t 5 /nobreak"];
         }
         else
         {
