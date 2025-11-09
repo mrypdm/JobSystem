@@ -1,0 +1,15 @@
+services:
+    job-02c6a6eb-92ae-49d5-8743-1dded645d705:
+      image: alpine
+      command: -c /etc/job/run.sh
+      restart: no
+      user: 10000:10000
+      deploy:
+        resources:
+          limits:
+            cpus: 0,5
+            memory: 500M
+      volumes:
+        - dir/02c6a6eb-92ae-49d5-8743-1dded645d705/run.sh:/etc/job/run.sh
+        - dir/02c6a6eb-92ae-49d5-8743-1dded645d705/stdout.txt:/dev/stdout
+        - dir/02c6a6eb-92ae-49d5-8743-1dded645d705/stderr.txt:/dev/stderr

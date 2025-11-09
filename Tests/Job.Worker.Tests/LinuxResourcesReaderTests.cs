@@ -55,8 +55,8 @@ internal class LinuxResourcesReaderTests : TestBase
     {
         return new LinuxResourcesReader()
         {
-            CpuStatFilePath = Path.Combine(Environment.CurrentDirectory, "TestData", "proc-stat"),
-            RamStatFilePath = Path.Combine(Environment.CurrentDirectory, "TestData", "meminfo"),
+            CpuStatFilePath = Path.Combine("TestData", "proc-stat"),
+            RamStatFilePath = Path.Combine("TestData", "meminfo"),
         };
     }
 }

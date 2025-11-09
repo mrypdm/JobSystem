@@ -22,8 +22,11 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
                 $"Environment for Job has been already initialized at '{jobModel.Directory}'");
         }
 
-        jobModel.Directory = Path.Combine(options.JobsDirectory, jobModel.Id.ToString());
-        Directory.Delete(jobModel.Directory, true);
+        jobModel.Directory = Path.Combine(options.JobsDirectory, jobModel.Id.ToString()).Replace("\\", "/");
+        if (Directory.Exists(jobModel.Directory))
+        {
+            Directory.Delete(jobModel.Directory, recursive: true);
+        }
 
         var dockerFile = File.ReadAllText("job.template")
             .Replace("<JOB_ID>", jobModel.Id.ToString())
@@ -34,7 +37,7 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
         Directory.CreateDirectory(jobModel.Directory);
         File.WriteAllText(Path.Combine(jobModel.Directory, "docker-compose.yaml"), dockerFile);
         File.Create(Path.Combine(jobModel.Directory, "stdout.txt")).Close();
-        File.Create(Path.Combine(jobModel.Directory, "sterr.txt")).Close();
+        File.Create(Path.Combine(jobModel.Directory, "stderr.txt")).Close();
 
         var scriptFile = Path.Combine(jobModel.Directory, "run.sh");
         using var file = File.OpenWrite(scriptFile);
