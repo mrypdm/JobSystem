@@ -1,6 +1,6 @@
 using Job.Worker.Models;
 
-namespace Job.Worker.Processes;
+namespace Job.Worker.JobProcesses;
 
 /// <summary>
 /// Runner for processes

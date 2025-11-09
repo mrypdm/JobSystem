@@ -3,12 +3,12 @@ using Job.Contract;
 using Job.Worker.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Job.Worker.Processes;
+namespace Job.Worker.JobProcesses;
 
 /// <summary>
 /// Run Job process in Docker
 /// </summary>
-public class DockerProcessRunner(ILogger<DockerProcessRunner> logger) : IJobProcessRunner
+public class DockerJobProcessRunner(ILogger<DockerJobProcessRunner> logger) : IJobProcessRunner
 {
     /// <inheritdoc />
     public async Task RunProcessAsync(RunJobModel jobModel)

@@ -4,9 +4,9 @@ using Job.Broker.Options;
 using Job.Database.Contexts;
 using Job.Worker.Collectors;
 using Job.Worker.Environments;
+using Job.Worker.JobProcesses;
 using Job.Worker.Monitors;
 using Job.Worker.Options;
-using Job.Worker.Processes;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +32,7 @@ builder.Services.AddSingleton(builder.Configuration.GetOptions<ResourceMonitorOp
 builder.Services.AddSingleton<IResourceMonitor, LinuxResourceMonitor>();
 
 builder.Services.AddSingleton<IResultsCollector, ZipResultsCollector>();
-builder.Services.AddSingleton<IJobProcessRunner, DockerProcessRunner>();
+builder.Services.AddSingleton<IJobProcessRunner, DockerJobProcessRunner>();
 
 builder.Services.AddSingleton<IJobRunner, JobRunner>();
 
