@@ -4,15 +4,15 @@
 ## Get latest from `dotnet new gitignore`
 
 # private information
-Certificates/root/*
-Certificates/certs/*
+infrastructure/Certificates/root/*
+infrastructure/Certificates/certs/*
 
 # Docker data Directories
 
-Tools/Database/pgadmin/
-Tools/Database/postgres/
-Tools/Broker/kafka/
-Tools/Broker/kafka-ui/
+infrastructure/Tools/Database/pgadmin/
+infrastructure/Tools/Database/postgres/
+infrastructure/Tools/Broker/kafka/
+infrastructure/Tools/Broker/kafka-ui/
 
 # dotenv files
 .env

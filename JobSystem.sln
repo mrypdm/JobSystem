@@ -13,66 +13,66 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configs", "Configs", "{02EA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "User", "User", "{8D298B9C-A21A-46C3-A611-79137AC4A422}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.WebApp", "User\User.WebApp\User.WebApp.csproj", "{A4B80FEC-5825-89B6-2276-873776429D78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.WebApp", "src\User\User.WebApp\User.WebApp.csproj", "{A4B80FEC-5825-89B6-2276-873776429D78}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Job", "Job", "{135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi", "Job\Job.WebApi\Job.WebApi.csproj", "{B6A6B8B4-0262-DD4F-3C4E-DA5406B58C3F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi", "src\Job\Job.WebApi\Job.WebApi.csproj", "{B6A6B8B4-0262-DD4F-3C4E-DA5406B58C3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker", "Job\Job.Worker\Job.Worker.csproj", "{B8A9C944-B874-C8E8-F399-930156429D52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker", "src\Job\Job.Worker\Job.Worker.csproj", "{B8A9C944-B874-C8E8-F399-930156429D52}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{B44AB3AB-CEFF-4EBB-B935-17E849E1085D}"
 	ProjectSection(SolutionItems) = preProject
-		Certificates\generate.sh = Certificates\generate.sh
-		Certificates\root.cnf = Certificates\root.cnf
+		infrastructure\Certificates\generate.sh = infrastructure\Certificates\generate.sh
+		infrastructure\Certificates\root.cnf = infrastructure\Certificates\root.cnf
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{76A4D5B4-E733-4543-83A5-5BCB40A5F628}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{DB249E03-3A9B-4878-811C-B7BD2E038418}"
 	ProjectSection(SolutionItems) = preProject
-		Tools\Database\docker-compose.dev.yaml = Tools\Database\docker-compose.dev.yaml
-		Tools\Database\docker-compose.prod.yaml = Tools\Database\docker-compose.prod.yaml
-		Tools\Database\init-jobs-db.pgsql = Tools\Database\init-jobs-db.pgsql
-		Tools\Database\init-users-db.pgsql = Tools\Database\init-users-db.pgsql
-		Tools\Database\init.sh = Tools\Database\init.sh
-		Tools\Database\pg_hba.conf = Tools\Database\pg_hba.conf
-		Tools\Database\servers.json.template = Tools\Database\servers.json.template
+		infrastructure\Tools\Database\docker-compose.dev.yaml = infrastructure\Tools\Database\docker-compose.dev.yaml
+		infrastructure\Tools\Database\docker-compose.prod.yaml = infrastructure\Tools\Database\docker-compose.prod.yaml
+		infrastructure\Tools\Database\init-jobs-db.pgsql = infrastructure\Tools\Database\init-jobs-db.pgsql
+		infrastructure\Tools\Database\init-users-db.pgsql = infrastructure\Tools\Database\init-users-db.pgsql
+		infrastructure\Tools\Database\init.sh = infrastructure\Tools\Database\init.sh
+		infrastructure\Tools\Database\pg_hba.conf = infrastructure\Tools\Database\pg_hba.conf
+		infrastructure\Tools\Database\servers.json.template = infrastructure\Tools\Database\servers.json.template
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Broker", "Broker", "{D24A1ED0-D0E1-4FF0-8760-48AF0FCDFC98}"
 	ProjectSection(SolutionItems) = preProject
-		Tools\Broker\config.yaml.template = Tools\Broker\config.yaml.template
-		Tools\Broker\docker-compose.dev.yaml = Tools\Broker\docker-compose.dev.yaml
-		Tools\Broker\docker-compose.prod.yaml = Tools\Broker\docker-compose.prod.yaml
-		Tools\Broker\init.sh = Tools\Broker\init.sh
+		infrastructure\Tools\Broker\config.yaml.template = infrastructure\Tools\Broker\config.yaml.template
+		infrastructure\Tools\Broker\docker-compose.dev.yaml = infrastructure\Tools\Broker\docker-compose.dev.yaml
+		infrastructure\Tools\Broker\docker-compose.prod.yaml = infrastructure\Tools\Broker\docker-compose.prod.yaml
+		infrastructure\Tools\Broker\init.sh = infrastructure\Tools\Broker\init.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{5A2B5FFB-59AD-4516-AC34-5F8E686BC94C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Database", "Job\Job.Database\Job.Database.csproj", "{C8C6FC91-2146-4A98-AB1A-7272BB7A600A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Database", "src\Job\Job.Database\Job.Database.csproj", "{C8C6FC91-2146-4A98-AB1A-7272BB7A600A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Broker", "Job\Job.Broker\Job.Broker.csproj", "{88D1C89F-DB80-4E5D-95C3-7B514C230612}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Broker", "src\Job\Job.Broker\Job.Broker.csproj", "{88D1C89F-DB80-4E5D-95C3-7B514C230612}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Contract", "Shared\Shared.Contract\Shared.Contract.csproj", "{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Contract", "src\Shared\Shared.Contract\Shared.Contract.csproj", "{ADB2CAA3-26C6-4D3A-AE5F-F4A192AB19B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Database", "User\User.Database\User.Database.csproj", "{B0E0120C-C496-4CDC-A69C-21AA141B965C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Database", "src\User\User.Database\User.Database.csproj", "{B0E0120C-C496-4CDC-A69C-21AA141B965C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Database", "Shared\Shared.Database\Shared.Database.csproj", "{03DC5887-8B96-4886-8B5C-EBDB77FB0321}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Database", "src\Shared\Shared.Database\Shared.Database.csproj", "{03DC5887-8B96-4886-8B5C-EBDB77FB0321}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Contract", "Job\Job.Contract\Job.Contract.csproj", "{8B8C0895-FF47-403B-84EF-C6AEC5333D2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Contract", "src\Job\Job.Contract\Job.Contract.csproj", "{8B8C0895-FF47-403B-84EF-C6AEC5333D2B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{8AE9A580-30AE-4E6F-A78A-A03E5E1B4655}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8AE9A580-30AE-4E6F-A78A-A03E5E1B4655}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Environment", "Environment", "{00FFAE96-B083-453B-B595-CFAAEBA8D48D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{00FFAE96-B083-453B-B595-CFAAEBA8D48D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{97EB3EF4-B8D1-454F-AC08-B2F10D100113}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi.Tests", "Tests\Job.WebApi.Tests\Job.WebApi.Tests.csproj", "{4780C173-AFE5-4B24-929D-85CAC04365B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi.Tests", "src\Tests\Job.WebApi.Tests\Job.WebApi.Tests.csproj", "{4780C173-AFE5-4B24-929D-85CAC04365B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker.Tests", "Tests\Job.Worker.Tests\Job.Worker.Tests.csproj", "{65FB62FE-713F-4D24-8B50-3AD6ED5CBA39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker.Tests", "src\Tests\Job.Worker.Tests\Job.Worker.Tests.csproj", "{65FB62FE-713F-4D24-8B50-3AD6ED5CBA39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.WebApp.Tests", "Tests\User.WebApp.Tests\User.WebApp.Tests.csproj", "{47ACAC93-73D7-46E2-A40F-1C0CF87B5117}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.WebApp.Tests", "src\Tests\User.WebApp.Tests\User.WebApp.Tests.csproj", "{47ACAC93-73D7-46E2-A40F-1C0CF87B5117}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,6 +149,7 @@ Global
 		{B0E0120C-C496-4CDC-A69C-21AA141B965C} = {8D298B9C-A21A-46C3-A611-79137AC4A422}
 		{03DC5887-8B96-4886-8B5C-EBDB77FB0321} = {5A2B5FFB-59AD-4516-AC34-5F8E686BC94C}
 		{8B8C0895-FF47-403B-84EF-C6AEC5333D2B} = {135C5119-4B2B-4B5D-9E1E-BD29A8224EEC}
+		{97EB3EF4-B8D1-454F-AC08-B2F10D100113} = {8AE9A580-30AE-4E6F-A78A-A03E5E1B4655}
 		{4780C173-AFE5-4B24-929D-85CAC04365B9} = {97EB3EF4-B8D1-454F-AC08-B2F10D100113}
 		{65FB62FE-713F-4D24-8B50-3AD6ED5CBA39} = {97EB3EF4-B8D1-454F-AC08-B2F10D100113}
 		{47ACAC93-73D7-46E2-A40F-1C0CF87B5117} = {97EB3EF4-B8D1-454F-AC08-B2F10D100113}
