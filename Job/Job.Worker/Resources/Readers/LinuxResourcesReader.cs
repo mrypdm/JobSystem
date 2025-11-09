@@ -7,15 +7,19 @@ namespace Job.Worker.Resources.Readers;
 /// </summary>
 public class LinuxResourcesReader : IResourcesReader
 {
+    internal string CpuStatFilePath { get; init; } = "/proc/stat";
+
+    internal string RamStatFilePath { get; init; } = "/proc/meminfo";
+
     /// <inheritdoc />
     public async Task<CpuStat> GetCpuStatisticsAsync(CancellationToken cancellationToken)
     {
-        var cpuStatTotal = await File.ReadAllLinesAsync("/proc/stat", cancellationToken);
+        var cpuStatTotal = await File.ReadAllLinesAsync(CpuStatFilePath, cancellationToken);
         var cpuStat = cpuStatTotal[0];
 
         // cpu user nice system idle iowait irq softirq steal guest guest_nice
         var parts = cpuStat
-            .Split(' ', StringSplitOptions.TrimEntries)
+            .Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .Select(ParseOrDefault)
             .ToArray();
 
@@ -25,16 +29,18 @@ public class LinuxResourcesReader : IResourcesReader
     /// <inheritdoc />
     public async Task<MemStat> GetRamStatisticsAsync(CancellationToken cancellationToken)
     {
-        var memInfoTotal = await File.ReadAllLinesAsync("/proc/meminfo", cancellationToken);
-        var memTotal = ParseOrDefault(memInfoTotal[0].Split(":", StringSplitOptions.TrimEntries)[1]);
-        var memAvailable = ParseOrDefault(memInfoTotal[2].Split(":", StringSplitOptions.TrimEntries)[1]);
+        var memInfoTotal = await File.ReadAllLinesAsync(RamStatFilePath, cancellationToken);
+        var memTotal = ParseOrDefault(memInfoTotal[0]
+            .Split(" ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)[1]);
+        var memAvailable = ParseOrDefault(memInfoTotal[2]
+            .Split(" ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)[1]);
 
         if (memTotal == 0)
         {
             throw new InvalidDataException("Total memory is zero");
         }
 
-        return new MemStat(memTotal, memAvailable);
+        return new MemStat(memTotal / 1024, memAvailable / 1024);
     }
 
     /// <inheritdoc />
