@@ -32,18 +32,18 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
             Directory.Delete(jobModel.Directory, recursive: true);
         }
 
-        var dockerFile = File.ReadAllText("job.template")
-            .Replace("<JOB_ID>", jobModel.Id.ToString())
-            .Replace("<JOB_CPU>", options.CpuUsage.ToString())
-            .Replace("<JOB_MEMORY>", options.MemoryUsage.ToString())
-            .Replace("<JOB_DIR>", jobModel.Directory);
+        var dockerFile = File.ReadAllText(Constants.DockerTemplateFileName)
+            .Replace(Constants.JobIdTemplate, jobModel.Id.ToString())
+            .Replace(Constants.JobCpuLimitTemplate, options.CpuUsage.ToString())
+            .Replace(Constants.JobRamLimitTemplate, options.MemoryUsage.ToString())
+            .Replace(Constants.JobDirectoryTemplate, jobModel.Directory);
 
         Directory.CreateDirectory(jobModel.Directory);
-        File.WriteAllText(Path.Combine(jobModel.Directory, "docker-compose.yaml"), dockerFile);
-        File.Create(Path.Combine(jobModel.Directory, "stdout.txt")).Close();
-        File.Create(Path.Combine(jobModel.Directory, "stderr.txt")).Close();
+        File.WriteAllText(Path.Combine(jobModel.Directory, Constants.DockerFileName), dockerFile);
+        File.Create(Path.Combine(jobModel.Directory, Constants.StdOutFileName)).Close();
+        File.Create(Path.Combine(jobModel.Directory, Constants.StdErrFileName)).Close();
 
-        var scriptFile = Path.Combine(jobModel.Directory, "run.sh");
+        var scriptFile = Path.Combine(jobModel.Directory, Constants.ScriptFileName);
         using var file = File.OpenWrite(scriptFile);
         using var base64Stream = new CryptoStream(file, new FromBase64Transform(), CryptoStreamMode.Write);
         using var streamWriter = new StreamWriter(base64Stream);
@@ -53,9 +53,9 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
         {
             File.SetUnixFileMode(scriptFile,
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherRead);
-            File.SetUnixFileMode(Path.Combine(jobModel.Directory, "stdout.txt"),
+            File.SetUnixFileMode(Path.Combine(jobModel.Directory, Constants.StdOutFileName),
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite);
-            File.SetUnixFileMode(Path.Combine(jobModel.Directory, "stderr.txt"),
+            File.SetUnixFileMode(Path.Combine(jobModel.Directory, Constants.StdErrFileName),
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite);
         }
 

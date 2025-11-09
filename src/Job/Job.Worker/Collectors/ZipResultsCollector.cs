@@ -1,3 +1,4 @@
+using Job.Worker.Environments;
 using Job.Worker.Models;
 using Job.Worker.Processes;
 using Microsoft.Extensions.Logging;
@@ -22,10 +23,12 @@ public class ZipResultsCollector(IProcessRunner processRunner, ILogger<ZipResult
 
         logger.LogInformation("Collecting Job [{JobId}] results", jobModel.Id);
 
-        await processRunner.RunProcessAsync(["zip", "results.zip", "stdout.txt", "stderr.txt"], jobModel.Directory,
+        await processRunner.RunProcessAsync(
+            ["zip", Constants.JobResultsFileName, Constants.StdOutFileName, Constants.StdErrFileName],
+            jobModel.Directory,
             default);
 
-        jobModel.Results = await File.ReadAllBytesAsync(Path.Combine(jobModel.Directory, "results.zip"));
+        jobModel.Results = await File.ReadAllBytesAsync(Path.Combine(jobModel.Directory, Constants.JobResultsFileName));
 
         logger.LogInformation("Job [{JobId}] results collected [{ResultsSize} MB]",
             jobModel.Id, jobModel.Results.LongLength / 1024.0 / 1024.0);

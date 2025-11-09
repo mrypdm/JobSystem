@@ -93,7 +93,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
                 File.GetUnixFileMode(Path.Combine(jobModel.Directory, "stdout.txt")),
                 Is.EqualTo(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite));
             Assert.That(
-                File.GetUnixFileMode(Path.Combine(jobModel.Directory, "sterr.txt")),
+                File.GetUnixFileMode(Path.Combine(jobModel.Directory, "stderr.txt")),
                 Is.EqualTo(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite));
         }
     }
