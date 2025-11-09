@@ -28,7 +28,7 @@ internal class ProcessRunnerTests : TestBase
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return ["cmd", "/c", "timeout /t 5 /nobreak"];
+            return ["powershell", "-c", "Start-Sleep -Seconds 5"];
         }
         else
         {
