@@ -7,6 +7,7 @@ using Job.Worker.Environments;
 using Job.Worker.JobProcesses;
 using Job.Worker.Monitors;
 using Job.Worker.Options;
+using Job.Worker.Processes;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,7 @@ builder.Services.AddSingleton<IJobEnvironment, LinuxDockerJobEnvironment>();
 builder.Services.AddSingleton(builder.Configuration.GetOptions<ResourceMonitorOptions>());
 builder.Services.AddSingleton<IResourceMonitor, LinuxResourceMonitor>();
 
+builder.Services.AddSingleton<IProcessRunner, ProcessRunner>();
 builder.Services.AddSingleton<IResultsCollector, ZipResultsCollector>();
 builder.Services.AddSingleton<IJobProcessRunner, DockerJobProcessRunner>();
 

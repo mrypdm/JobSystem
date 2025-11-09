@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Job.Contract;
 using Job.Worker.Models;
+using Job.Worker.Processes;
 using Microsoft.Extensions.Logging;
 
 namespace Job.Worker.JobProcesses;
@@ -8,7 +8,8 @@ namespace Job.Worker.JobProcesses;
 /// <summary>
 /// Run Job process in Docker
 /// </summary>
-public class DockerJobProcessRunner(ILogger<DockerJobProcessRunner> logger) : IJobProcessRunner
+public class DockerJobProcessRunner(IProcessRunner processRunner, ILogger<DockerJobProcessRunner> logger)
+    : IJobProcessRunner
 {
     /// <inheritdoc />
     public async Task RunProcessAsync(RunJobModel jobModel)
@@ -21,21 +22,13 @@ public class DockerJobProcessRunner(ILogger<DockerJobProcessRunner> logger) : IJ
         }
 
         using var jobTimeoutCancellation = new CancellationTokenSource(jobModel.Timeout);
-        using var process = new Process
-        {
-            StartInfo = new ProcessStartInfo("docker", ["compose", "up"])
-            {
-                WorkingDirectory = jobModel.Directory
-            },
-        };
-        process.Start();
-
-        logger.LogCritical("Process for Job [{JobId}] started with timeout [{Timeout}]",
+        logger.LogCritical("Starting process for Job [{JobId}] with timeout [{Timeout}]",
             jobModel.Id, jobModel.Timeout);
 
         try
         {
-            await process.WaitForExitAsync(jobTimeoutCancellation.Token);
+            await processRunner.RunProcessAsync(["docker", "compose", "up"], jobModel.Directory,
+                jobTimeoutCancellation.Token);
             jobModel.Status = JobStatus.Finished;
         }
         catch (OperationCanceledException e)
@@ -60,15 +53,7 @@ public class DockerJobProcessRunner(ILogger<DockerJobProcessRunner> logger) : IJ
     {
         try
         {
-            using var process = new Process
-            {
-                StartInfo = new ProcessStartInfo("docker", ["compose", "down", "-t", "10"])
-                {
-                    WorkingDirectory = jobModel.Directory
-                },
-            };
-            process.Start();
-            await process.WaitForExitAsync();
+            await processRunner.RunProcessAsync(["docker", "compose", "down", "-t", "10"], jobModel.Directory, default);
         }
         catch (Exception e)
         {
