@@ -71,7 +71,7 @@ internal class DockerJobProcessRunnerTests : TestBase
     [Test]
     public Task RunProcess_Failed_ShouldFault()
     {
-        return RunProcessWithResult(JobStatus.Timeout, new Exception());
+        return RunProcessWithResult(JobStatus.Fault, new Exception());
     }
 
     private async Task RunProcessWithResult(JobStatus jobStatus, Exception exception)

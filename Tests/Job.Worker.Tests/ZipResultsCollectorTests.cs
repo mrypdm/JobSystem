@@ -45,7 +45,7 @@ internal class ZipResultsCollectorTests : TestBase
         // arrange
         var tempDir = CreateTempDir();
 
-        var expectedCommand = new string[] { "zip", "results.zip", "stdout.log", "stderr.log" };
+        var expectedCommand = new string[] { "zip", "results.zip", "stdout.txt", "stderr.txt" };
         var expectedResults = new byte[] { 0x00, 0x11 };
 
         var jobModel = new RunJobModel

@@ -115,16 +115,15 @@ internal class ResourcesAnalyzerTests : TestBase
         var result = await monitor.CanRunNewJobAsync(default);
 
         // assert
-        Assert.That(result, Is.False);
+        Assert.That(result, Is.True);
     }
 
     private void SetupCpuLoad(CpuStat first, CpuStat second)
     {
-        var call = 0;
-        var cpuStats = new CpuStat[] { first, second };
         _resourcesReader
-            .Setup(m => m.GetCpuStatisticsAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(cpuStats[call++]);
+            .SetupSequence(m => m.GetCpuStatisticsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(first)
+            .ReturnsAsync(second);
     }
 
     private void SetupRamLoad(MemStat memStat)

@@ -45,7 +45,17 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     }
 
     [Test]
-    public void PrepareEnvironment_ShoudlCreateEnvironemnt()
+    public void PrepareEnvironment_JobScriptIsNotSet_Throw()
+    {
+        // arrange
+        var environment = CreateEnvironment();
+
+        // act & assert
+        Assert.Throws<InvalidOperationException>(() => environment.PrepareEnvironment(new RunJobModel()));
+    }
+
+    [Test]
+    public void PrepareEnvironment_ShouldCreateEnvironemnt()
     {
         // arrange
         var expectedScript = "hello, world";
@@ -89,7 +99,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     }
 
     [Test]
-    public void PrepareEnvironment_EnvironmentExist_ShoudlDeleteEnvironment()
+    public void PrepareEnvironment_EnvironmentExist_ShoudldDeleteEnvironment()
     {
         // arrange
         var environment = CreateEnvironment(CreateTempDir());

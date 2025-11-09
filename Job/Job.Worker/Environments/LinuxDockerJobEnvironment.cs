@@ -21,6 +21,10 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
             throw new InvalidOperationException(
                 $"Environment for Job has been already initialized at '{jobModel.Directory}'");
         }
+        if (string.IsNullOrWhiteSpace(jobModel.Script))
+        {
+            throw new InvalidOperationException($"Cannot run Job '{jobModel.Id}' with empty script");
+        }
 
         jobModel.Directory = Path.Combine(options.JobsDirectory, jobModel.Id.ToString()).Replace("\\", "/");
         if (Directory.Exists(jobModel.Directory))

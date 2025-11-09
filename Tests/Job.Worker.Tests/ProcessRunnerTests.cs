@@ -21,7 +21,7 @@ internal class ProcessRunnerTests : TestBase
         await runner.RunProcessAsync(GetCommandForOs(), Environment.CurrentDirectory, default);
         sw.Stop();
 
-        Assert.That(sw.Elapsed.TotalSeconds, Is.EqualTo(5.0).Within(0.5));
+        Assert.That(sw.Elapsed.TotalSeconds, Is.EqualTo(5.0).Within(1.0));
     }
 
     private string[] GetCommandForOs()

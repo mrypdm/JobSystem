@@ -25,12 +25,13 @@ public class JobRunner(
     public async Task WaitForAllJobs()
     {
         await Task.WhenAll(_jobs.Values);
-        _jobs.Clear();
     }
 
     /// <inheritdoc />
     public void RunJob(RunJobModel runJobModel)
     {
+        ArgumentNullException.ThrowIfNull(runJobModel);
+
         if (_jobs.ContainsKey(runJobModel.Id))
         {
             logger.LogWarning("Job [{JobId}] is already running", runJobModel.Id);
