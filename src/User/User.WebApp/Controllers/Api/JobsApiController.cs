@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using User.Database.Contexts;
 using User.WebApp.Extensions;
+using User.WebApp.Filters;
 using User.WebApp.Models;
 
 namespace User.WebApp.Controllers.Api;
@@ -15,13 +16,14 @@ namespace User.WebApp.Controllers.Api;
 [Authorize]
 [Route("api/jobs")]
 [ValidateAntiForgeryToken]
+[JobWebApiExceptionsFilter]
 public class JobsApiController(IUserDbContext userDbContext, IJobWebApiClient jobWebApiClient) : Controller
 {
     /// <summary>
     /// Create new user Job
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> CreateNewJobAsync([FromForm] CreateUserJobRequest request,
+    public async Task<ActionResult> CreateNewJobAsync([FromForm] CreateUserJobRequest request,
         CancellationToken cancellationToken)
     {
         var jobId = await jobWebApiClient.CreateNewJobAsync(new CreateJobRequest
@@ -31,14 +33,14 @@ public class JobsApiController(IUserDbContext userDbContext, IJobWebApiClient jo
         }, cancellationToken);
         await userDbContext.AddNewUserJobAsync(HttpContext.GetUserName(), jobId, cancellationToken);
 
-        return CreatedAtRoute("GetJobResult", jobId, request);
+        return CreatedAtRoute("GetJobResult", routeValues: jobId, value: null);
     }
 
     /// <summary>
     /// Get User job results
     /// </summary>
     [HttpGet("{jobId}", Name = "GetJobResult")]
-    public async Task<ActionResult<JobResultResponse>> GetUserJobResults([FromRoute] Guid jobId,
+    public async Task<ActionResult<JobResultResponse>> GetUserJobResultsAsync([FromRoute] Guid jobId,
         CancellationToken cancellationToken)
     {
         var username = HttpContext.GetUserName();
