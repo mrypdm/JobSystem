@@ -42,6 +42,6 @@ public static class HttpContextExtensions
     /// </summary>
     public static string GetUserName(this HttpContext context)
     {
-        return context.User.Claims.Single(m => m.Type == ClaimTypes.Name).Value;
+        return context.User.Claims.SingleOrDefault(m => m.Type == ClaimTypes.Name)?.Value;
     }
 }

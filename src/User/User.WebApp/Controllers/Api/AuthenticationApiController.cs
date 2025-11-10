@@ -71,7 +71,16 @@ public class AuthenticationApiController(IUserDbContext userDbContext, ILogger<A
     [HttpDelete]
     public async Task<ActionResult> SignOutAsync()
     {
-        logger.LogCritical("User [{Username}] signed out", HttpContext.GetUserName());
+        var userName = HttpContext.GetUserName();
+        if (userName is null)
+        {
+            logger.LogCritical("Anonymous request for sign out");
+        }
+        else
+        {
+            logger.LogCritical("User [{Username}] signed out", userName);
+        }
+
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok();
     }

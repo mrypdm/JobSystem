@@ -189,6 +189,23 @@ internal class AuthenticationApiControllerTests : TestBase
             Times.Never);
     }
 
+    [Test]
+    public async Task SignOut_ShouldSignOut()
+    {
+        // arrange
+        using var controller = CreateController();
+
+        // act
+        var response = await controller.SignOutAsync();
+
+        // assert
+        Assert.That(response, Is.TypeOf<OkResult>());
+        _authenticationService.Verify(
+            m => m.SignOutAsync(It.IsAny<HttpContext>(), CookieAuthenticationDefaults.AuthenticationScheme,
+                It.IsAny<AuthenticationProperties>()),
+            Times.Once);
+    }
+
     private AuthenticationApiController CreateController()
     {
         var controller = new AuthenticationApiController(_userDbContext.Object,
