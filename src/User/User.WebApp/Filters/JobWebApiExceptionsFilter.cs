@@ -8,7 +8,7 @@ namespace User.WebApp.Filters;
 /// <summary>
 /// Filter for Job.WebApi exceptions
 /// </summary>
-public class JobWebApiExceptionsFilter : ExceptionFilterAttribute
+public class JobWebApiExceptionsFilter(ILogger<JobWebApiExceptionsFilter> logger) : ExceptionFilterAttribute
 {
     /// <inheritdoc />
     public override void OnException(ExceptionContext context)
@@ -22,7 +22,8 @@ public class JobWebApiExceptionsFilter : ExceptionFilterAttribute
 
         if (context.Exception is JobWebApiException apiException)
         {
-            var content = apiException.StatusCode >= System.Net.HttpStatusCode.InternalServerError
+            logger.LogError(apiException, "Job.WebApi exception handled in filter");
+            var content = apiException.StatusCode >= HttpStatusCode.InternalServerError
                 ? "Job.WebApi is failing"
                 : apiException.Message;
 
@@ -36,6 +37,7 @@ public class JobWebApiExceptionsFilter : ExceptionFilterAttribute
         }
         else if (context.Exception is JobWebApiTimeoutException timeoutException)
         {
+            logger.LogError(timeoutException, "Job.WebApi timeout exception handled in filter");
             context.ExceptionHandled = true;
             context.Result = new ContentResult()
             {
