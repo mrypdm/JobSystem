@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Security.Claims;
+using Flurl.Http;
+using Job.WebApi.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
@@ -51,23 +53,24 @@ public static class AppBuilderExtensions
     {
         var jobWebApiOptions = builder.Configuration.GetOptions<JobWebApiOptions>();
         var sslValidator = new SslValidator(jobWebApiOptions);
-        builder.Services
-            .AddHttpClient("Job.WebApi", options =>
-            {
-                options.BaseAddress = new Uri(jobWebApiOptions.Url);
-            })
-            .ConfigurePrimaryHttpMessageHandler(() =>
-            {
-                var handler = new HttpClientHandler()
+        builder.Services.AddSingleton<IJobWebApiClient>(context => new JobWebApiClient(
+            context.GetRequiredKeyedService<IFlurlClient>(nameof(JobWebApiClient)),
+            context.GetRequiredService<ILogger<JobWebApiClient>>())
+        );
+        builder.Services.AddKeyedSingleton(nameof(JobWebApiClient), (_, _) =>
+            FlurlHttp
+                .ConfigureClientForUrl(jobWebApiOptions.Url)
+                .ConfigureInnerHandler(handler =>
                 {
-                    ClientCertificateOptions = ClientCertificateOption.Manual,
-                    CheckCertificateRevocationList = false,
-                    ServerCertificateCustomValidationCallback
-                        = (_, cert, chain, policy) => sslValidator.Validate(cert, chain, policy)
-                };
-                handler.ClientCertificates.Add(jobWebApiOptions.Certificate);
-                return handler;
-            });
+                    handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                    handler.CheckCertificateRevocationList = false;
+                    handler.ServerCertificateCustomValidationCallback
+                        = (_, cert, chain, policy) => sslValidator.Validate(cert, chain, policy);
+                    handler.ClientCertificates.Add(jobWebApiOptions.Certificate);
+                })
+                .Build()
+        );
+
         return builder;
     }
 

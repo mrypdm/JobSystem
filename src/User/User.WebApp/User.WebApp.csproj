@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Job\Job.Contract\Job.Contract.csproj" />
+    <ProjectReference Include="..\..\Job\Job.WebApi.Client\Job.WebApi.Client.csproj" />
     <ProjectReference Include="..\..\Shared\Shared.Contract\Shared.Contract.csproj" />
     <ProjectReference Include="..\User.Database\User.Database.csproj" />
   </ItemGroup>
