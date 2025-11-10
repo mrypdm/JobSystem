@@ -32,7 +32,20 @@ internal class JobsControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_EmptyScript_ShoudlReturnBadRequest()
+    public async Task AddNewJobAsync_NullRequest_ShouldReturnBadRequest()
+    {
+        // arrange
+        var controller = CreateController();
+
+        // act
+        var result = await controller.AddNewJobAsync(null, default);
+
+        // assert
+        Assert.That(result.Result, Is.TypeOf<BadRequestObjectResult>());
+    }
+
+    [Test]
+    public async Task AddNewJobAsync_EmptyScript_ShouldReturnBadRequest()
     {
         // arrange
         var request = new CreateJobRequest() { Script = "" };
@@ -46,7 +59,7 @@ internal class JobsControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_NotBase64Script_ShoudlReturnBadRequest()
+    public async Task AddNewJobAsync_NotBase64Script_ShouldReturnBadRequest()
     {
         // arrange
         var request = new CreateJobRequest() { Script = "not_base_64" };
@@ -60,7 +73,7 @@ internal class JobsControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_LargeTimeout_ShoudlReturnBadRequest()
+    public async Task AddNewJobAsync_LargeTimeout_ShouldReturnBadRequest()
     {
         // arrange
         var request = new CreateJobRequest() { Timeout = TimeSpan.FromDays(100) };
@@ -74,9 +87,14 @@ internal class JobsControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_EmptyId_ShoudlGenerateId()
+    public async Task AddNewJobAsync_EmptyTimeout_EmptyId_ShouldUseDefaultTimeout_ShouldGenerateId()
     {
         // arrange
+        NewJobModel actualJob = null;
+        _jobDbContext
+            .Setup(m => m.AddNewJobAsync(It.IsAny<NewJobModel>(), It.IsAny<CancellationToken>()))
+            .Callback((NewJobModel model, CancellationToken _) => actualJob = model);
+
         var request = new CreateJobRequest() { Script = Convert.ToBase64String([0]) };
         var controller = CreateController();
 
@@ -84,34 +102,33 @@ internal class JobsControllerTests : TestBase
         var result = await controller.AddNewJobAsync(request, default);
 
         // assert
-        Assert.That(result.Value.Id, Is.Not.EqualTo(Guid.Empty));
-    }
-
-    [Test]
-    public async Task AddNewJobAsync_EmptyTeimout_ShoudlUseDefaultTimeout()
-    {
-        // arrange
-        var request = new CreateJobRequest() { Script = Convert.ToBase64String([0]) };
-        var controller = CreateController();
-
-        // act
-        var result = await controller.AddNewJobAsync(request, default);
-
-        // assert
-        Assert.That(result.Value.Timeout, Is.EqualTo(_jobsControllerOptions.DefaultTimeout));
+        Assert.That(actualJob, Is.Not.Null);
+        Assert.That(result.Value, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(actualJob.Id, Is.EqualTo(result.Value));
+        Assert.That(actualJob.Timeout, Is.EqualTo(_jobsControllerOptions.DefaultTimeout));
     }
 
     [Test]
     public async Task AddNewJobAsync_ShouldAddToDatabase_ThenSendToBroker()
     {
         // arrange
-        var request = new CreateJobRequest() { Id = Guid.NewGuid(), Script = Convert.ToBase64String([0]) };
+        var request = new CreateJobRequest()
+        {
+            Id = Guid.NewGuid(),
+            Timeout = TimeSpan.FromSeconds(1),
+            Script = Convert.ToBase64String([0])
+        };
 
         var order = 0;
+        NewJobModel actualJob = null;
 
         _jobDbContext
             .Setup(m => m.AddNewJobAsync(It.Is<NewJobModel>(m => m.Id == request.Id), It.IsAny<CancellationToken>()))
-            .Callback(() => Assert.That(++order, Is.EqualTo(1)));
+            .Callback((NewJobModel model, CancellationToken _) =>
+            {
+                actualJob = model;
+                Assert.That(++order, Is.EqualTo(1));
+            });
         _jobProducer
             .Setup(m => m.PublishAsync(It.Is<JobMessage>(m => m.Id == request.Id), It.IsAny<CancellationToken>()))
             .Callback(() => Assert.That(++order, Is.EqualTo(2)));
@@ -123,7 +140,11 @@ internal class JobsControllerTests : TestBase
 
         // assert
         Assert.That(order, Is.EqualTo(2));
-        Assert.That(result.Value.Script, Is.SameAs(request.Script));
+        Assert.That(result.Value, Is.EqualTo(request.Id));
+        Assert.That(actualJob.Id, Is.EqualTo(request.Id));
+        Assert.That(actualJob.Timeout, Is.EqualTo(request.Timeout));
+        Assert.That(actualJob.Script, Is.EqualTo(request.Script));
+
         _jobDbContext.Verify(
             m => m.AddNewJobAsync(It.Is<NewJobModel>(m => m.Id == request.Id), It.IsAny<CancellationToken>()),
             Times.Once);
@@ -179,6 +200,7 @@ internal class JobsControllerTests : TestBase
 
     private JobsController CreateController()
     {
-        return new JobsController(_jobDbContext.Object, _jobProducer.Object, _jobsControllerOptions);
+        return new JobsController(_jobDbContext.Object, _jobProducer.Object, _jobsControllerOptions,
+            CreateLogger<JobsController>());
     }
 }

@@ -12,16 +12,33 @@ namespace Job.WebApi.Controllers;
 /// Controller for manage jobs
 /// </summary>
 [Route("api/jobs")]
-public class JobsController(IJobDbContext jobDbContext, IJobProducer jobProducer, JobsControllerOptions options)
+public class JobsController(IJobDbContext jobDbContext, IJobProducer jobProducer, JobsControllerOptions options,
+    ILogger<JobsController> logger)
     : Controller
 {
     /// <summary>
     /// Add new job
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<NewJobModel>> AddNewJobAsync([FromBody] CreateJobRequest request,
+    public async Task<ActionResult<Guid>> AddNewJobAsync([FromBody] CreateJobRequest request,
         CancellationToken cancellationToken)
     {
+        if (request is null)
+        {
+            return BadRequest("Job creation request cannot be empty");
+        }
+
+        if (request.Id is null)
+        {
+            logger.LogInformation("Job is created without Id. It will be generated");
+        }
+
+        if (request.Timeout is null)
+        {
+            logger.LogInformation("Job is created without Timeout. Default [{DefaultTimeout}] value will be used",
+                options.DefaultTimeout);
+        }
+
         var newJob = new NewJobModel
         {
             Id = request.Id ?? Guid.NewGuid(),
@@ -47,7 +64,7 @@ public class JobsController(IJobDbContext jobDbContext, IJobProducer jobProducer
         await jobDbContext.AddNewJobAsync(newJob, cancellationToken);
         await jobProducer.PublishAsync(new JobMessage() { Id = newJob.Id }, cancellationToken);
 
-        return newJob;
+        return newJob.Id;
     }
 
     /// <summary>

@@ -61,7 +61,7 @@ internal class JobRunnerTests : TestBase
     }
 
     [Test]
-    public async Task RunJob_ShoudlCallInCorrectOrder()
+    public async Task RunJob_ShouldCallInCorrectOrder()
     {
         // arrange
         var jobModel = new RunJobModel();
