@@ -7,7 +7,7 @@ services:
       deploy:
         resources:
           limits:
-            cpus: 0,5
+            cpus: 0.5
             memory: 500M
       volumes:
         - TestData/02c6a6eb-92ae-49d5-8743-1dded645d705/run.sh:/etc/job/run.sh

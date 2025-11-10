@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Job.Worker.Models;
@@ -34,8 +35,8 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
 
         var dockerFile = File.ReadAllText(Constants.DockerTemplateFileName)
             .Replace(Constants.JobIdTemplate, jobModel.Id.ToString())
-            .Replace(Constants.JobCpuLimitTemplate, options.CpuUsage.ToString())
-            .Replace(Constants.JobRamLimitTemplate, options.MemoryUsage.ToString())
+            .Replace(Constants.JobCpuLimitTemplate, options.CpuUsage.ToString(CultureInfo.InvariantCulture))
+            .Replace(Constants.JobRamLimitTemplate, options.MemoryUsage.ToString(CultureInfo.InvariantCulture))
             .Replace(Constants.JobDirectoryTemplate, jobModel.Directory);
 
         Directory.CreateDirectory(jobModel.Directory);
