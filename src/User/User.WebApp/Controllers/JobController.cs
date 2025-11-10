@@ -11,7 +11,7 @@ namespace User.WebApp.Controllers;
 /// </summary>
 [Authorize]
 [Route("")]
-public class JobsController(IUserDbContext userDbContext) : Controller
+public class JobController(IUserDbContext userDbContext) : Controller
 {
     /// <summary>
     /// Get common view with all jobs

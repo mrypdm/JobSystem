@@ -17,7 +17,7 @@ namespace User.WebApp.Controllers.Api;
 [Route("api/jobs")]
 [ValidateAntiForgeryToken]
 [JobWebApiExceptionsFilter]
-public class JobsApiController(IUserDbContext userDbContext, IJobWebApiClient jobWebApiClient) : Controller
+public class JobApiController(IUserDbContext userDbContext, IJobWebApiClient jobWebApiClient) : Controller
 {
     /// <summary>
     /// Create new user Job

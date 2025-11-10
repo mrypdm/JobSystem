@@ -15,10 +15,10 @@ using User.WebApp.Models;
 namespace User.WebApp.Tests;
 
 /// <summary>
-/// Tests for <see cref="JobsApiController"/>
+/// Tests for <see cref="JobApiController"/>
 /// </summary>
 [TestFixture]
-internal class JobsApiControllerTests : TestBase
+internal class JobApiControllerTests : TestBase
 {
     private const string Username = "username";
 
@@ -200,9 +200,9 @@ internal class JobsApiControllerTests : TestBase
             () => controller.GetUserJobResultsAsync(Guid.NewGuid(), default));
     }
 
-    private JobsApiController CreateController()
+    private JobApiController CreateController()
     {
-        var controller = new JobsApiController(_userDbContext.Object, _jobApiClient.Object);
+        var controller = new JobApiController(_userDbContext.Object, _jobApiClient.Object);
         controller.ControllerContext.HttpContext = new DefaultHttpContext()
         {
             User = new ClaimsPrincipal(
