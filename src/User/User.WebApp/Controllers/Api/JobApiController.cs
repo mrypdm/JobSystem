@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using User.Database.Contexts;
 using User.WebApp.Extensions;
-using User.WebApp.Filters;
 using User.WebApp.Models;
 
 namespace User.WebApp.Controllers.Api;
@@ -16,7 +15,6 @@ namespace User.WebApp.Controllers.Api;
 [Authorize]
 [Route("api/jobs")]
 [ValidateAntiForgeryToken]
-[JobWebApiExceptionsFilter]
 public class JobApiController(IUserDbContext userDbContext, IJobWebApiClient jobWebApiClient) : Controller
 {
     /// <summary>
