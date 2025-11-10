@@ -5,7 +5,7 @@ namespace Job.WebApi.Client;
 /// <summary>
 /// Client for Job.WebApi
 /// </summary>
-public interface IJobWebApiClient
+public interface IJobWebApiClient : IDisposable
 {
     /// <summary>
     /// Create new job

@@ -1,0 +1,147 @@
+using System.Net;
+using Flurl.Http;
+using Flurl.Http.Testing;
+using Job.Contract;
+using Job.WebApi.Client;
+using Job.WebApi.Client.Exceptions;
+using Tests.Common;
+
+namespace Job.WebApi.Tests;
+
+/// <summary>
+/// Tests for <see cref="JobWebApiClient"/>
+/// </summary>
+[TestFixture]
+internal class JobWebApiClientTests : TestBase
+{
+    private const string BaseUrl = "http://localhost:8080";
+    private HttpTest _httpTest = null;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _httpTest = new HttpTest();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _httpTest.Dispose();
+    }
+
+    [Test]
+    public async Task CreateNewJob_Success_ShouldCallCorrectUrl_AndReceiveCorrectResponse()
+    {
+        // arrange
+        var expectedRequest = new CreateJobRequest();
+        var expectedJobId = Guid.NewGuid();
+        _httpTest.RespondWithJson(expectedJobId);
+
+        var client = CreateClient();
+
+        // act
+        var actualJobId = await client.CreateNewJobAsync(expectedRequest, default);
+
+        // assert
+        Assert.That(actualJobId, Is.EqualTo(expectedJobId));
+        _httpTest.ShouldHaveMadeACall()
+            .WithUrlPattern($"{BaseUrl}/api/jobs")
+            .WithVerb(HttpMethod.Post)
+            .WithRequestJson(expectedRequest);
+    }
+
+    [Test]
+    public void CreateNewJob_BadRequest_ShouldThrow()
+    {
+        // arrange
+        var error = "Job script cannot be empty";
+        var statusCode = HttpStatusCode.BadRequest;
+        _httpTest.RespondWith(error, (int)statusCode);
+
+        var client = CreateClient();
+
+        // act
+        var exc = Assert.ThrowsAsync<JobWebApiException>(
+            () => client.CreateNewJobAsync(new CreateJobRequest(), default));
+
+        // assert
+        Assert.That(exc.StatusCode, Is.EqualTo(statusCode));
+        Assert.That(exc.Message, Is.EqualTo(error));
+    }
+
+    [Test]
+    public void CreateNewJob_Timeout_ShouldThrow()
+    {
+        // arrange
+        _httpTest.SimulateTimeout();
+
+        var client = CreateClient();
+
+        // act
+        var exc = Assert.ThrowsAsync<JobWebApiTimeoutException>(
+            () => client.CreateNewJobAsync(new CreateJobRequest(), default));
+
+        // assert
+        Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi has timed out"));
+    }
+
+    [Test]
+    public async Task GetJobResults_Success_ShouldCallCorrectUrl_AndReceiveCorrectResponse()
+    {
+        // arrange
+        var expectedResponse = new JobResultResponse() { Results = [0x00, 0x11] };
+        var expectedJobId = Guid.NewGuid();
+        _httpTest.RespondWithJson(expectedResponse);
+
+        var client = CreateClient();
+
+        // act
+        var actualResponse = await client.GetJobResultsAsync(expectedJobId, default);
+
+        // assert
+        Assert.That(actualResponse.Results, Is.EqualTo(expectedResponse.Results).AsCollection);
+        _httpTest.ShouldHaveMadeACall()
+            .WithUrlPattern($"{BaseUrl}/api/jobs/{expectedJobId}")
+            .WithVerb(HttpMethod.Get);
+    }
+
+    [Test]
+    public void GetJobResults_NotFound_ShouldThrow()
+    {
+        // arrange
+        var error = "Cannot found results for job '00000000-0000-0000-0000-000000000000'";
+        var statusCode = HttpStatusCode.NotFound;
+        _httpTest.RespondWith(error, (int)statusCode);
+
+        var client = CreateClient();
+
+        // act
+        var exc = Assert.ThrowsAsync<JobWebApiException>(
+            () => client.GetJobResultsAsync(Guid.Empty, default));
+
+        // assert
+        Assert.That(exc.StatusCode, Is.EqualTo(statusCode));
+        Assert.That(exc.Message, Is.EqualTo(error));
+    }
+
+    [Test]
+    public void GetJobResults_Timeout_ShouldThrow()
+    {
+        // arrange
+        _httpTest.SimulateTimeout();
+
+        var client = CreateClient();
+
+        // act
+        var exc = Assert.ThrowsAsync<JobWebApiTimeoutException>(
+            () => client.CreateNewJobAsync(new CreateJobRequest(), default));
+
+        // assert
+        Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi has timed out"));
+    }
+
+    private JobWebApiClient CreateClient()
+    {
+        return new JobWebApiClient(new FlurlClient(BaseUrl), CreateLogger<JobWebApiClient>(), ownedClient: true);
+    }
+}
