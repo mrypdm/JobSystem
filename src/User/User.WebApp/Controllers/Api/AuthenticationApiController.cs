@@ -26,6 +26,16 @@ public class AuthenticationApiController(IUserDbContext userDbContext, ILogger<A
     [HttpPost]
     public async Task<ActionResult> SignInAsync([FromForm] LoginRequest request, CancellationToken cancellationToken)
     {
+        if (request is null)
+        {
+            return BadRequest("Login request cannot be null");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest("Both Username and Password should be provided");
+        }
+
         var user = await userDbContext.GetUserAsync(request.Username, cancellationToken);
 
         var salt = user is null
@@ -47,12 +57,12 @@ public class AuthenticationApiController(IUserDbContext userDbContext, ILogger<A
         }
         else if (userModel.PasswordHash != user.PasswordHash)
         {
-            return StatusCode(403, "Wrong username and/or password");
+            return Unauthorized("Wrong username and/or password");
         }
 
         logger.LogCritical("User [{Username}] signed in", request.Username);
         await HttpContext.SignInAsync(userModel);
-        return Redirect(request.ReturnUrl);
+        return Redirect(request.ReturnUrl ?? "/");
     }
 
     /// <summary>
