@@ -17,7 +17,8 @@ namespace User.WebApp.Controllers.Api;
 [AllowAnonymous]
 [Route("api/auth")]
 [ValidateAntiForgeryToken]
-public class AuthenticationApiController(IUserDbContext userDbContext) : Controller
+public class AuthenticationApiController(IUserDbContext userDbContext, ILogger<AuthenticationApiController> logger)
+    : Controller
 {
     /// <summary>
     /// Sign in user with cookie
@@ -49,6 +50,7 @@ public class AuthenticationApiController(IUserDbContext userDbContext) : Control
             return StatusCode(403, "Wrong username and/or password");
         }
 
+        logger.LogCritical("User [{Username}] signed in", request.Username);
         await HttpContext.SignInAsync(userModel);
         return Redirect(request.ReturnUrl);
     }
@@ -59,6 +61,7 @@ public class AuthenticationApiController(IUserDbContext userDbContext) : Control
     [HttpDelete]
     public async Task<ActionResult> SignOutAsync()
     {
+        logger.LogCritical("User [{Username}] signed out", HttpContext.GetUserName());
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok();
     }

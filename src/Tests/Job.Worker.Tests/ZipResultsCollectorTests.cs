@@ -2,6 +2,7 @@ using Job.Worker.Collectors;
 using Job.Worker.Models;
 using Job.Worker.Processes;
 using Moq;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 
@@ -9,7 +10,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="ZipResultsCollector"/>
 /// </summary>
 [TestFixture]
-internal class ZipResultsCollectorTests : TestBase
+internal class ZipResultsCollectorTests() : TestBase(withTempDir: true)
 {
     private readonly Mock<IProcessRunner> _runner = new();
 

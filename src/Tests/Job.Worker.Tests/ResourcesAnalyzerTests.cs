@@ -4,6 +4,7 @@ using Job.Worker.Resources.Models;
 using Job.Worker.Resources.Readers;
 using Job.Worker.Runners;
 using Moq;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 

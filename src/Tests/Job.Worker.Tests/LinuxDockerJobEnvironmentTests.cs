@@ -3,6 +3,7 @@ using System.Text;
 using Job.Worker.Environments;
 using Job.Worker.Models;
 using Job.Worker.Options;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 
@@ -10,7 +11,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="LinuxDockerJobEnvironment"/>
 /// </summary>
 [TestFixture]
-internal class LinuxDockerJobEnvironmentTests : TestBase
+internal class LinuxDockerJobEnvironmentTests() : TestBase(withTempDir: true)
 {
     private readonly JobEnvironmentOptions _jobEnvironmentOptions = new()
     {
@@ -83,6 +84,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
 
         var actualDocker = File.ReadAllText(Path.Combine(jobModel.Directory, "docker-compose.yaml"));
         var expectedDocker = File.ReadAllText(Path.Combine("TestData", "docker-compose.yaml.expected"));
+        Assert.That(actualDocker, Is.EqualTo(expectedDocker));
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
@@ -99,7 +101,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     }
 
     [Test]
-    public void PrepareEnvironment_EnvironmentExist_ShoudldDeleteEnvironment()
+    public void PrepareEnvironment_EnvironmentExist_ShouldDeleteEnvironment()
     {
         // arrange
         var environment = CreateEnvironment(CreateTempDir());

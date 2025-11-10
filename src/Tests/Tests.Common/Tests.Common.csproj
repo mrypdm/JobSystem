@@ -26,11 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Tests\Tests.Common\Tests.Common.csproj" />
-    <ProjectReference Include="..\..\User\User.WebApp\User.WebApp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 

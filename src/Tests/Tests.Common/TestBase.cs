@@ -1,25 +1,25 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
-namespace Job.Worker.Tests;
+namespace Tests.Common;
 
 /// <summary>
 /// Base class for tests
 /// </summary>
 [TestFixture]
-internal abstract class TestBase
+public abstract class TestBase(bool withTempDir = false)
 {
     private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
     {
         builder.AddConsole().AddNUnit();
         builder.SetMinimumLevel(LogLevel.Trace);
     });
-    private readonly DirectoryInfo _tempDir = Directory.CreateTempSubdirectory();
+    private readonly DirectoryInfo _tempDir = withTempDir ? Directory.CreateTempSubdirectory() : null;
 
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
-        _tempDir.Delete(recursive: true);
+        _tempDir?.Delete(recursive: true);
         _loggerFactory.Dispose();
     }
 
@@ -28,7 +28,8 @@ internal abstract class TestBase
     /// </summary>
     protected string CreateTempDir([CallerMemberName] string testName = null)
     {
-        return _tempDir.CreateSubdirectory(testName).FullName;
+        return _tempDir?.CreateSubdirectory(testName).FullName
+            ?? throw new InvalidOperationException("Tests are not configured for using temporary directory");
     }
 
     /// <summary>

@@ -10,6 +10,7 @@ using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Moq;
 using Npgsql;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 

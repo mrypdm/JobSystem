@@ -6,6 +6,7 @@ using Job.WebApi.Controllers;
 using Job.WebApi.Options;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Tests.Common;
 
 namespace Job.WebApi.Tests;
 
@@ -13,7 +14,7 @@ namespace Job.WebApi.Tests;
 /// Tests for <see cref="JobsController"/>
 /// </summary>
 [TestFixture]
-internal class JobsControllerTests
+internal class JobsControllerTests : TestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();
     private readonly Mock<IJobProducer> _jobProducer = new();

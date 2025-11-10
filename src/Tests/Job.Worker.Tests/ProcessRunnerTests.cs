@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Job.Worker.Processes;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 
@@ -24,7 +25,7 @@ internal class ProcessRunnerTests : TestBase
         Assert.That(sw.Elapsed.TotalSeconds, Is.EqualTo(5.0).Within(1.0));
     }
 
-    private string[] GetCommandForOs()
+    private static string[] GetCommandForOs()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
