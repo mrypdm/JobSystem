@@ -4,10 +4,10 @@ namespace Job.Broker.Producers;
 /// <summary>
 /// Broker producer of Jobs
 /// </summary>
-public interface IJobProducer : IDisposable
+public interface IJobProducer<TKey, TMessage> : IDisposable
 {
     /// <summary>
     /// Publish message to broker
     /// </summary>
-    Task PublishAsync(JobMessage message, CancellationToken cancellationToken);
+    Task PublishAsync(TMessage message, CancellationToken cancellationToken);
 }

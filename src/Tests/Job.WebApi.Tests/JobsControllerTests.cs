@@ -17,7 +17,7 @@ namespace Job.WebApi.Tests;
 internal class JobsControllerTests : UnitTestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();
-    private readonly Mock<IJobProducer> _jobProducer = new();
+    private readonly Mock<IJobProducer<Guid, JobMessage>> _jobProducer = new();
     private readonly JobsControllerOptions _jobsControllerOptions = new()
     {
         MaxTimeout = TimeSpan.FromSeconds(60),

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Job.Broker.Producers;
 
 /// <inheritdoc cref="IJobProducer"/>
-public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IJobProducer
+public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IJobProducer<Guid, JobMessage>
 {
     private readonly IProducer<Guid, JobMessage> _producer = new ProducerBuilder<Guid, JobMessage>(
         new ProducerConfig()

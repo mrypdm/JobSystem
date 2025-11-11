@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using Job.Broker;
 using Job.Broker.Options;
 using Job.Broker.Producers;
 using Job.Database.Contexts;
@@ -67,7 +68,7 @@ public static class AppBuilderExtensions
     {
         var producerOptions = builder.Configuration.GetOptions<ProducerOptions>();
         builder.Services.AddSingleton(producerOptions);
-        builder.Services.AddSingleton<IJobProducer, JobProducer>();
+        builder.Services.AddSingleton<IJobProducer<Guid, JobMessage>, JobProducer>();
         return builder;
     }
 
