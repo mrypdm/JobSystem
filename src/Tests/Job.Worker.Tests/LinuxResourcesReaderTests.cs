@@ -7,7 +7,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="LinuxResourcesReader"/>
 /// </summary>
 [TestFixture]
-internal class LinuxResourcesReaderTests : TestBase
+internal class LinuxResourcesReaderTests : UnitTestBase
 {
     [Test]
     public async Task ReadCpuStatistics()

@@ -12,7 +12,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="ResourcesAnalyzer"/>
 /// </summary>
 [TestFixture]
-internal class ResourcesAnalyzerTests : TestBase
+internal class ResourcesAnalyzerTests : UnitTestBase
 {
     private readonly Mock<IJobRunner> _jobRunner = new();
     private readonly Mock<IResourcesReader> _resourcesReader = new();

@@ -14,7 +14,7 @@ namespace Job.WebApi.Tests;
 /// Tests for <see cref="JobsController"/>
 /// </summary>
 [TestFixture]
-internal class JobsControllerTests : TestBase
+internal class JobsControllerTests : UnitTestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();
     private readonly Mock<IJobProducer> _jobProducer = new();

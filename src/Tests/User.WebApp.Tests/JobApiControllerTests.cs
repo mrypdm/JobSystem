@@ -18,7 +18,7 @@ namespace User.WebApp.Tests;
 /// Tests for <see cref="JobApiController"/>
 /// </summary>
 [TestFixture]
-internal class JobApiControllerTests : TestBase
+internal class JobApiControllerTests : UnitTestBase
 {
     private const string Username = "username";
 

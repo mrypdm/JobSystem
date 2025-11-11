@@ -11,7 +11,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="LinuxDockerJobEnvironment"/>
 /// </summary>
 [TestFixture]
-internal class LinuxDockerJobEnvironmentTests() : TestBase(withTempDir: true)
+internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true)
 {
     private readonly JobEnvironmentOptions _jobEnvironmentOptions = new()
     {

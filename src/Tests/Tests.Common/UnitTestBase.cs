@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 namespace Tests.Common;
 
 /// <summary>
-/// Base class for tests
+/// Base class for unit tests
 /// </summary>
 [TestFixture]
-public abstract class TestBase(bool withTempDir = false)
+public abstract class UnitTestBase(bool withTempDir = false)
 {
     private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
     {
