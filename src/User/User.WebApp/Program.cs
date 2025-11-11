@@ -18,6 +18,7 @@ builder.Services.AddControllersWithViews(opt =>
 {
     opt.Filters.Add<PostgresExceptionsFilter>();
     opt.Filters.Add<JobWebApiExceptionsFilter>();
+    opt.Filters.Add<JobWebApiTimeoutExceptionFilter>();
 });
 builder.Services.AddAntiforgery(opt =>
 {

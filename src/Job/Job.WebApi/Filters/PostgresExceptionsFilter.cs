@@ -1,7 +1,7 @@
 using Npgsql;
 using Shared.WebApi.Filters;
 
-namespace User.WebApp.Filters;
+namespace Job.WebApi.Filters;
 
 /// <summary>
 /// Filter for <see cref="PostgresException"/>

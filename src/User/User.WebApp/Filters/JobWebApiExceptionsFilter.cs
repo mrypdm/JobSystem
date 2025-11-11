@@ -1,50 +1,32 @@
 using System.Net;
 using Job.WebApi.Client.Exceptions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+using Shared.WebApi.Filters;
 
 namespace User.WebApp.Filters;
 
 /// <summary>
-/// Filter for Job.WebApi exceptions
+/// Filter for <see cref="JobWebApiException"/>
 /// </summary>
-public class JobWebApiExceptionsFilter(ILogger<JobWebApiExceptionsFilter> logger) : ExceptionFilterAttribute
+public class JobWebApiExceptionsFilter(ILogger<JobWebApiExceptionsFilter> logger) : BaseExceptionFilter(logger)
 {
     /// <inheritdoc />
-    public override void OnException(ExceptionContext context)
+    protected override bool IsSupportedException(Exception exception)
     {
-        ArgumentNullException.ThrowIfNull(context);
+        return exception is JobWebApiException jobWebApiException;
+    }
 
-        if (context.ExceptionHandled == true)
-        {
-            return;
-        }
+    /// <inheritdoc />
+    protected override HttpStatusCode GetStatusCode(Exception exception)
+    {
+        var jobWebApiException = exception as JobWebApiException;
+        return jobWebApiException.StatusCode ?? HttpStatusCode.InternalServerError;
+    }
 
-        if (context.Exception is JobWebApiException apiException)
-        {
-            logger.LogError(apiException, "Job.WebApi exception handled in filter");
-            var content = apiException.StatusCode >= HttpStatusCode.InternalServerError
-                ? "Job.WebApi is failing"
-                : apiException.Message;
-
-            context.ExceptionHandled = true;
-            context.Result = new ContentResult()
-            {
-                StatusCode = (int?)apiException.StatusCode,
-                Content = content,
-                ContentType = "text/plain"
-            };
-        }
-        else if (context.Exception is JobWebApiTimeoutException timeoutException)
-        {
-            logger.LogError(timeoutException, "Job.WebApi timeout exception handled in filter");
-            context.ExceptionHandled = true;
-            context.Result = new ContentResult()
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError,
-                Content = "Job.WebApi is timeouted",
-                ContentType = "text/plain"
-            };
-        }
+    /// <inheritdoc />
+    protected override string GetMessage(Exception exception)
+    {
+        return GetStatusCode(exception) >= HttpStatusCode.InternalServerError
+            ? "Job.WebApi is failing"
+            : exception.Message;
     }
 }

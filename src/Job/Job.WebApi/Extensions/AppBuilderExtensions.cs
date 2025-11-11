@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using Job.Broker.Options;
 using Job.Broker.Producers;
 using Job.Database.Contexts;
+using Job.WebApi.Filters;
 using Job.WebApi.Options;
 using Job.WebApi.Workers;
 using Microsoft.AspNetCore.Authentication.Certificate;
@@ -96,7 +97,10 @@ public static class AppBuilderExtensions
     {
         var jobsControllerOptions = builder.Configuration.GetOptions<JobsControllerOptions>();
         builder.Services.AddSingleton(jobsControllerOptions);
-        builder.Services.AddControllers();
+        builder.Services.AddControllers(options =>
+        {
+            options.Filters.Add<PostgresExceptionsFilter>();
+        });
         return builder;
     }
 
