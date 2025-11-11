@@ -49,7 +49,15 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
     }
 
     /// <inheritdoc />
-    public async Task AllowTopicActionAsync(string topicName, string principal, AclOperation operation)
+    public async Task RemoveTopicAsync(string topicName)
+    {
+        await _client.DeleteTopicsAsync([topicName]);
+        logger.LogCritical("Topic [{TopicName}] was deleted", topicName);
+    }
+
+    /// <inheritdoc />
+    public async Task AllowActionAsync(ResourceType resourceType, string resourceName, AclOperation operation,
+        string principal)
     {
         await _client.CreateAclsAsync([
             new AclBinding() {
@@ -60,14 +68,37 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
                     PermissionType = AclPermissionType.Allow
                 },
                 Pattern = new ResourcePattern() {
-                    Type = ResourceType.Topic,
+                    Type = resourceType,
                     ResourcePatternType = ResourcePatternType.Literal,
-                    Name = topicName
+                    Name = resourceName
                 }
             }
         ]);
-        logger.LogCritical("[{Operation}] is now allowed for [{Principal}] in [{Topic}]",
-            operation, principal, topicName);
+        logger.LogCritical("[{Operation}] is now allowed for [{Principal}] in [{ResourceType} {ResourceName}]",
+            operation, principal, resourceType, resourceName);
+    }
+
+    /// <inheritdoc />
+    public async Task DisalloweActionAsync(ResourceType resourceType, string resourceName, AclOperation operation,
+        string principal)
+    {
+        await _client.DeleteAclsAsync([
+            new AclBindingFilter(){
+                EntryFilter = new AccessControlEntryFilter() {
+                    Principal = $"User:{principal}",
+                    Host = "*",
+                    Operation = operation,
+                    PermissionType = AclPermissionType.Allow
+                },
+                PatternFilter = new ResourcePatternFilter() {
+                    Type = resourceType,
+                    ResourcePatternType = ResourcePatternType.Literal,
+                    Name = resourceName
+                }
+            }
+        ]);
+        logger.LogCritical("[{Operation}] is now disallowed for [{Principal}] in [{ResourceType} {ResourceName}]",
+            operation, principal, resourceType, resourceName);
     }
 
     /// <inheritdoc />
@@ -81,7 +112,22 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         foreach (var migrationType in migrationsTypes)
         {
             var migration = Activator.CreateInstance(migrationType) as IBrokerMigration;
-            await migration.UpAsync(this);
+            await migration.ApplyAsync(this);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task ResetAsync()
+    {
+        var migrationInterface = typeof(IBrokerMigration);
+
+        var migrationsTypes = GetType().Assembly.GetTypes()
+            .Where(m => !m.IsInterface && !m.IsAbstract && m.IsAssignableTo(migrationInterface));
+
+        foreach (var migrationType in migrationsTypes)
+        {
+            var migration = Activator.CreateInstance(migrationType) as IBrokerMigration;
+            await migration.DiscardAsync(this);
         }
     }
 }

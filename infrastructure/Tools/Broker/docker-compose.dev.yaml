@@ -8,6 +8,7 @@ services:
         - '8500:8500'
         - '9000:9000'
       restart: unless-stopped
+      user: 1000:1000
       environment:
         KAFKA_NODE_ID: 1
         CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'
@@ -42,8 +43,10 @@ services:
       networks:
         - kafka
       volumes:
-        - ./kafka/data:/var/lib/kafka/data
-        - ./kafka/secrets:/etc/kafka/secrets:ro
+        # Kafka cannot work well with NTFS, so use ~/ dir instead of ./
+        # because ./ dir is current project dir on Windows
+        - ~/kafka/data:/var/lib/kafka/data
+        - ~/kafka/secrets:/etc/kafka/secrets:ro
 
     # Only for debugging
     kafka-ui:
@@ -60,8 +63,8 @@ services:
       networks:
         - kafka
       volumes:
-      - ./kafka-ui/config.yaml:/etc/kafkaui/dynamic_config.yaml
-      - ./kafka-ui/secrets:/etc/kafkaui/secrets:ro
+      - ~/kafka-ui/config.yaml:/etc/kafkaui/dynamic_config.yaml
+      - ~/kafka-ui/secrets:/etc/kafkaui/secrets:ro
 
 networks:
   kafka:

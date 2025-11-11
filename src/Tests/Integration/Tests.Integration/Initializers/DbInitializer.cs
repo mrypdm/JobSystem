@@ -5,10 +5,10 @@ namespace Tests.Integration.Initializers;
 /// <summary>
 /// Initializer for databases
 /// </summary>
-internal class DbInitializer(DbContext jobDbContext) : BaseInitializer
+internal class DbInitializer(DbContext jobDbContext) : IInitializer
 {
     /// <inheritdoc />
-    protected override async Task InitializeInternalAsync(CancellationToken cancellationToken)
+    public async Task InitializeAsync(CancellationToken cancellationToken)
     {
         await jobDbContext.Database.EnsureDeletedAsync(cancellationToken);
         await jobDbContext.Database.EnsureCreatedAsync(cancellationToken);

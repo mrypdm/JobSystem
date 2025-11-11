@@ -8,5 +8,10 @@ public interface IBrokerMigration
     /// <summary>
     /// Apply migration
     /// </summary>
-    Task UpAsync(IBrokerAdminClient adminClient);
+    Task ApplyAsync(IBrokerAdminClient adminClient);
+
+    /// <summary>
+    /// Discard migration
+    /// </summary>
+    Task DiscardAsync(IBrokerAdminClient adminClient);
 }

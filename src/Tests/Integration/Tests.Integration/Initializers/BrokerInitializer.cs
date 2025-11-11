@@ -5,11 +5,12 @@ namespace Tests.Integration.Initializers;
 /// <summary>
 /// Initializer for Broker
 /// </summary>
-internal class BrokerInitializer(IBrokerAdminClient adminClient) : BaseInitializer
+internal class BrokerInitializer(IBrokerAdminClient adminClient) : IInitializer
 {
     /// <inheritdoc />
-    protected override Task InitializeInternalAsync(CancellationToken cancellationToken)
+    public async Task InitializeAsync(CancellationToken cancellationToken)
     {
-        return adminClient.MigrateAsync();
+        await adminClient.ResetAsync();
+        await adminClient.MigrateAsync();
     }
 }
