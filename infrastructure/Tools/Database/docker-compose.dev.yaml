@@ -25,9 +25,9 @@ services:
       ports:
         - 5432:5432
       volumes:
-        - ./postgres/data:/var/lib/postgresql
-        - ./postgres/logs:/var/log/postgresql
-        - ./postgres/config:/etc/postgres-config:ro
+        - ~/postgres/data:/var/lib/postgresql
+        - ~/postgres/logs:/var/log/postgresql
+        - ~/postgres/config:/etc/postgres-config:ro
       networks:
         - postgres_network
 
@@ -49,9 +49,9 @@ services:
       networks:
         - postgres_network
       volumes:
-        - ./pgadmin/data:/var/lib/pgadmin
-        - ./pgadmin/servers.json:/pgadmin4/servers.json
-        - ./pgadmin/certs:/certs:ro
+        - ~/pgadmin/data:/var/lib/pgadmin
+        - ~/pgadmin/servers.json:/pgadmin4/servers.json
+        - ~/pgadmin/certs:/certs:ro
 
 
 networks:

@@ -17,7 +17,7 @@ mkdir -p $KAFKA_DIR/secrets
 
 cp ../../Certificates/certs/svc_kafka/svc_kafka.keystore.p12    $KAFKA_DIR/secrets/
 cp ../../Certificates/certs/svc_kafka/svc_kafka.truststore.p12  $KAFKA_DIR/secrets/
-echo "$1" > kafka/secrets/pass.txt
+echo "$1" > $KAFKA_DIR/secrets/pass.txt
 
 sudo chmod 700 $KAFKA_DIR
 sudo chmod 700 $KAFKA_DIR/data
