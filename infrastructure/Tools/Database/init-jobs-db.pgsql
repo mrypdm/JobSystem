@@ -1,5 +1,5 @@
 --
--- Creating users
+-- Create users
 --
 CREATE ROLE "svc_jobs_webapi@postgres" WITH
     LOGIN
@@ -19,7 +19,7 @@ CREATE ROLE "svc_jobs_worker@postgres" WITH
     NOBYPASSRLS;
 
 --
--- Creating database
+-- Create database
 --
 CREATE DATABASE "Jobs"
     WITH
@@ -37,7 +37,7 @@ GRANT CONNECT ON DATABASE "Jobs" TO "svc_jobs_webapi@postgres";
 GRANT CONNECT ON DATABASE "Jobs" TO "svc_jobs_worker@postgres";
 
 --
--- Creating schema
+-- Create schema
 --
 CREATE SCHEMA IF NOT EXISTS pgdbo AUTHORIZATION pg_database_owner;
 GRANT ALL ON SCHEMA pgdbo TO pg_database_owner;
@@ -45,14 +45,14 @@ GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_webapi@postgres";
 GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_worker@postgres";
 
 --
--- Creating table
+-- Create table
 --
 CREATE TABLE IF NOT EXISTS pgdbo."Jobs"
 (
     "Id" uuid NOT NULL,
     "Status" integer NOT NULL DEFAULT 0,
     "Timeout" interval NOT NULL,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "CreatedAt" timestamp with time zone NOT NULL DEFAULT NOW(),
     "StartedAt" timestamp with time zone,
     "FinishedAt" timestamp with time zone,
     "Script" text NOT NULL,
@@ -64,10 +64,10 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS pgdbo."Jobs" OWNER to pg_database_owner;
 
 --
--- Creating functions for svc_jobs_webapi
+-- Create functions for svc_jobs_webapi
 --
 
--- Adding new Jobs
+-- Add new Job
 CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_add_new(IN job_id uuid, IN timeout interval, IN script text)
 LANGUAGE 'plpgsql'
 SECURITY DEFINER
@@ -91,7 +91,7 @@ GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) TO pg_data
 GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) TO "svc_jobs_webapi@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) FROM PUBLIC;
 
--- Getting Jobs results
+-- Get Job results
 CREATE OR REPLACE FUNCTION pgdbo.f_jobs_get_results(job_id uuid)
 RETURNS TABLE("Status" integer, "StartedAt" timestamp without time zone, "FinishedAt" timestamp without time zone, "Results" bytea)
 LANGUAGE 'sql'
@@ -107,7 +107,7 @@ GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@postgres";
 REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
 
--- Marking Jobs as Lost
+-- Mark Jobs as Lost
 CREATE OR REPLACE FUNCTION pgdbo.f_jobs_set_lost(timeout interval)
 RETURNS TABLE("Id" uuid)
 LANGUAGE 'sql'
@@ -125,10 +125,10 @@ GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@pos
 REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
 
 --
--- Creaging functions for svc_jobs_worker
+-- Create functions for svc_jobs_worker
 --
 
--- Getting new Jobs
+-- Get new Job
 CREATE OR REPLACE FUNCTION pgdbo.f_jobs_get_new(job_id uuid)
 RETURNS TABLE("Id" uuid, "Timeout" interval, "Script" text)
 LANGUAGE 'sql'
@@ -144,7 +144,7 @@ GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_new(uuid) TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_new(uuid) TO "svc_jobs_worker@postgres";
 REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_new(uuid) FROM PUBLIC;
 
--- Running new Jobs
+-- Mark Job as Running
 CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_set_running(IN job_id uuid)
 LANGUAGE 'plpgsql'
 SECURITY DEFINER
@@ -174,7 +174,7 @@ GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_running(uuid) TO pg_database_owner;
 GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_running(uuid) TO "svc_jobs_worker@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_jobs_set_running(uuid) FROM PUBLIC;
 
--- Saving Jobs results
+-- Save Job results
 CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_set_results(IN job_id uuid, IN status integer, IN results bytea)
 LANGUAGE 'plpgsql'
 SECURITY DEFINER

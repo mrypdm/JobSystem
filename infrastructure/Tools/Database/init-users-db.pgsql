@@ -60,7 +60,7 @@ ALTER TABLE IF EXISTS pgdbo."UsersJobs" OWNER to pg_database_owner;
 -- Creating functions for svc_jobs_webapp
 --
 
--- Adding new Users
+-- Add new User
 CREATE OR REPLACE PROCEDURE pgdbo.p_users_add_new_user(IN username text, IN hash text, IN salt text)
 LANGUAGE 'sql'
 SECURITY DEFINER
@@ -74,7 +74,7 @@ GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO pg_da
 GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO "svc_jobs_webapp@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) FROM PUBLIC;
 
--- Getting User
+-- Get User
 CREATE OR REPLACE FUNCTION pgdbo.f_users_get_user(username text)
 RETURNS TABLE("Username" text, "PasswordHash" text, "PasswordSalt" text)
 LANGUAGE 'sql'
@@ -90,7 +90,7 @@ GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO "svc_jobs_webapp@postgres";
 REVOKE ALL ON FUNCTION pgdbo.f_users_get_user(text) FROM PUBLIC;
 
--- Add new UserJob
+-- Add new Job for User
 CREATE OR REPLACE PROCEDURE pgdbo.p_users_add_new_job(username text, job_id uuid)
 LANGUAGE 'sql'
 SECURITY DEFINER
@@ -104,7 +104,7 @@ GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO pg_database_
 GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO "svc_jobs_webapp@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) FROM PUBLIC;
 
--- Getting User
+-- Get Job of User
 CREATE OR REPLACE FUNCTION pgdbo.f_users_get_user_jobs(username text)
 RETURNS TABLE("JobId" uuid)
 LANGUAGE 'sql'
@@ -120,7 +120,7 @@ GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO pg_database_owner
 GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO "svc_jobs_webapp@postgres";
 REVOKE ALL ON FUNCTION pgdbo.f_users_get_user_jobs(text) FROM PUBLIC;
 
--- Checking that Job is belongs to User
+-- Check that Job is belongs to User
 CREATE OR REPLACE FUNCTION pgdbo.f_users_check_user_job(username text, job_id uuid)
 RETURNS TABLE("JobId" uuid)
 LANGUAGE 'sql'
