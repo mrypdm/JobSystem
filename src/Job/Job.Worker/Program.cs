@@ -13,11 +13,17 @@ using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Database;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddLogging(builder =>
+{
+    builder.AddConsole();
+});
 
 var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
 var sslValidator = new SslValidator(dbOptions);
