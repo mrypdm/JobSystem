@@ -75,7 +75,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
     {
         var migrationInterface = typeof(IBrokerMigration);
 
-        var migrationsTypes = typeof(BrokerAdminClient).Assembly.GetTypes()
+        var migrationsTypes = GetType().Assembly.GetTypes()
             .Where(m => !m.IsInterface && !m.IsAbstract && m.IsAssignableTo(migrationInterface));
 
         foreach (var migrationType in migrationsTypes)
