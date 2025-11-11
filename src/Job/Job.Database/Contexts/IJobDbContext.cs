@@ -15,6 +15,7 @@ public interface IJobDbContext : IDisposable
     /// <summary>
     /// Get Job for running
     /// </summary>
+    /// <returns>Job if job status is <see cref="JobStatus.New"/> or null instead</returns>
     Task<NewJobModel> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken);
 
     /// <summary>

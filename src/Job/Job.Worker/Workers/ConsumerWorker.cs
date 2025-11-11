@@ -92,18 +92,22 @@ public class ConsumerWorker(
             _lastConsumed ??= consumer.Consume(cancellationToken);
 
             var job = await jobsDbContext.GetNewJobAsync(_lastConsumed.Message.Value.Id, cancellationToken);
-            logger.LogInformation("Job [{JobId}] loaded from database", _lastConsumed.Message.Value.Id);
-
-            var needToRun = await SetJobAsRunning(job.Id, cancellationToken);
-
-            if (needToRun)
+            if (job is null)
             {
+                logger.LogWarning(
+                    "Cannot find Job [{JobId}] for running (Job does not exists or has been already started)",
+                    _lastConsumed.Message.Value.Id);
+            }
+            else
+            {
+                logger.LogInformation("Job [{JobId}] loaded from database", _lastConsumed.Message.Value.Id);
                 runner.RunJob(new RunJobModel
                 {
                     Id = job.Id,
                     Timeout = job.Timeout,
                     Script = job.Script
                 });
+                await SetJobAsRunning(job.Id, cancellationToken);
             }
 
             consumer.Commit(_lastConsumed);
@@ -111,30 +115,23 @@ public class ConsumerWorker(
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            logger.LogWarning("Consuming cancelled");
+            logger.LogWarning("Job processing was cancelled");
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Cannot consume message");
+            logger.LogError(e, "Error processing new Job");
         }
     }
 
-    private async Task<bool> SetJobAsRunning(Guid jobId, CancellationToken cancellationToken)
+    private async Task SetJobAsRunning(Guid jobId, CancellationToken cancellationToken)
     {
         try
         {
-            await jobsDbContext.SetJobRunningAsync(_lastConsumed.Message.Value.Id, cancellationToken);
-        }
-        catch (PostgresException e) when (e.MessageText == "Job is running")
-        {
-            // NOP
+            await jobsDbContext.SetJobRunningAsync(jobId, cancellationToken);
         }
         catch (PostgresException e) when (e.MessageText.Contains("Job is finished"))
         {
             logger.LogWarning("Job is finished already. Skipping it");
-            return false;
         }
-
-        return true;
     }
 }

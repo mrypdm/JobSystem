@@ -39,6 +39,30 @@ internal class JobRunnerTests : TestBase
         Assert.Throws<ArgumentNullException>(() => runner.RunJob(null));
     }
 
+
+    [Test]
+    public async Task RunJob_DuplicateJob_ShouldNotRun()
+    {
+        // arrange
+        var jobModel = new RunJobModel();
+
+        _jobDbContext
+            .Setup(m => m.SetJobResultsAsync(jobModel.Id, jobModel.Status, jobModel.Results, It.IsAny<CancellationToken>()))
+            .Returns(Task.Delay(1000));
+
+        var runner = CreateRunner();
+
+        // act
+        runner.RunJob(jobModel);
+        Assert.That(runner.RunningJobsCount, Is.EqualTo(1));
+        runner.RunJob(jobModel);
+        Assert.That(runner.RunningJobsCount, Is.EqualTo(1));
+        await runner.WaitForAllJobs();
+
+        // assert
+        Assert.That(runner.RunningJobsCount, Is.Zero);
+    }
+
     [Test]
     public async Task RunJob_ShouldDeleteJobAfterComplete()
     {

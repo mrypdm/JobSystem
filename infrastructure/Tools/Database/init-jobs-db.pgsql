@@ -136,7 +136,7 @@ SECURITY DEFINER
 AS $BODY$
     SELECT "Id", "Timeout", "Script"
     FROM pgdbo."Jobs"
-    WHERE "Id" = job_id
+    WHERE "Id" = job_id AND Status = 0
 $BODY$;
 
 ALTER FUNCTION pgdbo.f_jobs_get_new(uuid) OWNER TO pg_database_owner;
@@ -155,11 +155,12 @@ BEGIN
     SELECT "Status" into current_status FROM pgdbo."Jobs" WHERE "Id" = job_id;
 
     IF current_status = 1 THEN
-        RAISE EXCEPTION 'Job is running';
+        RAISE WARNING 'Job % is already running', job_id;
+        RETURN;
     END IF;
 
     IF current_status > 1 THEN
-        RAISE EXCEPTION 'Job is finished with status %', current_status;
+        RAISE EXCEPTION 'Job % is finished with status %', job_id, current_status;
     END IF;
 
     UPDATE pgdbo."Jobs"
@@ -187,8 +188,12 @@ BEGIN
 
     SELECT "Status" into current_status FROM pgdbo."Jobs" WHERE "Id" = job_id;
 
-    IF current_status <> 1 THEN
-        RAISE EXCEPTION 'Job is not running. Cannot save results';
+    IF current_status < 1 THEN
+        RAISE WARNING 'Job % is not running, but results are provided', job_id;
+    END IF;
+
+    IF current_status > 1 THEN
+        RAISE EXCEPTION 'Job % is already finished with status %', job_id, current_status;
     END IF;
 
     UPDATE pgdbo."Jobs"

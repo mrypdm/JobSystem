@@ -51,95 +51,9 @@ internal class ConsumerWorkerTests : TestBase
         await worker.ConsumeOnceAsync(default);
 
         // Assert
-        Assert.That(_jobDbContext.Invocations.Count, Is.Zero);
-        Assert.That(_runner.Invocations.Count, Is.Zero);
+        Assert.That(_jobDbContext.Invocations, Has.Count.Zero);
+        Assert.That(_runner.Invocations, Has.Count.Zero);
         _consumer.Verify(m => m.Commit(It.IsAny<ConsumeResult<Guid, JobMessage>>()), Times.Never);
-    }
-
-    [Test]
-    public async Task ConsumeOnce_AlreadyRunning_Nop()
-    {
-        // arrange
-        var jobId = Guid.NewGuid();
-        var consumeResult = new ConsumeResult<Guid, JobMessage>()
-        {
-            Message = new Message<Guid, JobMessage>()
-            {
-                Key = jobId,
-                Value = new JobMessage() { Id = jobId }
-            }
-        };
-        var jobModel = new NewJobModel
-        {
-            Id = jobId,
-            Timeout = TimeSpan.FromSeconds(2),
-            Script = "script"
-        };
-
-        _consumer
-            .Setup(m => m.Consume(It.IsAny<CancellationToken>()))
-            .Returns(consumeResult);
-        _jobDbContext
-            .Setup(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(jobModel);
-        _jobDbContext
-            .Setup(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()))
-            .Throws(new PostgresException("Job is running", "", "", ""));
-
-        var worker = CreateWorker();
-
-        // act
-        await worker.ConsumeOnceAsync(default);
-
-        // Assert
-        _consumer.Verify(m => m.Consume(It.IsAny<CancellationToken>()), Times.Once);
-        _consumer.Verify(m => m.Commit(consumeResult), Times.Once);
-        _jobDbContext.Verify(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()), Times.Once);
-        _jobDbContext.Verify(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()), Times.Once);
-        _runner.Verify(m => m.RunJob(It.Is<RunJobModel>(m => m.Id == jobId)), Times.Once);
-    }
-
-    [Test]
-    public async Task ConsumeOnce_AlreadyFinished_NoRun()
-    {
-        // arrange
-        var jobId = Guid.NewGuid();
-        var consumeResult = new ConsumeResult<Guid, JobMessage>()
-        {
-            Message = new Message<Guid, JobMessage>()
-            {
-                Key = jobId,
-                Value = new JobMessage() { Id = jobId }
-            }
-        };
-        var jobModel = new NewJobModel
-        {
-            Id = jobId,
-            Timeout = TimeSpan.FromSeconds(2),
-            Script = "script"
-        };
-
-        _consumer
-            .Setup(m => m.Consume(It.IsAny<CancellationToken>()))
-            .Returns(consumeResult);
-        _jobDbContext
-            .Setup(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(jobModel);
-        _jobDbContext
-            .Setup(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()))
-            .Throws(new PostgresException("Job is finished", "", "", ""));
-
-        var worker = CreateWorker();
-
-        // act
-        await worker.ConsumeOnceAsync(default);
-
-        // Assert
-        _consumer.Verify(m => m.Consume(It.IsAny<CancellationToken>()), Times.Once);
-        _consumer.Verify(m => m.Commit(consumeResult), Times.Once);
-        _jobDbContext.Verify(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()), Times.Once);
-        _jobDbContext.Verify(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()), Times.Once);
-        _runner.Verify(m => m.RunJob(It.Is<RunJobModel>(m => m.Id == jobId)), Times.Never);
     }
 
     [Test]
@@ -162,21 +76,13 @@ internal class ConsumerWorkerTests : TestBase
             Script = "script"
         };
 
-        var tries = 0;
-
         _consumer
             .Setup(m => m.Consume(It.IsAny<CancellationToken>()))
             .Returns(consumeResult);
         _jobDbContext
-            .Setup(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(jobModel)
-            .Callback(() =>
-            {
-                if (++tries == 1)
-                {
-                    throw new PostgresException("Very bad exception", "", "", "");
-                }
-            });
+            .SetupSequence(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new PostgresException("Very bad exception", "", "", ""))
+            .ReturnsAsync(jobModel);
 
         var worker = CreateWorker();
 
@@ -190,6 +96,131 @@ internal class ConsumerWorkerTests : TestBase
         _jobDbContext.Verify(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()), Times.Exactly(2));
         _jobDbContext.Verify(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()), Times.Once);
         _runner.Verify(m => m.RunJob(It.Is<RunJobModel>(m => m.Id == jobId)), Times.Once);
+    }
+
+    [Test]
+    public async Task ConsumeOnce_FailedToRunJob_OnSecondIteration_ShouldNotConsume()
+    {
+        // arrange
+        var jobId = Guid.NewGuid();
+        var consumeResult = new ConsumeResult<Guid, JobMessage>()
+        {
+            Message = new Message<Guid, JobMessage>()
+            {
+                Key = jobId,
+                Value = new JobMessage() { Id = jobId }
+            }
+        };
+        var jobModel = new NewJobModel
+        {
+            Id = jobId,
+            Timeout = TimeSpan.FromSeconds(2),
+            Script = "script"
+        };
+
+        _consumer
+            .Setup(m => m.Consume(It.IsAny<CancellationToken>()))
+            .Returns(consumeResult);
+        _jobDbContext
+            .Setup(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(jobModel);
+        _runner
+            .SetupSequence(m => m.RunJob(It.IsAny<RunJobModel>()))
+            .Throws(new Exception("Very bad exception"))
+            .Pass();
+
+        var worker = CreateWorker();
+
+        // act
+        await worker.ConsumeOnceAsync(default);
+        await worker.ConsumeOnceAsync(default);
+
+        // Assert
+        _consumer.Verify(m => m.Consume(It.IsAny<CancellationToken>()), Times.Once);
+        _consumer.Verify(m => m.Commit(consumeResult), Times.Once);
+        _jobDbContext.Verify(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _jobDbContext.Verify(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()), Times.Once);
+        _runner.Verify(m => m.RunJob(It.Is<RunJobModel>(m => m.Id == jobId)), Times.Exactly(2));
+    }
+
+    [Test]
+    public async Task ConsumeOnce_FailedToSetRunning_OnSecondIteration_ShouldNotConsume()
+    {
+        // arrange
+        var jobId = Guid.NewGuid();
+        var consumeResult = new ConsumeResult<Guid, JobMessage>()
+        {
+            Message = new Message<Guid, JobMessage>()
+            {
+                Key = jobId,
+                Value = new JobMessage() { Id = jobId }
+            }
+        };
+        var jobModel = new NewJobModel
+        {
+            Id = jobId,
+            Timeout = TimeSpan.FromSeconds(2),
+            Script = "script"
+        };
+
+        _consumer
+            .Setup(m => m.Consume(It.IsAny<CancellationToken>()))
+            .Returns(consumeResult);
+        _jobDbContext
+            .Setup(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(jobModel);
+        _jobDbContext
+            .SetupSequence(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()))
+            .Throws(new PostgresException("Very bad exception", "", "", ""))
+            .PassAsync();
+
+        var worker = CreateWorker();
+
+        // act
+        await worker.ConsumeOnceAsync(default);
+        await worker.ConsumeOnceAsync(default);
+
+        // Assert
+        _consumer.Verify(m => m.Consume(It.IsAny<CancellationToken>()), Times.Once);
+        _consumer.Verify(m => m.Commit(consumeResult), Times.Once);
+        _jobDbContext.Verify(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _jobDbContext.Verify(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _runner.Verify(m => m.RunJob(It.Is<RunJobModel>(m => m.Id == jobId)), Times.Exactly(2));
+    }
+
+    [Test]
+    public async Task ConsumeOnce_DbReturnedNull_ShouldNotRun_And_OnSecondIteration_ShouldConsumeNext()
+    {
+        // arrange
+        var jobId = Guid.NewGuid();
+        var consumeResult = new ConsumeResult<Guid, JobMessage>()
+        {
+            Message = new Message<Guid, JobMessage>()
+            {
+                Key = jobId,
+                Value = new JobMessage() { Id = jobId }
+            }
+        };
+
+        _consumer
+            .Setup(m => m.Consume(It.IsAny<CancellationToken>()))
+            .Returns(consumeResult);
+        _jobDbContext
+            .Setup(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((NewJobModel)null);
+
+        var worker = CreateWorker();
+
+        // act
+        await worker.ConsumeOnceAsync(default);
+        await worker.ConsumeOnceAsync(default);
+
+        // Assert
+        _consumer.Verify(m => m.Consume(It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _consumer.Verify(m => m.Commit(consumeResult), Times.Exactly(2));
+        _jobDbContext.Verify(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+        _jobDbContext.Verify(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()), Times.Never);
+        _runner.Verify(m => m.RunJob(It.Is<RunJobModel>(m => m.Id == jobId)), Times.Never);
     }
 
     [Test]
@@ -231,14 +262,14 @@ internal class ConsumerWorkerTests : TestBase
             .Setup(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
             .Callback(() => Assert.That(++order, Is.EqualTo(4)))
             .ReturnsAsync(jobModel);
-        _jobDbContext
-            .Setup(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()))
-            .Callback(() => Assert.That(++order, Is.EqualTo(5)))
-            .Returns(Task.CompletedTask);
         _runner
             .Setup(m => m.RunJob(It.Is<RunJobModel>(
                 m => m.Id == jobModel.Id && m.Timeout == jobModel.Timeout && m.Script == jobModel.Script)))
-            .Callback(() => Assert.That(++order, Is.EqualTo(6)));
+            .Callback(() => Assert.That(++order, Is.EqualTo(5)));
+        _jobDbContext
+            .Setup(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()))
+            .Callback(() => Assert.That(++order, Is.EqualTo(6)))
+            .Returns(Task.CompletedTask);
         _consumer
             .Setup(m => m.Commit(consumeResult))
             .Callback(() =>
@@ -256,7 +287,6 @@ internal class ConsumerWorkerTests : TestBase
 
         // act
         await worker.StartAsync(default);
-
         await Task.Delay(TimeSpan.FromSeconds(5));
 
         // assert
@@ -279,7 +309,7 @@ internal class ConsumerWorkerTests : TestBase
         await worker.StopAsync(default);
 
         // assert
-        Assert.That(_jobDbContext.Invocations.Count, Is.Zero);
+        Assert.That(_jobDbContext.Invocations, Has.Count.Zero);
         _consumer.Verify(m => m.Consume(It.IsAny<CancellationToken>()), Times.Never);
         _runner.Verify(m => m.RunJob(It.IsAny<RunJobModel>()), Times.Never);
     }
