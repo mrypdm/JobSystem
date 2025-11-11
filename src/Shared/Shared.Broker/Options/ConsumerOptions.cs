@@ -1,6 +1,4 @@
-using Job.Broker.Consumers;
-
-namespace Job.Broker.Options;
+namespace Shared.Broker.Options;
 
 /// <summary>
 /// Options for <see cref="JobConsumer"/>

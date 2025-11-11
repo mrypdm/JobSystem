@@ -2,7 +2,7 @@ using System.Net;
 using System.Reflection;
 using Shared.Contract.SslOptions;
 
-namespace Job.Broker.Options;
+namespace Shared.Broker.Options;
 
 /// <summary>
 /// Common options for Broker

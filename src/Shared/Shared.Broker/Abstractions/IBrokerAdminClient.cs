@@ -1,6 +1,6 @@
 using Confluent.Kafka.Admin;
 
-namespace Job.Broker.BrokerAdmins;
+namespace Shared.Broker.Abstractions;
 
 /// <summary>
 /// Admin client for Broker

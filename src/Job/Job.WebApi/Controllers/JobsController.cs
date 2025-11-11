@@ -1,10 +1,10 @@
 using System.Buffers.Text;
 using Job.Broker;
-using Job.Broker.Producers;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.WebApi.Options;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Broker.Abstractions;
 
 namespace Job.WebApi.Controllers;
 

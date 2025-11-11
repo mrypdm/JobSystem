@@ -1,6 +1,5 @@
 using Confluent.Kafka;
 using Job.Broker;
-using Job.Broker.Consumers;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Models;
@@ -10,6 +9,7 @@ using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Moq;
 using Npgsql;
+using Shared.Broker.Abstractions;
 using Tests.Unit;
 
 namespace Job.Worker.Tests;

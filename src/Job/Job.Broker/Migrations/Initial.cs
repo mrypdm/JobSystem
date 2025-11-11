@@ -1,5 +1,5 @@
 using Confluent.Kafka.Admin;
-using Job.Broker.BrokerAdmins;
+using Shared.Broker.Abstractions;
 
 namespace Job.Broker.Migrations;
 

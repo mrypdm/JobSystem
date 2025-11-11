@@ -1,9 +1,10 @@
 using Confluent.Kafka;
 using Job.Broker.Converters;
-using Job.Broker.Options;
 using Microsoft.Extensions.Logging;
+using Shared.Broker.Abstractions;
+using Shared.Broker.Options;
 
-namespace Job.Broker.Producers;
+namespace Job.Broker.Clients;
 
 /// <inheritdoc cref="IJobProducer"/>
 public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IJobProducer<Guid, JobMessage>

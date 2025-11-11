@@ -1,11 +1,9 @@
-using Job.Broker.BrokerAdmins;
-
-namespace Job.Broker.Migrations;
+namespace Shared.Broker.Abstractions;
 
 /// <summary>
 /// Migration interface for Broker
 /// </summary>
-internal interface IBrokerMigration
+public interface IBrokerMigration
 {
     /// <summary>
     /// Apply migration

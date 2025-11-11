@@ -1,4 +1,4 @@
-namespace Job.Broker.Options;
+namespace Shared.Broker.Options;
 
 /// <summary>
 /// Admin options for Broker

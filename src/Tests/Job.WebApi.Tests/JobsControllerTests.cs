@@ -1,11 +1,11 @@
 using Job.Broker;
-using Job.Broker.Producers;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.WebApi.Controllers;
 using Job.WebApi.Options;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Shared.Broker.Abstractions;
 using Tests.Unit;
 
 namespace Job.WebApi.Tests;

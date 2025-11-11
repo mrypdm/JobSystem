@@ -1,6 +1,6 @@
 using Confluent.Kafka;
 
-namespace Job.Broker.Consumers;
+namespace Shared.Broker.Abstractions;
 
 /// <summary>
 /// Broker consumer of Jobs

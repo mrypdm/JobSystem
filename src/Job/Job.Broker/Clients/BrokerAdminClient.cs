@@ -1,10 +1,10 @@
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
-using Job.Broker.Migrations;
-using Job.Broker.Options;
 using Microsoft.Extensions.Logging;
+using Shared.Broker.Abstractions;
+using Shared.Broker.Options;
 
-namespace Job.Broker.BrokerAdmins;
+namespace Job.Broker.Clients;
 
 /// <inheritdoc cref="IBrokerAdminClient"/>
 public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminClient> logger)

@@ -1,6 +1,5 @@
 using Job.Broker;
-using Job.Broker.Consumers;
-using Job.Broker.Options;
+using Job.Broker.Clients;
 using Job.Database.Contexts;
 using Job.Worker.Collectors;
 using Job.Worker.Environments;
@@ -14,6 +13,8 @@ using Job.Worker.Workers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Shared.Broker.Abstractions;
+using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Database;

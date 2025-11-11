@@ -1,5 +1,4 @@
-namespace Job.Broker.Producers;
-
+namespace Shared.Broker.Abstractions;
 
 /// <summary>
 /// Broker producer of Jobs
