@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Job.Worker.Processes;
-using Tests.Common;
+using Tests.Unit;
 
 namespace Job.Worker.Tests;
 

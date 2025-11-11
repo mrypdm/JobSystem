@@ -6,7 +6,7 @@ using Job.WebApi.Controllers;
 using Job.WebApi.Options;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Tests.Common;
+using Tests.Unit;
 
 namespace Job.WebApi.Tests;
 

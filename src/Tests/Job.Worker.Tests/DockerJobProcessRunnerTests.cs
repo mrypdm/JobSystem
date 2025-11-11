@@ -3,7 +3,7 @@ using Job.Worker.JobProcesses;
 using Job.Worker.Models;
 using Job.Worker.Processes;
 using Moq;
-using Tests.Common;
+using Tests.Unit;
 
 namespace Job.Worker.Tests;
 

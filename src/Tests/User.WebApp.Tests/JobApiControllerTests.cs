@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Tests.Common;
+using Tests.Unit;
 using User.Database.Contexts;
 using User.WebApp.Controllers.Api;
 using User.WebApp.Models;

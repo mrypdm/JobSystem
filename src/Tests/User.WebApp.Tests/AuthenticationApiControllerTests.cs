@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Tests.Common;
+using Tests.Unit;
 using User.Database.Contexts;
 using User.Database.Models;
 using User.WebApp.Controllers.Api;

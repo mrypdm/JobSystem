@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
-namespace Tests.Common;
+namespace Tests.Unit;
 
 /// <summary>
 /// Base class for unit tests

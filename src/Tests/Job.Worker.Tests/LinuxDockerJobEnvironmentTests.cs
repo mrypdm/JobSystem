@@ -3,7 +3,7 @@ using System.Text;
 using Job.Worker.Environments;
 using Job.Worker.Models;
 using Job.Worker.Options;
-using Tests.Common;
+using Tests.Unit;
 
 namespace Job.Worker.Tests;
 

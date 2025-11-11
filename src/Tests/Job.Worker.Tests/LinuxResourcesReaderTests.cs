@@ -1,5 +1,5 @@
 using Job.Worker.Resources.Readers;
-using Tests.Common;
+using Tests.Unit;
 
 namespace Job.Worker.Tests;
 

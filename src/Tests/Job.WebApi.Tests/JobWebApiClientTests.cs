@@ -4,7 +4,7 @@ using Flurl.Http.Testing;
 using Job.Contract;
 using Job.WebApi.Client;
 using Job.WebApi.Client.Exceptions;
-using Tests.Common;
+using Tests.Unit;
 
 namespace Job.WebApi.Tests;
 
