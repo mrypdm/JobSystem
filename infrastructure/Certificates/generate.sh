@@ -184,6 +184,13 @@ create_pkcs12_keystore "svc_users_webapp@webapi"
 generate_server_certificate "svc_users_webapp" "IP:127.0.0.1,DNS:localhost,DNS:users-webapp"
 create_pkcs12_keystore "svc_users_webapp"
 
+# Test certs
+generate_server_certificate "svc_testhost@revoked" "IP:127.0.0.1,DNS:testhost"
+create_pkcs12_keystore "svc_testhost@revoked"
+generate_server_certificate "svc_testhost" "IP:127.0.0.1,DNS:testhost"
+create_pkcs12_keystore "svc_testhost"
+openssl ca -config root.cnf -revoke certs/svc_testhost@revoked/svc_testhost@revoked.crt -passin "pass:$DEFAULT_PASSWORD"
+
 rm -rf $CERT_DIR/tmp
 
 openssl ca -config root.cnf -gencrl -out root/crl.pem -passin "pass:$DEFAULT_PASSWORD"

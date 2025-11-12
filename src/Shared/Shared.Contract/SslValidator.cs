@@ -31,8 +31,11 @@ public class SslValidator
             .GetPublicKey();
         var crl = new X509CrlParser()
             .ReadCrl(File.ReadAllBytes(options.RevocationListFilePath));
-        crl.IsSignatureValid(rootPublicKey);
-        _revokedCertificates = [.. crl.GetRevokedCertificates()?.Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray())) ?? []];
+        crl.Verify(rootPublicKey);
+
+        _revokedCertificates = crl.GetRevokedCertificates()
+            ?.Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray()))
+            ?.ToHashSet() ?? [];
     }
 
     /// <summary>
@@ -45,16 +48,20 @@ public class SslValidator
     /// </summary>
     public bool Validate(X509Certificate2 certificate, SslPolicyErrors errors)
     {
+        if (certificate is null)
+        {
+            return false;
+        }
+
         return CertificateCache.GetOrCreate(certificate.Thumbprint, entry =>
         {
-            var result = certificate is not null
-                && errors == SslPolicyErrors.None
+            var isValid = errors == SslPolicyErrors.None
                 && !IsRevoked(certificate)
                 && _validationChain.Build(certificate);
 
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
-            entry.Value = result;
-            return result;
+            entry.Value = isValid;
+            return isValid;
         });
     }
 
@@ -63,6 +70,6 @@ public class SslValidator
     /// </summary>
     public bool IsRevoked(X509Certificate2 certificate)
     {
-        return _revokedCertificates.Contains(certificate.SerialNumber);
+        return certificate is null || _revokedCertificates.Contains(certificate.SerialNumber);
     }
 }
