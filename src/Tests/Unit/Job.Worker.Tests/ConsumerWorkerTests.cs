@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
 using Shared.Broker.Abstractions;
-using Tests.Unit;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 

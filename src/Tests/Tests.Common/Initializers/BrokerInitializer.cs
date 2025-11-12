@@ -1,6 +1,6 @@
 using Shared.Broker.Abstractions;
 
-namespace Tests.Unit.Initializers;
+namespace Tests.Common.Initializers;
 
 /// <summary>
 /// Initializer for Broker

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Shared.Broker.Abstractions;
-using Tests.Unit;
+using Tests.Common;
 
 namespace Job.WebApi.Tests;
 

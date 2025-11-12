@@ -6,7 +6,7 @@ using Job.WebApi.Client;
 using Job.WebApi.Client.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Tests.Unit;
+using Tests.Common;
 
 namespace Job.WebApi.Tests;
 

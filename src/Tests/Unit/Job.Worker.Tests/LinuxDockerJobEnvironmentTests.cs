@@ -4,7 +4,7 @@ using Job.Worker.Environments;
 using Job.Worker.Models;
 using Job.Worker.Options;
 using Microsoft.Extensions.DependencyInjection;
-using Tests.Unit;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 

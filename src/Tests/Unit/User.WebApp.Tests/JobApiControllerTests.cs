@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Tests.Unit;
+using Tests.Common;
 using User.Database.Contexts;
 using User.WebApp.Controllers.Api;
 using User.WebApp.Models;

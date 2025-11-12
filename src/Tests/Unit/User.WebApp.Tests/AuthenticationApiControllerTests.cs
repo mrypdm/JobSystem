@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Tests.Unit;
+using Tests.Common;
 using User.Database.Contexts;
 using User.Database.Models;
 using User.WebApp.Controllers.Api;

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Job.Worker.Processes;
 using Microsoft.Extensions.DependencyInjection;
-using Tests.Unit;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 

@@ -1,6 +1,6 @@
 using Job.Worker.Resources.Readers;
 using Microsoft.Extensions.DependencyInjection;
-using Tests.Unit;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 

@@ -1,4 +1,4 @@
-namespace Tests.Unit.Initializers;
+namespace Tests.Common.Initializers;
 
 /// <summary>
 /// Initializer for something

@@ -6,7 +6,7 @@ using Job.Worker.Models;
 using Job.Worker.Runners;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Tests.Unit;
+using Tests.Common;
 
 namespace Job.Worker.Tests;
 

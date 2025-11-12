@@ -1,4 +1,4 @@
-namespace Tests.Unit;
+namespace Tests.Common;
 
 /// <summary>
 /// Temporary directory
