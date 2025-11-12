@@ -11,7 +11,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="ZipResultsCollector"/>
 /// </summary>
 [TestFixture]
-internal class ZipResultsCollectorTests : UnitTestBase
+internal class ZipResultsCollectorTests : TestBase
 {
     private readonly Mock<IProcessRunner> _runner = new();
 

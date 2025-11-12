@@ -14,7 +14,7 @@ namespace Job.WebApi.Tests;
 /// Tests for <see cref="JobWebApiClient"/>
 /// </summary>
 [TestFixture]
-internal class JobWebApiClientTests : UnitTestBase
+internal class JobWebApiClientTests : TestBase
 {
     private const string BaseUrl = "http://localhost:8080";
     private HttpTest _httpTest = null;

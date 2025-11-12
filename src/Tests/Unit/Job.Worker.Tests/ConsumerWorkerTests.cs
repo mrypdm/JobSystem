@@ -19,7 +19,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="ConsumerWorker"/>
 /// </summary>
 [TestFixture]
-internal class ConsumerWorkerTests : UnitTestBase
+internal class ConsumerWorkerTests : TestBase
 {
     private readonly Mock<IJobConsumer<Guid, JobMessage>> _consumer = new();
     private readonly Mock<IJobRunner> _runner = new();

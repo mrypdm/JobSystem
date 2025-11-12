@@ -14,7 +14,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="JobRunner"/>
 /// </summary>
 [TestFixture]
-internal class JobRunnerTests : UnitTestBase
+internal class JobRunnerTests : TestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();
     private readonly Mock<IJobEnvironment> _jobEnvironment = new();

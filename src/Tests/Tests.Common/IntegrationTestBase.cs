@@ -6,9 +6,9 @@ namespace Tests.Common;
 /// <summary>
 /// Base class for integration tests
 /// </summary>
-public abstract class IntegrationTestBase : UnitTestBase
+public abstract class IntegrationTestBase : TestBase
 {
-    [OneTimeSetUp]
+    [SetUp]
     public async Task InitializeServices(CancellationToken cancellationToken)
     {
         // GetServices uses GetRequiredService, which throws an exception if no services have been registered

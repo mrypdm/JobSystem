@@ -22,7 +22,7 @@ namespace User.WebApp.Tests;
 /// Tests for <see cref="AuthenticationApiController"/>
 /// </summary>
 [TestFixture]
-internal class AuthenticationApiControllerTests : UnitTestBase
+internal class AuthenticationApiControllerTests : TestBase
 {
     private readonly Mock<IUserDbContext> _userDbContext = new();
     private readonly Mock<IAuthenticationService> _authenticationService = new();

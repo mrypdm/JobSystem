@@ -5,10 +5,10 @@ using Microsoft.Extensions.Logging;
 namespace Tests.Common;
 
 /// <summary>
-/// Base class for unit tests
+/// Base class for tests
 /// </summary>
 [TestFixture]
-public abstract class UnitTestBase
+public abstract class TestBase
 {
     private IHost _host;
 

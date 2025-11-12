@@ -10,7 +10,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="ProcessRunner"/>
 /// </summary>
 [TestFixture]
-internal class ProcessRunnerTests : UnitTestBase
+internal class ProcessRunnerTests : TestBase
 {
     [Test]
     public async Task RunProcess_ShouldStartAndWait()

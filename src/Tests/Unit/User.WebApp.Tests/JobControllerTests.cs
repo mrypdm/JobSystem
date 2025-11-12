@@ -15,7 +15,7 @@ namespace User.WebApp.Tests;
 /// Tests for <see cref="JobController"/>
 /// </summary>
 [TestFixture]
-internal class JobControllerTests : UnitTestBase
+internal class JobControllerTests : TestBase
 {
     private const string Username = "username";
 

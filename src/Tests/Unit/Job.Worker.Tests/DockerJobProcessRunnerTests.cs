@@ -12,7 +12,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="DockerJobProcessRunner"/>
 /// </summary>
 [TestFixture]
-internal class DockerJobProcessRunnerTests : UnitTestBase
+internal class DockerJobProcessRunnerTests : TestBase
 {
     private readonly Mock<IProcessRunner> _runner = new();
 
