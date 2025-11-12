@@ -27,8 +27,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Job\Job.WebApi.Client\Job.WebApi.Client.csproj" />
-    <ProjectReference Include="..\Tests.Unit\Tests.Unit.csproj" />
     <ProjectReference Include="..\..\..\Job\Job.WebApi\Job.WebApi.csproj" />
+    <ProjectReference Include="..\..\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
