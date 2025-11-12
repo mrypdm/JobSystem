@@ -2,6 +2,7 @@ using Job.Contract;
 using Job.Worker.JobProcesses;
 using Job.Worker.Models;
 using Job.Worker.Processes;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tests.Unit;
 
@@ -25,7 +26,7 @@ internal class DockerJobProcessRunnerTests : UnitTestBase
     public void RunProcess_NullJob_Throw()
     {
         // arrange
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<DockerJobProcessRunner>();
 
         // act & assert
         Assert.ThrowsAsync<ArgumentNullException>(() => runner.RunProcessAsync(null));
@@ -35,7 +36,7 @@ internal class DockerJobProcessRunnerTests : UnitTestBase
     public void RunProcess_JobDirectoryNotSet_Throw()
     {
         // arrange
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<DockerJobProcessRunner>();
 
         // act & assert
         Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunProcessAsync(new RunJobModel()));
@@ -51,7 +52,7 @@ internal class DockerJobProcessRunnerTests : UnitTestBase
             Status = JobStatus.Finished
         };
 
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<DockerJobProcessRunner>();
 
         // act & assert
         Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunProcessAsync(jobModel));
@@ -96,7 +97,7 @@ internal class DockerJobProcessRunnerTests : UnitTestBase
                 .ThrowsAsync(exception);
         }
 
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<DockerJobProcessRunner>();
 
         // act
         await runner.RunProcessAsync(jobModel);
@@ -114,8 +115,10 @@ internal class DockerJobProcessRunnerTests : UnitTestBase
             Times.Once);
     }
 
-    private DockerJobProcessRunner CreateRunner()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new DockerJobProcessRunner(_runner.Object, CreateLogger<DockerJobProcessRunner>());
+        base.ConfigureServices(services);
+        services.AddSingleton(_runner.Object);
+        services.AddTransient<DockerJobProcessRunner>();
     }
 }

@@ -4,6 +4,8 @@ using Flurl.Http.Testing;
 using Job.Contract;
 using Job.WebApi.Client;
 using Job.WebApi.Client.Exceptions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Tests.Unit;
 
 namespace Job.WebApi.Tests;
@@ -37,7 +39,7 @@ internal class JobWebApiClientTests : UnitTestBase
         var expectedJobId = Guid.NewGuid();
         _httpTest.RespondWithJson(expectedJobId);
 
-        var client = CreateClient();
+        var client = Services.GetRequiredService<JobWebApiClient>();
 
         // act
         var actualJobId = await client.CreateNewJobAsync(expectedRequest, default);
@@ -58,7 +60,7 @@ internal class JobWebApiClientTests : UnitTestBase
         var statusCode = HttpStatusCode.BadRequest;
         _httpTest.RespondWith(error, (int)statusCode);
 
-        var client = CreateClient();
+        var client = Services.GetRequiredService<JobWebApiClient>();
 
         // act
         var exc = Assert.ThrowsAsync<JobWebApiException>(
@@ -75,7 +77,7 @@ internal class JobWebApiClientTests : UnitTestBase
         // arrange
         _httpTest.SimulateTimeout();
 
-        var client = CreateClient();
+        var client = Services.GetRequiredService<JobWebApiClient>();
 
         // act
         var exc = Assert.ThrowsAsync<JobWebApiTimeoutException>(
@@ -93,7 +95,7 @@ internal class JobWebApiClientTests : UnitTestBase
         var expectedJobId = Guid.NewGuid();
         _httpTest.RespondWithJson(expectedResponse);
 
-        var client = CreateClient();
+        var client = Services.GetRequiredService<JobWebApiClient>();
 
         // act
         var actualResponse = await client.GetJobResultsAsync(expectedJobId, default);
@@ -113,7 +115,7 @@ internal class JobWebApiClientTests : UnitTestBase
         var statusCode = HttpStatusCode.NotFound;
         _httpTest.RespondWith(error, (int)statusCode);
 
-        var client = CreateClient();
+        var client = Services.GetRequiredService<JobWebApiClient>();
 
         // act
         var exc = Assert.ThrowsAsync<JobWebApiException>(
@@ -130,7 +132,7 @@ internal class JobWebApiClientTests : UnitTestBase
         // arrange
         _httpTest.SimulateTimeout();
 
-        var client = CreateClient();
+        var client = Services.GetRequiredService<JobWebApiClient>();
 
         // act
         var exc = Assert.ThrowsAsync<JobWebApiTimeoutException>(
@@ -140,8 +142,12 @@ internal class JobWebApiClientTests : UnitTestBase
         Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi has timed out"));
     }
 
-    private JobWebApiClient CreateClient()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new JobWebApiClient(new FlurlClient(BaseUrl), CreateLogger<JobWebApiClient>(), ownedClient: true);
+        base.ConfigureServices(services);
+        services.AddTransient(context => new JobWebApiClient(
+            new FlurlClient(BaseUrl),
+            context.GetRequiredService<ILogger<JobWebApiClient>>(),
+            ownedClient: true));
     }
 }

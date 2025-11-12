@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Unit;
 using User.Database.Contexts;
@@ -36,7 +38,7 @@ internal class AuthenticationApiControllerTests : UnitTestBase
     public async Task SignIn_NullRequest_ShouldReturnBadRequest()
     {
         // arrange
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<AuthenticationApiController>();
 
         // act
         var response = await controller.SignInAsync(null, default);
@@ -49,7 +51,7 @@ internal class AuthenticationApiControllerTests : UnitTestBase
     public async Task SignIn_EmptyUsername_ShouldReturnBadRequest()
     {
         // arrange
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<AuthenticationApiController>();
 
         // act
         var response = await controller.SignInAsync(new LoginRequest(), default);
@@ -62,7 +64,7 @@ internal class AuthenticationApiControllerTests : UnitTestBase
     public async Task SignIn_EmptyPassword_ShouldReturnBadRequest()
     {
         // arrange
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<AuthenticationApiController>();
 
         // act
         var response = await controller.SignInAsync(new LoginRequest { Username = "not_empty" }, default);
@@ -90,7 +92,7 @@ internal class AuthenticationApiControllerTests : UnitTestBase
             .Setup(m => m.AddNewUserAsync(It.IsAny<UserDbModel>(), It.IsAny<CancellationToken>()))
             .Callback((UserDbModel user, CancellationToken _) => actualUser = user);
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<AuthenticationApiController>();
 
         // act
         var response = await controller.SignInAsync(request, default);
@@ -131,7 +133,7 @@ internal class AuthenticationApiControllerTests : UnitTestBase
             .Setup(m => m.GetUserAsync(request.Username, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userModel);
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<AuthenticationApiController>();
 
         // act
         var response = await controller.SignInAsync(request, default);
@@ -176,7 +178,7 @@ internal class AuthenticationApiControllerTests : UnitTestBase
             .Setup(m => m.GetUserAsync(request.Username, It.IsAny<CancellationToken>()))
             .ReturnsAsync(userModel);
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<AuthenticationApiController>();
 
         // act
         var response = await controller.SignInAsync(request, default);
@@ -193,7 +195,7 @@ internal class AuthenticationApiControllerTests : UnitTestBase
     public async Task SignOut_ShouldSignOut()
     {
         // arrange
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<AuthenticationApiController>();
 
         // act
         var response = await controller.SignOutAsync();
@@ -206,19 +208,25 @@ internal class AuthenticationApiControllerTests : UnitTestBase
             Times.Once);
     }
 
-    private AuthenticationApiController CreateController()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        var controller = new AuthenticationApiController(_userDbContext.Object,
-            CreateLogger<AuthenticationApiController>());
-        controller.ControllerContext.HttpContext = new DefaultHttpContext();
-        controller.ControllerContext.HttpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+        base.ConfigureServices(services);
+        services.AddTransient(context =>
+        {
+            var controller = new AuthenticationApiController(
+                _userDbContext.Object,
+                context.GetRequiredService<ILogger<AuthenticationApiController>>());
 
-        var serviceProvider = new Mock<IServiceProvider>();
-        serviceProvider
-            .Setup(m => m.GetService(typeof(IAuthenticationService)))
-            .Returns(_authenticationService.Object);
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.ControllerContext.HttpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
-        controller.ControllerContext.HttpContext.RequestServices = serviceProvider.Object;
-        return controller;
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(m => m.GetService(typeof(IAuthenticationService)))
+                .Returns(_authenticationService.Object);
+
+            controller.ControllerContext.HttpContext.RequestServices = serviceProvider.Object;
+            return controller;
+        });
     }
 }

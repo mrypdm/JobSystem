@@ -3,9 +3,9 @@ using Job.WebApi.Controllers;
 namespace Job.WebApi.Options;
 
 /// <summary>
-/// Options for <see cref="JobsController"/>
+/// Options for <see cref="JobController"/>
 /// </summary>
-public class JobsControllerOptions
+public class JobControllerOptions
 {
     /// <summary>
     /// Default Job timeout

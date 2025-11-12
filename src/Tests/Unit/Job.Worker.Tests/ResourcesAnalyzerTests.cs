@@ -3,6 +3,7 @@ using Job.Worker.Resources.Analyzers;
 using Job.Worker.Resources.Models;
 using Job.Worker.Resources.Readers;
 using Job.Worker.Runners;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tests.Unit;
 
@@ -45,7 +46,7 @@ internal class ResourcesAnalyzerTests : UnitTestBase
             .Setup(m => m.RunningJobsCount)
             .Returns(100);
 
-        var monitor = CreateMonitor();
+        var monitor = Services.GetRequiredService<ResourcesAnalyzer>();
 
         // act
         var result = await monitor.CanRunNewJobAsync(default);
@@ -60,7 +61,7 @@ internal class ResourcesAnalyzerTests : UnitTestBase
         // arrange
         SetupCpuLoad(new(100, 0), new(150, 0));
 
-        var monitor = CreateMonitor();
+        var monitor = Services.GetRequiredService<ResourcesAnalyzer>();
 
         // act
         var result = await monitor.CanRunNewJobAsync(default);
@@ -76,7 +77,7 @@ internal class ResourcesAnalyzerTests : UnitTestBase
         SetupCpuLoad(new(100, 0), new(150, 50));
         SetupRamLoad(new(1000, 100));
 
-        var monitor = CreateMonitor();
+        var monitor = Services.GetRequiredService<ResourcesAnalyzer>();
 
         // act
         var result = await monitor.CanRunNewJobAsync(default);
@@ -93,7 +94,7 @@ internal class ResourcesAnalyzerTests : UnitTestBase
         SetupRamLoad(new(1000, 1000));
         SetupDriveLoad(new(1000, 100));
 
-        var monitor = CreateMonitor();
+        var monitor = Services.GetRequiredService<ResourcesAnalyzer>();
 
         // act
         var result = await monitor.CanRunNewJobAsync(default);
@@ -110,7 +111,7 @@ internal class ResourcesAnalyzerTests : UnitTestBase
         SetupRamLoad(new(1000, 1000));
         SetupDriveLoad(new(1000, 1000));
 
-        var monitor = CreateMonitor();
+        var monitor = Services.GetRequiredService<ResourcesAnalyzer>();
 
         // act
         var result = await monitor.CanRunNewJobAsync(default);
@@ -141,9 +142,13 @@ internal class ResourcesAnalyzerTests : UnitTestBase
             .ReturnsAsync(driveStat);
     }
 
-    public ResourcesAnalyzer CreateMonitor()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new ResourcesAnalyzer(_jobRunner.Object, _resourcesReader.Object, _jobEnvironmentOptions,
-            _resourceMonitorOptions, CreateLogger<ResourcesAnalyzer>());
+        base.ConfigureServices(services);
+        services.AddSingleton(_jobRunner.Object);
+        services.AddSingleton(_resourcesReader.Object);
+        services.AddSingleton(_jobEnvironmentOptions);
+        services.AddSingleton(_resourceMonitorOptions);
+        services.AddTransient<ResourcesAnalyzer>();
     }
 }

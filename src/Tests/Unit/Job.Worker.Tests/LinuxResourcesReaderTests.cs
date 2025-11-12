@@ -1,4 +1,5 @@
 using Job.Worker.Resources.Readers;
+using Microsoft.Extensions.DependencyInjection;
 using Tests.Unit;
 
 namespace Job.Worker.Tests;
@@ -13,7 +14,7 @@ internal class LinuxResourcesReaderTests : UnitTestBase
     public async Task ReadCpuStatistics()
     {
         // arrange
-        var reader = CreateReader();
+        var reader = Services.GetRequiredService<LinuxResourcesReader>();
 
         // act
         var cpuStat = await reader.GetCpuStatisticsAsync(default);
@@ -27,7 +28,7 @@ internal class LinuxResourcesReaderTests : UnitTestBase
     public async Task ReadRamStatistics()
     {
         // arrange
-        var reader = CreateReader();
+        var reader = Services.GetRequiredService<LinuxResourcesReader>();
 
         // act
         var cpuStat = await reader.GetRamStatisticsAsync(default);
@@ -42,7 +43,7 @@ internal class LinuxResourcesReaderTests : UnitTestBase
     {
         // arrange
         var driveInfo = new DriveInfo(Environment.CurrentDirectory);
-        var reader = CreateReader();
+        var reader = Services.GetRequiredService<LinuxResourcesReader>();
 
         // act
         var cpuStat = await reader.GetDriveStatisticsAsync(Environment.CurrentDirectory, default);
@@ -52,12 +53,13 @@ internal class LinuxResourcesReaderTests : UnitTestBase
         Assert.That(cpuStat.Total, Is.EqualTo(driveInfo.TotalSize));
     }
 
-    private LinuxResourcesReader CreateReader()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new LinuxResourcesReader()
+        base.ConfigureServices(services);
+        services.AddTransient(_ => new LinuxResourcesReader()
         {
             CpuStatFilePath = Path.Combine("TestData", "proc-stat"),
             RamStatFilePath = Path.Combine("TestData", "meminfo"),
-        };
+        });
     }
 }

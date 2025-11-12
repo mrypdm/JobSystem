@@ -1,6 +1,7 @@
 using Job.Worker.Collectors;
 using Job.Worker.Models;
 using Job.Worker.Processes;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tests.Unit;
 
@@ -10,7 +11,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="ZipResultsCollector"/>
 /// </summary>
 [TestFixture]
-internal class ZipResultsCollectorTests() : UnitTestBase(withTempDir: true)
+internal class ZipResultsCollectorTests : UnitTestBase
 {
     private readonly Mock<IProcessRunner> _runner = new();
 
@@ -24,7 +25,7 @@ internal class ZipResultsCollectorTests() : UnitTestBase(withTempDir: true)
     public void CollectResults_NullJob_Throw()
     {
         // arrange
-        var collector = CreateCollector();
+        var collector = Services.GetRequiredService<ZipResultsCollector>();
 
         // act & assert
         Assert.ThrowsAsync<ArgumentNullException>(() => collector.CollectResultsAsync(null));
@@ -34,7 +35,7 @@ internal class ZipResultsCollectorTests() : UnitTestBase(withTempDir: true)
     public void CollectResults_JobDirectoryNotSet_Throw()
     {
         // arrange
-        var collector = CreateCollector();
+        var collector = Services.GetRequiredService<ZipResultsCollector>();
 
         // act & assert
         Assert.ThrowsAsync<InvalidOperationException>(() => collector.CollectResultsAsync(new RunJobModel()));
@@ -44,7 +45,7 @@ internal class ZipResultsCollectorTests() : UnitTestBase(withTempDir: true)
     public async Task CollectResults_ShouldCallZip_AndSaveToModel()
     {
         // arrange
-        var tempDir = CreateTempDir();
+        using var tempDir = Services.GetRequiredService<TempDirectory>();
 
         var expectedCommand = new string[] { "zip", "results.zip", "stdout.txt", "stderr.txt" };
         var expectedResults = new byte[] { 0x00, 0x11 };
@@ -52,12 +53,12 @@ internal class ZipResultsCollectorTests() : UnitTestBase(withTempDir: true)
         var jobModel = new RunJobModel
         {
             Id = Guid.NewGuid(),
-            Directory = tempDir
+            Directory = tempDir.Path
         };
 
-        File.WriteAllBytes(Path.Combine(tempDir, "results.zip"), expectedResults);
+        File.WriteAllBytes(Path.Combine(tempDir.Path, "results.zip"), expectedResults);
 
-        var collector = CreateCollector();
+        var collector = Services.GetRequiredService<ZipResultsCollector>();
 
         // act
         await collector.CollectResultsAsync(jobModel);
@@ -71,8 +72,10 @@ internal class ZipResultsCollectorTests() : UnitTestBase(withTempDir: true)
             Times.Once);
     }
 
-    private ZipResultsCollector CreateCollector()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new ZipResultsCollector(_runner.Object, CreateLogger<ZipResultsCollector>());
+        base.ConfigureServices(services);
+        services.AddSingleton(_runner.Object);
+        services.AddTransient<ZipResultsCollector>();
     }
 }

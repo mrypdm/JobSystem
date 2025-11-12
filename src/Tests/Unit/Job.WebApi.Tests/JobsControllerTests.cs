@@ -4,6 +4,7 @@ using Job.Database.Contexts;
 using Job.WebApi.Controllers;
 using Job.WebApi.Options;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Shared.Broker.Abstractions;
 using Tests.Unit;
@@ -11,14 +12,14 @@ using Tests.Unit;
 namespace Job.WebApi.Tests;
 
 /// <summary>
-/// Tests for <see cref="JobsController"/>
+/// Tests for <see cref="JobController"/>
 /// </summary>
 [TestFixture]
-internal class JobsControllerTests : UnitTestBase
+internal class JobControllerTests : UnitTestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();
     private readonly Mock<IJobProducer<Guid, JobMessage>> _jobProducer = new();
-    private readonly JobsControllerOptions _jobsControllerOptions = new()
+    private readonly JobControllerOptions _jobsControllerOptions = new()
     {
         MaxTimeout = TimeSpan.FromSeconds(60),
         DefaultTimeout = TimeSpan.FromSeconds(5)
@@ -35,7 +36,7 @@ internal class JobsControllerTests : UnitTestBase
     public async Task AddNewJobAsync_NullRequest_ShouldReturnBadRequest()
     {
         // arrange
-        var controller = CreateController();
+        var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.AddNewJobAsync(null, default);
@@ -49,7 +50,7 @@ internal class JobsControllerTests : UnitTestBase
     {
         // arrange
         var request = new CreateJobRequest() { Script = "" };
-        var controller = CreateController();
+        var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.AddNewJobAsync(request, default);
@@ -63,7 +64,7 @@ internal class JobsControllerTests : UnitTestBase
     {
         // arrange
         var request = new CreateJobRequest() { Script = "not_base_64" };
-        var controller = CreateController();
+        var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.AddNewJobAsync(request, default);
@@ -77,7 +78,7 @@ internal class JobsControllerTests : UnitTestBase
     {
         // arrange
         var request = new CreateJobRequest() { Timeout = TimeSpan.FromDays(100) };
-        var controller = CreateController();
+        var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.AddNewJobAsync(request, default);
@@ -96,7 +97,7 @@ internal class JobsControllerTests : UnitTestBase
             .Callback((NewJobModel model, CancellationToken _) => actualJob = model);
 
         var request = new CreateJobRequest() { Script = Convert.ToBase64String([0]) };
-        var controller = CreateController();
+        var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.AddNewJobAsync(request, default);
@@ -133,7 +134,7 @@ internal class JobsControllerTests : UnitTestBase
             .Setup(m => m.PublishAsync(It.Is<JobMessage>(m => m.Id == request.Id), It.IsAny<CancellationToken>()))
             .Callback(() => Assert.That(++order, Is.EqualTo(2)));
 
-        var controller = CreateController();
+        var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.AddNewJobAsync(request, default);
@@ -164,7 +165,7 @@ internal class JobsControllerTests : UnitTestBase
             .Setup(m => m.GetJobResults(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(results);
 
-        var controller = CreateController();
+        var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.GetJobResultsAsync(id, default);
@@ -186,7 +187,7 @@ internal class JobsControllerTests : UnitTestBase
             .Setup(m => m.GetJobResults(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync((JobResultResponse)null);
 
-        var controller = CreateController();
+        var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.GetJobResultsAsync(id, default);
@@ -198,9 +199,12 @@ internal class JobsControllerTests : UnitTestBase
             Times.Once);
     }
 
-    private JobsController CreateController()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new JobsController(_jobDbContext.Object, _jobProducer.Object, _jobsControllerOptions,
-            CreateLogger<JobsController>());
+        base.ConfigureServices(services);
+        services.AddSingleton(_jobDbContext.Object);
+        services.AddSingleton(_jobProducer.Object);
+        services.AddSingleton(_jobsControllerOptions);
+        services.AddTransient<JobController>();
     }
 }

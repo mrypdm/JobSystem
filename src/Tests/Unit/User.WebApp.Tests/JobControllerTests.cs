@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tests.Unit;
 using User.Database.Contexts;
@@ -35,7 +36,7 @@ internal class JobControllerTests : UnitTestBase
             .Setup(m => m.GetUserJobsAsync(Username, It.IsAny<CancellationToken>()))
             .ReturnsAsync([jobId]);
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = await controller.GetViewAsync(default);
@@ -51,7 +52,7 @@ internal class JobControllerTests : UnitTestBase
     {
         // arrange
         var jobId = Guid.NewGuid();
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = controller.GetJobResultsView(jobId);
@@ -66,7 +67,7 @@ internal class JobControllerTests : UnitTestBase
     public void GetJobCreateView_ShouldReturnView()
     {
         // arrange
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobController>();
 
         // act
         var result = controller.GetJobCreateView();
@@ -82,18 +83,22 @@ internal class JobControllerTests : UnitTestBase
         Assert.That(model.Script, Is.Null);
     }
 
-    private JobController CreateController()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        var controller = new JobController(_userDbContext.Object);
-        controller.ControllerContext.HttpContext = new DefaultHttpContext()
+        base.ConfigureServices(services);
+        services.AddTransient(context =>
         {
-            User = new ClaimsPrincipal(
-                new ClaimsIdentity(
-                [
-                    new(ClaimTypes.Name, Username)
-                ],
-                CookieAuthenticationDefaults.AuthenticationScheme))
-        };
-        return controller;
+            var controller = new JobController(_userDbContext.Object);
+            controller.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                    [
+                        new(ClaimTypes.Name, Username)
+                    ],
+                    CookieAuthenticationDefaults.AuthenticationScheme))
+            };
+            return controller;
+        });
     }
 }

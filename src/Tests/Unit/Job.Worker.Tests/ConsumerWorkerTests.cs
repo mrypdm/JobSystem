@@ -7,6 +7,7 @@ using Job.Worker.Options;
 using Job.Worker.Resources.Analyzers;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
 using Shared.Broker.Abstractions;
@@ -45,7 +46,7 @@ internal class ConsumerWorkerTests : UnitTestBase
             .Setup(m => m.Consume(It.IsAny<CancellationToken>()))
             .Throws(new Exception());
 
-        var worker = CreateWorker();
+        var worker = Services.GetRequiredService<ConsumerWorker>();
 
         // act
         await worker.ConsumeOnceAsync(default);
@@ -84,7 +85,7 @@ internal class ConsumerWorkerTests : UnitTestBase
             .ThrowsAsync(new PostgresException("Very bad exception", "", "", ""))
             .ReturnsAsync(jobModel);
 
-        var worker = CreateWorker();
+        var worker = Services.GetRequiredService<ConsumerWorker>();
 
         // act
         await worker.ConsumeOnceAsync(default);
@@ -129,7 +130,7 @@ internal class ConsumerWorkerTests : UnitTestBase
             .Throws(new Exception("Very bad exception"))
             .Pass();
 
-        var worker = CreateWorker();
+        var worker = Services.GetRequiredService<ConsumerWorker>();
 
         // act
         await worker.ConsumeOnceAsync(default);
@@ -174,7 +175,7 @@ internal class ConsumerWorkerTests : UnitTestBase
             .Throws(new PostgresException("Very bad exception", "", "", ""))
             .PassAsync();
 
-        var worker = CreateWorker();
+        var worker = Services.GetRequiredService<ConsumerWorker>();
 
         // act
         await worker.ConsumeOnceAsync(default);
@@ -209,7 +210,7 @@ internal class ConsumerWorkerTests : UnitTestBase
             .Setup(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((NewJobModel)null);
 
-        var worker = CreateWorker();
+        var worker = Services.GetRequiredService<ConsumerWorker>();
 
         // act
         await worker.ConsumeOnceAsync(default);
@@ -245,7 +246,7 @@ internal class ConsumerWorkerTests : UnitTestBase
 
         var order = 0;
 
-        var worker = CreateWorker();
+        var worker = Services.GetRequiredService<ConsumerWorker>();
 
         _consumer
             .Setup(m => m.Subscribe())
@@ -297,7 +298,7 @@ internal class ConsumerWorkerTests : UnitTestBase
     public async Task ConsumingLoop_CanNoRunJobs_ShouldNoConsumeAnyMessage()
     {
         // arrange
-        var worker = CreateWorker();
+        var worker = Services.GetRequiredService<ConsumerWorker>();
 
         _resourceMonitor
             .Setup(m => m.CanRunNewJobAsync(It.IsAny<CancellationToken>()))
@@ -314,9 +315,14 @@ internal class ConsumerWorkerTests : UnitTestBase
         _runner.Verify(m => m.RunJob(It.IsAny<RunJobModel>()), Times.Never);
     }
 
-    private ConsumerWorker CreateWorker()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new ConsumerWorker(_consumer.Object, _runner.Object, _resourceMonitor.Object,
-            _jobDbContext.Object, _consumerWorkerOptions, CreateLogger<ConsumerWorker>());
+        base.ConfigureServices(services);
+        services.AddSingleton(_consumer.Object);
+        services.AddSingleton(_runner.Object);
+        services.AddSingleton(_resourceMonitor.Object);
+        services.AddSingleton(_jobDbContext.Object);
+        services.AddSingleton(_consumerWorkerOptions);
+        services.AddTransient<ConsumerWorker>();
     }
 }

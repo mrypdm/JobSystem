@@ -6,6 +6,7 @@ using Job.WebApi.Client.Exceptions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tests.Unit;
 using User.Database.Contexts;
@@ -53,7 +54,7 @@ internal class JobApiControllerTests : UnitTestBase
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(jobId);
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobApiController>();
 
         // act
         var response = await controller.CreateNewJobAsync(request, default);
@@ -80,7 +81,7 @@ internal class JobApiControllerTests : UnitTestBase
             .Setup(m => m.CreateNewJobAsync(It.IsAny<CreateJobRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new JobWebApiException(HttpStatusCode.BadRequest, "message", null));
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobApiController>();
 
         // act
         var exception = Assert.ThrowsAsync<JobWebApiException>(() => controller.CreateNewJobAsync(request, default));
@@ -107,7 +108,7 @@ internal class JobApiControllerTests : UnitTestBase
             .Setup(m => m.CreateNewJobAsync(It.IsAny<CreateJobRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new JobWebApiTimeoutException("message", null));
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobApiController>();
 
         // act
         Assert.ThrowsAsync<JobWebApiTimeoutException>(() => controller.CreateNewJobAsync(request, default));
@@ -131,7 +132,7 @@ internal class JobApiControllerTests : UnitTestBase
             .Setup(m => m.GetJobResultsAsync(jobId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResults);
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobApiController>();
 
         // act
         var response = await controller.GetUserJobResultsAsync(jobId, default);
@@ -149,7 +150,7 @@ internal class JobApiControllerTests : UnitTestBase
             .Setup(m => m.IsUserJobAsync(Username, jobId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobApiController>();
 
         // act
         var response = await controller.GetUserJobResultsAsync(jobId, default);
@@ -172,7 +173,7 @@ internal class JobApiControllerTests : UnitTestBase
             .Setup(m => m.GetJobResultsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new JobWebApiException(HttpStatusCode.NotFound, "message", null));
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobApiController>();
 
         // act
         var exception = Assert.ThrowsAsync<JobWebApiException>(
@@ -193,25 +194,29 @@ internal class JobApiControllerTests : UnitTestBase
             .Setup(m => m.GetJobResultsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new JobWebApiTimeoutException("message", null));
 
-        using var controller = CreateController();
+        using var controller = Services.GetRequiredService<JobApiController>();
 
         // act & assert
         var exception = Assert.ThrowsAsync<JobWebApiTimeoutException>(
             () => controller.GetUserJobResultsAsync(Guid.NewGuid(), default));
     }
 
-    private JobApiController CreateController()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        var controller = new JobApiController(_userDbContext.Object, _jobApiClient.Object);
-        controller.ControllerContext.HttpContext = new DefaultHttpContext()
+        base.ConfigureServices(services);
+        services.AddTransient(context =>
         {
-            User = new ClaimsPrincipal(
-                new ClaimsIdentity(
-                [
-                    new(ClaimTypes.Name, Username)
-                ],
-                CookieAuthenticationDefaults.AuthenticationScheme))
-        };
-        return controller;
+            var controller = new JobApiController(_userDbContext.Object, _jobApiClient.Object);
+            controller.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                    [
+                        new(ClaimTypes.Name, Username)
+                    ],
+                    CookieAuthenticationDefaults.AuthenticationScheme))
+            };
+            return controller;
+        });
     }
 }

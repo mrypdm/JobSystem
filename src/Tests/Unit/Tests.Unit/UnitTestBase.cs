@@ -1,4 +1,5 @@
-using System.Runtime.CompilerServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Tests.Unit;
@@ -7,36 +8,40 @@ namespace Tests.Unit;
 /// Base class for unit tests
 /// </summary>
 [TestFixture]
-public abstract class UnitTestBase(bool withTempDir = false)
+public abstract class UnitTestBase
 {
-    private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
+    private IHost _host;
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        builder.AddConsole().AddNUnit();
-        builder.SetMinimumLevel(LogLevel.Trace);
-    });
-    private readonly DirectoryInfo _tempDir = withTempDir ? Directory.CreateTempSubdirectory() : null;
+        var builder = Host.CreateApplicationBuilder(Environment.GetCommandLineArgs());
+        ConfigureServices(builder.Services);
+        _host = builder.Build();
+    }
 
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
-        _tempDir?.Delete(recursive: true);
-        _loggerFactory.Dispose();
+        _host.Dispose();
     }
 
-    /// <summary>
-    /// Creates temporary directroy for test
+    // <summary>
+    /// Registered services
     /// </summary>
-    protected string CreateTempDir([CallerMemberName] string testName = null)
-    {
-        return _tempDir?.CreateSubdirectory(testName).FullName
-            ?? throw new InvalidOperationException("Tests are not configured for using temporary directory");
-    }
+    protected IServiceProvider Services => _host.Services;
 
     /// <summary>
-    /// Create logger for <typeparamref name="TClass"/>
+    /// Configure services for tests
     /// </summary>
-    protected ILogger<TClass> CreateLogger<TClass>()
+    protected virtual void ConfigureServices(IServiceCollection services)
     {
-        return new Logger<TClass>(_loggerFactory);
+        services.AddLogging(builder =>
+        {
+            builder.AddConsole();
+            builder.AddNUnit();
+            builder.SetMinimumLevel(LogLevel.Trace);
+        });
+        services.AddTransient<TempDirectory>();
     }
 }

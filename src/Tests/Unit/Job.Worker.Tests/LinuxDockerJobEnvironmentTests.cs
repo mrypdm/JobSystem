@@ -3,6 +3,7 @@ using System.Text;
 using Job.Worker.Environments;
 using Job.Worker.Models;
 using Job.Worker.Options;
+using Microsoft.Extensions.DependencyInjection;
 using Tests.Unit;
 
 namespace Job.Worker.Tests;
@@ -11,7 +12,7 @@ namespace Job.Worker.Tests;
 /// Tests for <see cref="LinuxDockerJobEnvironment"/>
 /// </summary>
 [TestFixture]
-internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true)
+internal class LinuxDockerJobEnvironmentTests : UnitTestBase
 {
     private readonly JobEnvironmentOptions _jobEnvironmentOptions = new()
     {
@@ -24,7 +25,7 @@ internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true
     public void PrepareEnvironment_NullJob_Throw()
     {
         // arrange
-        var environment = CreateEnvironment();
+        var environment = Services.GetRequiredService<LinuxDockerJobEnvironment>();
 
         // act & assert
         Assert.Throws<ArgumentNullException>(() => environment.PrepareEnvironment(null));
@@ -39,7 +40,7 @@ internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true
             Directory = "dir"
         };
 
-        var environment = CreateEnvironment();
+        var environment = Services.GetRequiredService<LinuxDockerJobEnvironment>();
 
         // act & assert
         Assert.Throws<InvalidOperationException>(() => environment.PrepareEnvironment(jobModel));
@@ -49,7 +50,7 @@ internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true
     public void PrepareEnvironment_JobScriptIsNotSet_Throw()
     {
         // arrange
-        var environment = CreateEnvironment();
+        var environment = Services.GetRequiredService<LinuxDockerJobEnvironment>();
 
         // act & assert
         Assert.Throws<InvalidOperationException>(() => environment.PrepareEnvironment(new RunJobModel()));
@@ -59,6 +60,8 @@ internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true
     public void PrepareEnvironment_ShouldCreateEnvironemnt()
     {
         // arrange
+        _jobEnvironmentOptions.JobsDirectory = "TestData";
+
         var expectedScript = "hello, world";
         var jobModel = new RunJobModel()
         {
@@ -67,7 +70,7 @@ internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true
         };
         var expectedDir = Path.Combine(_jobEnvironmentOptions.JobsDirectory, jobModel.Id.ToString()).Replace("\\", "/");
 
-        var environment = CreateEnvironment();
+        var environment = Services.GetRequiredService<LinuxDockerJobEnvironment>();
 
         // act
         environment.PrepareEnvironment(jobModel);
@@ -104,7 +107,9 @@ internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true
     public void PrepareEnvironment_EnvironmentExist_ShouldDeleteEnvironment()
     {
         // arrange
-        var environment = CreateEnvironment(CreateTempDir());
+        using var tempDir = Services.GetRequiredService<TempDirectory>();
+        _jobEnvironmentOptions.JobsDirectory = tempDir.Path;
+        var environment = Services.GetRequiredService<LinuxDockerJobEnvironment>();
 
         var jobId = Guid.NewGuid();
         var expectedDir = Path.Combine(_jobEnvironmentOptions.JobsDirectory, jobId.ToString());
@@ -126,9 +131,10 @@ internal class LinuxDockerJobEnvironmentTests() : UnitTestBase(withTempDir: true
         Assert.That(expectedFile, Does.Not.Exist);
     }
 
-    public LinuxDockerJobEnvironment CreateEnvironment(string jobsDir = "TestData")
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        _jobEnvironmentOptions.JobsDirectory = jobsDir;
-        return new LinuxDockerJobEnvironment(_jobEnvironmentOptions, CreateLogger<LinuxDockerJobEnvironment>());
+        base.ConfigureServices(services);
+        services.AddSingleton(_jobEnvironmentOptions);
+        services.AddTransient<LinuxDockerJobEnvironment>();
     }
 }

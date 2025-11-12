@@ -4,6 +4,7 @@ using Job.Worker.Environments;
 using Job.Worker.JobProcesses;
 using Job.Worker.Models;
 using Job.Worker.Runners;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tests.Unit;
 
@@ -33,7 +34,7 @@ internal class JobRunnerTests : UnitTestBase
     public void RunJob_NullJob_Throw()
     {
         // arrange
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<JobRunner>();
 
         // act & assert
         Assert.Throws<ArgumentNullException>(() => runner.RunJob(null));
@@ -50,7 +51,7 @@ internal class JobRunnerTests : UnitTestBase
             .Setup(m => m.SetJobResultsAsync(jobModel.Id, jobModel.Status, jobModel.Results, It.IsAny<CancellationToken>()))
             .Returns(Task.Delay(1000));
 
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<JobRunner>();
 
         // act
         runner.RunJob(jobModel);
@@ -73,7 +74,7 @@ internal class JobRunnerTests : UnitTestBase
             .Setup(m => m.SetJobResultsAsync(jobModel.Id, jobModel.Status, jobModel.Results, It.IsAny<CancellationToken>()))
             .Returns(Task.Delay(1000));
 
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<JobRunner>();
 
         // act
         runner.RunJob(jobModel);
@@ -108,7 +109,7 @@ internal class JobRunnerTests : UnitTestBase
             .Setup(m => m.ClearEnvironment(jobModel))
             .Callback(() => Assert.That(++order, Is.EqualTo(5)));
 
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<JobRunner>();
 
         // act
         runner.RunJob(jobModel);
@@ -118,9 +119,13 @@ internal class JobRunnerTests : UnitTestBase
         Assert.That(order, Is.EqualTo(5));
     }
 
-    private JobRunner CreateRunner()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new JobRunner(_jobDbContext.Object, _jobEnvironment.Object, _jobProcessRunner.Object,
-            _resultsCollector.Object, CreateLogger<JobRunner>());
+        base.ConfigureServices(services);
+        services.AddSingleton(_jobDbContext.Object);
+        services.AddSingleton(_jobEnvironment.Object);
+        services.AddSingleton(_jobProcessRunner.Object);
+        services.AddSingleton(_resultsCollector.Object);
+        services.AddTransient<JobRunner>();
     }
 }

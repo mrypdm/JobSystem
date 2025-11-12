@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Job.Worker.Processes;
+using Microsoft.Extensions.DependencyInjection;
 using Tests.Unit;
 
 namespace Job.Worker.Tests;
@@ -15,7 +16,7 @@ internal class ProcessRunnerTests : UnitTestBase
     public async Task RunProcess_ShouldStartAndWait()
     {
         // arrange
-        var runner = CreateRunner();
+        var runner = Services.GetRequiredService<ProcessRunner>();
 
         // act
         var sw = Stopwatch.StartNew();
@@ -37,8 +38,9 @@ internal class ProcessRunnerTests : UnitTestBase
         }
     }
 
-    private ProcessRunner CreateRunner()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        return new ProcessRunner(CreateLogger<ProcessRunner>());
+        base.ConfigureServices(services);
+        services.AddTransient<ProcessRunner>();
     }
 }

@@ -97,7 +97,7 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddControllers(this WebApplicationBuilder builder)
     {
-        var jobsControllerOptions = builder.Configuration.GetOptions<JobsControllerOptions>();
+        var jobsControllerOptions = builder.Configuration.GetOptions<JobControllerOptions>();
         builder.Services.AddSingleton(jobsControllerOptions);
         builder.Services.AddControllers(options =>
         {
