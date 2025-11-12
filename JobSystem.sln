@@ -68,11 +68,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{97EB3EF4-B8D1-454F-AC08-B2F10D100113}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi.Tests", "src\Tests\Unit\Job.WebApi.Tests\Job.WebApi.Tests.csproj", "{4780C173-AFE5-4B24-929D-85CAC04365B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi.UnitTests", "src\Tests\Unit\Job.WebApi.UnitTests\Job.WebApi.UnitTests.csproj", "{4780C173-AFE5-4B24-929D-85CAC04365B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker.Tests", "src\Tests\Unit\Job.Worker.Tests\Job.Worker.Tests.csproj", "{65FB62FE-713F-4D24-8B50-3AD6ED5CBA39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Worker.UnitTests", "src\Tests\Unit\Job.Worker.UnitTests\Job.Worker.UnitTests.csproj", "{65FB62FE-713F-4D24-8B50-3AD6ED5CBA39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.WebApp.Tests", "src\Tests\Unit\User.WebApp.Tests\User.WebApp.Tests.csproj", "{47ACAC93-73D7-46E2-A40F-1C0CF87B5117}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.WebApp.UnitTests", "src\Tests\Unit\User.WebApp.UnitTests\User.WebApp.UnitTests.csproj", "{47ACAC93-73D7-46E2-A40F-1C0CF87B5117}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.WebApi.Client", "src\Job\Job.WebApi.Client\Job.WebApi.Client.csproj", "{892070FC-D54A-4E12-82B0-21E161E0D148}"
 EndProject
