@@ -98,12 +98,13 @@ internal class AuthenticationApiControllerTests : TestBase
         var response = await controller.SignInAsync(request, default);
 
         // assert
-        Assert.That(response, Is.TypeOf<RedirectResult>());
-        Assert.That(((RedirectResult)response).Url, Is.EqualTo(request.ReturnUrl));
-
         var salt = Convert.FromBase64String(actualUser.PasswordSalt);
         var hash = KeyDerivation.Pbkdf2(request.Password, salt, KeyDerivationPrf.HMACSHA512,
             iterationCount: 100000, numBytesRequested: 512 / 8);
+
+        using var _ = Assert.EnterMultipleScope();
+        Assert.That(response, Is.TypeOf<RedirectResult>());
+        Assert.That(((RedirectResult)response).Url, Is.EqualTo(request.ReturnUrl));
         Assert.That(actualUser.Username, Is.EqualTo(request.Username));
         Assert.That(actualUser.PasswordHash, Is.EqualTo(Convert.ToBase64String(hash)));
     }
@@ -139,6 +140,7 @@ internal class AuthenticationApiControllerTests : TestBase
         var response = await controller.SignInAsync(request, default);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(response, Is.TypeOf<RedirectResult>());
         Assert.That(((RedirectResult)response).Url, Is.EqualTo(request.ReturnUrl));
         _authenticationService.Verify(

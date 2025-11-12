@@ -65,7 +65,7 @@ public static class AppBuilderExtensions
                     handler.ClientCertificateOptions = ClientCertificateOption.Manual;
                     handler.CheckCertificateRevocationList = false;
                     handler.ServerCertificateCustomValidationCallback
-                        = (_, cert, chain, policy) => sslValidator.Validate(cert, chain, policy);
+                        = (_, cert, _, policy) => sslValidator.Validate(cert, policy);
                     handler.ClientCertificates.Add(jobWebApiOptions.Certificate);
                 })
                 .Build()

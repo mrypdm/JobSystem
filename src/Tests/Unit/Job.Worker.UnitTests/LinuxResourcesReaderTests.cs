@@ -20,6 +20,7 @@ internal class LinuxResourcesReaderTests : TestBase
         var cpuStat = await reader.GetCpuStatisticsAsync(default);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(cpuStat.Idle, Is.EqualTo(2884481));
         Assert.That(cpuStat.Total, Is.EqualTo(2892443));
     }
@@ -34,6 +35,7 @@ internal class LinuxResourcesReaderTests : TestBase
         var cpuStat = await reader.GetRamStatisticsAsync(default);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(cpuStat.Available, Is.EqualTo(7448));
         Assert.That(cpuStat.Total, Is.EqualTo(7846));
     }
@@ -49,6 +51,7 @@ internal class LinuxResourcesReaderTests : TestBase
         var cpuStat = await reader.GetDriveStatisticsAsync(Environment.CurrentDirectory, default);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(cpuStat.Free, Is.EqualTo(driveInfo.AvailableFreeSpace));
         Assert.That(cpuStat.Total, Is.EqualTo(driveInfo.TotalSize));
     }

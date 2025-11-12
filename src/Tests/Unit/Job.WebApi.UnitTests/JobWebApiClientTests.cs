@@ -67,6 +67,7 @@ internal class JobWebApiClientTests : TestBase
             () => client.CreateNewJobAsync(new CreateJobRequest(), default));
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(exc.StatusCode, Is.EqualTo(statusCode));
         Assert.That(exc.Message, Is.EqualTo(error));
     }
@@ -122,6 +123,7 @@ internal class JobWebApiClientTests : TestBase
             () => client.GetJobResultsAsync(Guid.Empty, default));
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(exc.StatusCode, Is.EqualTo(statusCode));
         Assert.That(exc.Message, Is.EqualTo(error));
     }

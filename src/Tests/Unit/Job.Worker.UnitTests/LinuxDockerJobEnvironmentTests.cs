@@ -76,6 +76,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
         environment.PrepareEnvironment(jobModel);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(jobModel.Directory, Is.EqualTo(expectedDir));
         Assert.That(Path.Combine(jobModel.Directory, "stdout.txt"), Does.Exist);
         Assert.That(Path.Combine(jobModel.Directory, "stderr.txt"), Does.Exist);

@@ -12,7 +12,7 @@ public class JobWebApiExceptionsFilter(ILogger<JobWebApiExceptionsFilter> logger
     /// <inheritdoc />
     protected override bool IsSupportedException(Exception exception)
     {
-        return exception is JobWebApiException jobWebApiException;
+        return exception is JobWebApiException;
     }
 
     /// <inheritdoc />

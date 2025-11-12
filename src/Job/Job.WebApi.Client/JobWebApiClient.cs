@@ -42,7 +42,7 @@ public sealed class JobWebApiClient(IFlurlClient httpClient, ILogger<JobWebApiCl
         logger.LogDebug("Doing HTTP request [{Method} {Path}]", method, path);
     }
 
-    private async Task<TResult> DoHttpRequest<TResult>(Func<Task<TResult>> action)
+    private static async Task<TResult> DoHttpRequest<TResult>(Func<Task<TResult>> action)
     {
         try
         {

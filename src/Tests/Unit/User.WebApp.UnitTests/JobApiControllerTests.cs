@@ -197,7 +197,7 @@ internal class JobApiControllerTests : TestBase
         using var controller = Services.GetRequiredService<JobApiController>();
 
         // act & assert
-        var exception = Assert.ThrowsAsync<JobWebApiTimeoutException>(
+        Assert.ThrowsAsync<JobWebApiTimeoutException>(
             () => controller.GetUserJobResultsAsync(Guid.NewGuid(), default));
     }
 

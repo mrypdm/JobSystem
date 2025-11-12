@@ -103,6 +103,7 @@ internal class JobControllerTests : TestBase
         var result = await controller.AddNewJobAsync(request, default);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob, Is.Not.Null);
         Assert.That(result.Value, Is.Not.EqualTo(Guid.Empty));
         Assert.That(actualJob.Id, Is.EqualTo(result.Value));
@@ -140,6 +141,7 @@ internal class JobControllerTests : TestBase
         var result = await controller.AddNewJobAsync(request, default);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(order, Is.EqualTo(2));
         Assert.That(result.Value, Is.EqualTo(request.Id));
         Assert.That(actualJob.Id, Is.EqualTo(request.Id));

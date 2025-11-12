@@ -52,6 +52,7 @@ internal class ConsumerWorkerTests : TestBase
         await worker.ConsumeOnceAsync(default);
 
         // Assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(_jobDbContext.Invocations, Has.Count.Zero);
         Assert.That(_runner.Invocations, Has.Count.Zero);
         _consumer.Verify(m => m.Commit(It.IsAny<ConsumeResult<Guid, JobMessage>>()), Times.Never);

@@ -3,7 +3,6 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Caching.Memory;
 using Org.BouncyCastle.X509;
 using Shared.Contract.SslOptions;
-using SystemX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate;
 
 namespace Shared.Contract;
 
@@ -44,15 +43,7 @@ public class SslValidator
     /// <summary>
     /// Validate certificate
     /// </summary>
-    public bool Validate(object sender, SystemX509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
-    {
-        return Validate((X509Certificate2)certificate, chain, errors);
-    }
-
-    /// <summary>
-    /// Validate certificate
-    /// </summary>
-    public bool Validate(X509Certificate2 certificate, X509Chain chain, SslPolicyErrors errors)
+    public bool Validate(X509Certificate2 certificate, SslPolicyErrors errors)
     {
         return CertificateCache.GetOrCreate(certificate.Thumbprint, entry =>
         {

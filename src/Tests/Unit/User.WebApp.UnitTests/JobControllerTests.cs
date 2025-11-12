@@ -42,6 +42,7 @@ internal class JobControllerTests : TestBase
         var result = await controller.GetViewAsync(default);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(result, Is.TypeOf<ViewResult>());
         Assert.That(((ViewResult)result).ViewName, Is.EqualTo("Index"));
         Assert.That(((ViewResult)result).Model, Is.EqualTo([jobId]).AsCollection);
@@ -58,6 +59,7 @@ internal class JobControllerTests : TestBase
         var result = controller.GetJobResultsView(jobId);
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(result, Is.TypeOf<ViewResult>());
         Assert.That(((ViewResult)result).ViewName, Is.EqualTo("JobResults"));
         Assert.That(((ViewResult)result).Model, Is.EqualTo(jobId));
@@ -73,6 +75,7 @@ internal class JobControllerTests : TestBase
         var result = controller.GetJobCreateView();
 
         // assert
+        using var _ = Assert.EnterMultipleScope();
         Assert.That(result, Is.TypeOf<ViewResult>());
         Assert.That(((ViewResult)result).ViewName, Is.EqualTo("JobCreation"));
         Assert.That(((ViewResult)result).Model, Is.Not.Null);
