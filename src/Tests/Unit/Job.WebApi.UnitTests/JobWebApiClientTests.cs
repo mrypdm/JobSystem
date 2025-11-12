@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Tests.Common;
 
-namespace Job.WebApi.Tests;
+namespace Job.WebApi.UnitTests;
 
 /// <summary>
 /// Tests for <see cref="JobWebApiClient"/>

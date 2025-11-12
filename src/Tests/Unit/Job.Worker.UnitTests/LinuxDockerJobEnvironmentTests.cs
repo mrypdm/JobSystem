@@ -6,7 +6,7 @@ using Job.Worker.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Tests.Common;
 
-namespace Job.Worker.Tests;
+namespace Job.Worker.UnitTests;
 
 /// <summary>
 /// Tests for <see cref="LinuxDockerJobEnvironment"/>

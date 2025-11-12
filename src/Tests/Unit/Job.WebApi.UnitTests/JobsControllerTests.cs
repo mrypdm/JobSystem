@@ -9,7 +9,7 @@ using Moq;
 using Shared.Broker.Abstractions;
 using Tests.Common;
 
-namespace Job.WebApi.Tests;
+namespace Job.WebApi.UnitTests;
 
 /// <summary>
 /// Tests for <see cref="JobController"/>

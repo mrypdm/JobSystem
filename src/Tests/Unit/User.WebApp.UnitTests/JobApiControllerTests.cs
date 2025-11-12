@@ -13,7 +13,7 @@ using User.Database.Contexts;
 using User.WebApp.Controllers.Api;
 using User.WebApp.Models;
 
-namespace User.WebApp.Tests;
+namespace User.WebApp.UnitTests;
 
 /// <summary>
 /// Tests for <see cref="JobApiController"/>

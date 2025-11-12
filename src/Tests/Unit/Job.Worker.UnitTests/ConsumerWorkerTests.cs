@@ -13,7 +13,7 @@ using Npgsql;
 using Shared.Broker.Abstractions;
 using Tests.Common;
 
-namespace Job.Worker.Tests;
+namespace Job.Worker.UnitTests;
 
 /// <summary>
 /// Tests for <see cref="ConsumerWorker"/>

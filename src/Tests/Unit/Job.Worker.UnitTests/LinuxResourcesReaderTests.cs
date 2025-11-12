@@ -2,7 +2,7 @@ using Job.Worker.Resources.Readers;
 using Microsoft.Extensions.DependencyInjection;
 using Tests.Common;
 
-namespace Job.Worker.Tests;
+namespace Job.Worker.UnitTests;
 
 /// <summary>
 /// Tests for <see cref="LinuxResourcesReader"/>

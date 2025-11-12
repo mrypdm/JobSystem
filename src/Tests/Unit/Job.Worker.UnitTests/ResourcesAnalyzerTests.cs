@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tests.Common;
 
-namespace Job.Worker.Tests;
+namespace Job.Worker.UnitTests;
 
 /// <summary>
 /// Tests for <see cref="ResourcesAnalyzer"/>
