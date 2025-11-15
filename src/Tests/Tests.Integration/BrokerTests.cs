@@ -5,8 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Shared.Broker.Abstractions;
 using Shared.Broker.Options;
 using Shared.Contract.Extensions;
-using Tests.Common;
-using Tests.Common.Initializers;
+using Tests.Integration.Initializers;
 
 namespace Tests.Integration;
 

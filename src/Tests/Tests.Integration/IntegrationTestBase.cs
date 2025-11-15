@@ -1,7 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using Tests.Common.Initializers;
+using Tests.Common;
+using Tests.Integration.Initializers;
 
-namespace Tests.Common;
+namespace Tests.Integration;
 
 /// <summary>
 /// Base class for integration tests

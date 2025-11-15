@@ -1,6 +1,6 @@
 using Shared.Database;
 
-namespace Tests.Common.Initializers;
+namespace Tests.Integration.Initializers;
 
 /// <summary>
 /// Initializer for Postgres Databases

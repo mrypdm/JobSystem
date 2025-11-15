@@ -6,8 +6,7 @@ using Npgsql;
 using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Database;
-using Tests.Common;
-using Tests.Common.Initializers;
+using Tests.Integration.Initializers;
 using User.Database.Contexts;
 using User.Database.Models;
 

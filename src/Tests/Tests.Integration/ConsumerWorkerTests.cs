@@ -20,8 +20,7 @@ using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Contract.Owned;
 using Shared.Database;
-using Tests.Common;
-using Tests.Common.Initializers;
+using Tests.Integration.Initializers;
 
 namespace Tests.Integration;
 
