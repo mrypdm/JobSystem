@@ -6,6 +6,8 @@ KAFKA_UI_DIR=~/kafka-ui
 sudo rm -rf $KAFKA_DIR/
 sudo rm -rf $KAFKA_UI_DIR/
 
+CERT_PASS=$(cat config/pass.txt)
+
 #
 # Init Kafka
 #
@@ -15,9 +17,7 @@ mkdir -p $KAFKA_DIR
 mkdir -p $KAFKA_DIR/data
 mkdir -p $KAFKA_DIR/secrets
 
-cp ../../Certificates/certs/svc_kafka/svc_kafka.keystore.p12    $KAFKA_DIR/secrets/
-cp ../../Certificates/certs/svc_kafka/svc_kafka.truststore.p12  $KAFKA_DIR/secrets/
-echo "$1" > $KAFKA_DIR/secrets/pass.txt
+cp config/* $KAFKA_DIR/secrets/
 
 sudo chmod 700 $KAFKA_DIR
 sudo chmod 700 $KAFKA_DIR/data
@@ -26,7 +26,7 @@ sudo chmod 400 $KAFKA_DIR/secrets/*
 
 sudo chown $KAFKA_USER:$KAFKA_USER -R $KAFKA_DIR/
 
-if [ "$2" != "debug" ]; then
+if [ "$1" != "debug" ]; then
   cp docker-compose.prod.yaml docker-compose.yaml
   exit
 fi
@@ -41,7 +41,7 @@ mkdir -p $KAFKA_UI_DIR/secrets
 
 cp ../../Certificates/certs/superuser@kafka/superuser@kafka.keystore.p12    $KAFKA_UI_DIR/secrets/
 cp ../../Certificates/certs/svc_kafka/svc_kafka.truststore.p12              $KAFKA_UI_DIR/secrets/
-sed "s/<PASSWORD>/$1/g" config.yaml.template > $KAFKA_UI_DIR/config.yaml
+sed "s/<PASSWORD>/$CERT_PASS/g" config.yaml.template > $KAFKA_UI_DIR/config.yaml
 
 sudo chmod 700 $KAFKA_UI_DIR
 sudo chmod 500 $KAFKA_UI_DIR/secrets

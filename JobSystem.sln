@@ -36,7 +36,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{DB
 		infrastructure\Tools\Database\init-jobs-db.pgsql = infrastructure\Tools\Database\init-jobs-db.pgsql
 		infrastructure\Tools\Database\init-users-db.pgsql = infrastructure\Tools\Database\init-users-db.pgsql
 		infrastructure\Tools\Database\init.sh = infrastructure\Tools\Database\init.sh
-		infrastructure\Tools\Database\pg_hba.conf = infrastructure\Tools\Database\pg_hba.conf
 		infrastructure\Tools\Database\servers.json.template = infrastructure\Tools\Database\servers.json.template
 	EndProjectSection
 EndProject
@@ -99,6 +98,23 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Database.IntegrationTests", "src\Tests\Integration\User.Database.IntegrationTests\User.Database.IntegrationTests.csproj", "{5CA3D55D-8B4E-44FB-9274-8C08727BC6D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Job.Broker.Tests", "src\Tests\Integration\Job.Broker.Tests\Job.Broker.Tests.csproj", "{C2EDF0AA-DF78-4557-AD93-CCA24B87D945}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{DDE18D8A-5400-477A-9CC3-C69BDA40B6F4}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\Tools\Database\config\crl.pem = infrastructure\Tools\Database\config\crl.pem
+		infrastructure\Tools\Database\config\pass.txt = infrastructure\Tools\Database\config\pass.txt
+		infrastructure\Tools\Database\config\pg_hba.conf = infrastructure\Tools\Database\config\pg_hba.conf
+		infrastructure\Tools\Database\config\svc_postgres.crt = infrastructure\Tools\Database\config\svc_postgres.crt
+		infrastructure\Tools\Database\config\svc_postgres.key = infrastructure\Tools\Database\config\svc_postgres.key
+		infrastructure\Tools\Database\config\svc_postgres.truststore.pem = infrastructure\Tools\Database\config\svc_postgres.truststore.pem
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{EE413E12-3C44-4C4E-9AF5-3EB12B1E7897}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\Tools\Broker\config\pass.txt = infrastructure\Tools\Broker\config\pass.txt
+		infrastructure\Tools\Broker\config\svc_kafka.keystore.p12 = infrastructure\Tools\Broker\config\svc_kafka.keystore.p12
+		infrastructure\Tools\Broker\config\svc_kafka.truststore.p12 = infrastructure\Tools\Broker\config\svc_kafka.truststore.p12
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -236,6 +252,8 @@ Global
 		{57068FEB-20D1-4828-A800-7F8120BE04C9} = {14C3B83D-AB1B-44C5-9218-BCCF1F3854AA}
 		{5CA3D55D-8B4E-44FB-9274-8C08727BC6D4} = {14C3B83D-AB1B-44C5-9218-BCCF1F3854AA}
 		{C2EDF0AA-DF78-4557-AD93-CCA24B87D945} = {14C3B83D-AB1B-44C5-9218-BCCF1F3854AA}
+		{DDE18D8A-5400-477A-9CC3-C69BDA40B6F4} = {DB249E03-3A9B-4878-811C-B7BD2E038418}
+		{EE413E12-3C44-4C4E-9AF5-3EB12B1E7897} = {D24A1ED0-D0E1-4FF0-8760-48AF0FCDFC98}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A09298-C745-4041-A133-65E3AF4E8E3E}
