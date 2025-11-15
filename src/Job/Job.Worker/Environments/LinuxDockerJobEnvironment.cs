@@ -27,7 +27,8 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
             throw new InvalidOperationException($"Cannot run Job '{jobModel.Id}' with empty script");
         }
 
-        jobModel.Directory = Path.Combine(options.JobsDirectory, jobModel.Id.ToString()).Replace("\\", "/");
+        jobModel.Directory = Path.Combine(Path.GetFullPath(options.JobsDirectory), jobModel.Id.ToString())
+            .Replace("\\", "/");
         if (Directory.Exists(jobModel.Directory))
         {
             Directory.Delete(jobModel.Directory, recursive: true);
