@@ -165,7 +165,8 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         builder.Services.AddTransient<IInitializer>(
             context => new DbInitializer(context.GetRequiredKeyedService<JobDbContext>(Admin)));
 
-        builder.Services.AddTransient<IJobRunner, JobRunner>();
+        builder.Services.AddSingleton<IJobRunner, JobRunner>();
+        builder.Services.AddTransient<ConsumerWorker>();
     }
 
     private async Task<Guid> CreateJobAndPublish(string script)
