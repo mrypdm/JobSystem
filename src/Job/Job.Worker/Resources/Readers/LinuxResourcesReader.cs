@@ -46,6 +46,7 @@ public class LinuxResourcesReader : IResourcesReader
     /// <inheritdoc />
     public Task<DriveStat> GetDriveStatisticsAsync(string path, CancellationToken cancellationToken)
     {
+        Directory.CreateDirectory(path);
         var drive = new DriveInfo(path);
         return Task.FromResult(new DriveStat(drive.TotalSize, drive.AvailableFreeSpace));
     }
