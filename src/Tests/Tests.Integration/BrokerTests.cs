@@ -20,8 +20,8 @@ internal class BrokerTests : IntegrationTestBase
         // arrange
         var expectedMessage = new JobMessage() { Id = Guid.NewGuid() };
 
-        var producer = Services.GetRequiredService<IJobProducer<Guid, JobMessage>>();
-        var consumer = Services.GetRequiredService<IJobConsumer<Guid, JobMessage>>();
+        using var producer = Services.GetRequiredService<IJobProducer<Guid, JobMessage>>();
+        using var consumer = Services.GetRequiredService<IJobConsumer<Guid, JobMessage>>();
         consumer.Subscribe();
 
         // act
@@ -45,11 +45,11 @@ internal class BrokerTests : IntegrationTestBase
         builder.Services.AddSingleton(builder.Configuration.GetOptions<ProducerOptions>());
         builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerOptions>());
 
-        builder.Services.AddSingleton<IBrokerAdminClient, BrokerAdminClient>();
-        builder.Services.AddScoped<IJobProducer<Guid, JobMessage>, JobProducer>();
-        builder.Services.AddScoped<IJobConsumer<Guid, JobMessage>, JobConsumer>();
+        builder.Services.AddTransient<IBrokerAdminClient, BrokerAdminClient>();
+        builder.Services.AddTransient<IJobProducer<Guid, JobMessage>, JobProducer>();
+        builder.Services.AddTransient<IJobConsumer<Guid, JobMessage>, JobConsumer>();
 
-        builder.Services.AddScoped<IInitializer>(
+        builder.Services.AddTransient<IInitializer>(
             context => new BrokerInitializer(context.GetRequiredService<IBrokerAdminClient>()));
     }
 }

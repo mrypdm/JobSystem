@@ -127,13 +127,13 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         base.ConfigureServices(builder);
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerOptions>());
-        builder.Services.AddSingleton<IJobConsumer<Guid, JobMessage>, JobConsumer>();
+        builder.Services.AddTransient<IJobConsumer<Guid, JobMessage>, JobConsumer>();
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<ProducerOptions>());
-        builder.Services.AddSingleton<IJobProducer<Guid, JobMessage>, JobProducer>();
+        builder.Services.AddTransient<IJobProducer<Guid, JobMessage>, JobProducer>();
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<AdminOptions>());
-        builder.Services.AddSingleton<IBrokerAdminClient, BrokerAdminClient>();
+        builder.Services.AddTransient<IBrokerAdminClient, BrokerAdminClient>();
         builder.Services.AddTransient<IInitializer>(
             context => new BrokerInitializer(context.GetRequiredService<IBrokerAdminClient>()));
 
@@ -171,7 +171,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         builder.Services.AddTransient<IInitializer>(
             context => new DbInitializer(context.GetRequiredKeyedService<JobDbContext>(Admin)));
 
-        builder.Services.AddSingleton<IJobRunner, JobRunner>();
+        builder.Services.AddTransient<IJobRunner, JobRunner>();
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerWorkerOptions>());
         builder.Services.AddTransient<ConsumerWorker>();
