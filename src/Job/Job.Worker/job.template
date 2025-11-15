@@ -1,6 +1,7 @@
 services:
     job-<JOB_ID>:
       image: alpine
+      entrypoint: /bin/sh
       command: -c "/bin/sh /etc/job/run.sh 1>/dev/stdout 2>/dev/stderr"
       restart: no
       user: 10000:10000
