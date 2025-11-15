@@ -27,7 +27,6 @@ namespace Tests.Integration;
 /// <summary>
 /// Tests for <see cref="ConsumerWorker"/>
 /// </summary>
-[Ignore("Breaking other tests")]
 internal class ConsumerWorkerTests : IntegrationTestBase
 {
     private const string Admin = nameof(Admin);
