@@ -1,8 +1,9 @@
 services:
     kafka:
-      image: apache/kafka
-      hostname: kafka
       container_name: kafka
+      image: apache/kafka
+      entrypoint: /bin/sh
+      command: -c "whoami; ls -la /etc/kafka/secrets"
       ports:
         - '8500:8500'
       restart: unless-stopped

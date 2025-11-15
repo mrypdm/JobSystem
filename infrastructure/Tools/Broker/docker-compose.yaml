@@ -1,8 +1,7 @@
 services:
     kafka:
-      image: apache/kafka
-      hostname: kafka
       container_name: kafka
+      image: apache/kafka
       ports:
         - '8000:8000'
         - '8500:8500'
