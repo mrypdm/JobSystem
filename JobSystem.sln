@@ -116,6 +116,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{EE413E
 		infrastructure\Tools\Broker\config\svc_kafka.truststore.p12 = infrastructure\Tools\Broker\config\svc_kafka.truststore.p12
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{777C5EB6-78FD-4585-9651-FC9C7BA6505D}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\integration-tests.dotnet.yml = .github\workflows\integration-tests.dotnet.yml
+		.github\workflows\unit-tests.dotnet.yml = .github\workflows\unit-tests.dotnet.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
