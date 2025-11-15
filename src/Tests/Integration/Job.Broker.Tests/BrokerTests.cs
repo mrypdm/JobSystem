@@ -16,6 +16,7 @@ namespace Job.Broker.Tests;
 internal class BrokerTests : IntegrationTestBase
 {
     [Test]
+    [Retry(3)] // Sometimes Kafka doesn't have time to load the ACL, causing the test to fail with authorization error
     public async Task ProduceConsume_ShouldSendMessage_ShouldReadMessage()
     {
         // arrange

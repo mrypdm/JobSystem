@@ -24,7 +24,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
             SslKeyPassword = options.Password,
             SslCrlLocation = options.RevocationListFilePath,
 
-            Acks = Acks.Leader,
+            Acks = Acks.All,
         })
         .Build();
 
