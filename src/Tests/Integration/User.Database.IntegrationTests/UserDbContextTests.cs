@@ -16,6 +16,7 @@ namespace User.Database.IntegrationTests;
 /// <summary>
 /// Tests for <see cref="UserDbContext"/>
 /// </summary>
+[NonParallelizable]
 internal class UserDbContextTests : IntegrationTestBase
 {
     private const string Default = nameof(Default);
@@ -249,9 +250,7 @@ internal class UserDbContextTests : IntegrationTestBase
         builder.Services.AddKeyedTransient(Default, (context, _) =>
         {
             var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), dbOptions, sslValidator)
-                .EnableDetailedErrors()
-                .EnableSensitiveDataLogging()
+                .BuildOptions(new DbContextOptionsBuilder(), dbOptions, sslValidator, forTests: true)
                 .Options;
             return new UserDbContext(options, context.GetRequiredService<ILogger<UserDbContext>>());
         });
@@ -261,9 +260,7 @@ internal class UserDbContextTests : IntegrationTestBase
         builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {
             var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator)
-                .EnableDetailedErrors()
-                .EnableSensitiveDataLogging()
+                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator, forTests: true)
                 .Options;
             return new UserDbContext(options, context.GetRequiredService<ILogger<UserDbContext>>());
         });

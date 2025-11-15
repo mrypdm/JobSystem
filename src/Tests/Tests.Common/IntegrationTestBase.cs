@@ -6,6 +6,7 @@ namespace Tests.Common;
 /// <summary>
 /// Base class for integration tests
 /// </summary>
+[NonParallelizable]
 public abstract class IntegrationTestBase : TestBase
 {
     [SetUp]

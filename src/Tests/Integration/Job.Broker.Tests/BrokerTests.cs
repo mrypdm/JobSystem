@@ -12,6 +12,7 @@ namespace Job.Broker.Tests;
 /// <summary>
 /// Tests for <see cref="JobProducer"/> and <see cref="JobConsumer"/>
 /// </summary>
+[NonParallelizable]
 internal class BrokerTests : IntegrationTestBase
 {
     [Test]

@@ -17,6 +17,7 @@ namespace Job.Database.IntegrationTests;
 /// <summary>
 /// Tests for <see cref="JobDbContext"/>
 /// </summary>
+[NonParallelizable]
 internal class JobDbContextTests : IntegrationTestBase
 {
     private const string WebApi = nameof(WebApi);
@@ -354,9 +355,7 @@ internal class JobDbContextTests : IntegrationTestBase
         builder.Services.AddKeyedTransient(WebApi, (context, _) =>
         {
             var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), webApiDbOptions, webApiSslValidator)
-                .EnableDetailedErrors()
-                .EnableSensitiveDataLogging()
+                .BuildOptions(new DbContextOptionsBuilder(), webApiDbOptions, webApiSslValidator, forTests: true)
                 .Options;
             return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
         });
@@ -366,9 +365,7 @@ internal class JobDbContextTests : IntegrationTestBase
         builder.Services.AddKeyedTransient(Worker, (context, _) =>
         {
             var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), workerDbOptions, workerSslValidator)
-                .EnableDetailedErrors()
-                .EnableSensitiveDataLogging()
+                .BuildOptions(new DbContextOptionsBuilder(), workerDbOptions, workerSslValidator, forTests: true)
                 .Options;
             return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
         });
@@ -378,9 +375,7 @@ internal class JobDbContextTests : IntegrationTestBase
         builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {
             var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator)
-                .EnableDetailedErrors()
-                .EnableSensitiveDataLogging()
+                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator, forTests: true)
                 .Options;
             return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
         });

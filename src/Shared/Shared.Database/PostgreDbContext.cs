@@ -60,17 +60,18 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
     /// Build options for <see cref="PostgreDbContext"/>
     /// </summary>
     public static DbContextOptionsBuilder BuildOptions(DbContextOptionsBuilder builder, DatabaseOptions databaseOptions,
-        SslValidator sslValidator)
+        SslValidator sslValidator, bool forTests = false)
     {
         var connectionString = new NpgsqlConnectionStringBuilder
         {
             Host = databaseOptions.HostName,
             Port = databaseOptions.Port,
             Database = databaseOptions.DatabaseName,
-            Username = databaseOptions.CommonName
+            Username = databaseOptions.CommonName,
+            Pooling = !forTests,
         }.ConnectionString;
 
-        return builder.UseNpgsql(
+        builder.UseNpgsql(
             connectionString,
             options => options
                 .EnableRetryOnFailure(databaseOptions.RetriesCount, databaseOptions.RetryDelay, errorCodesToAdd: null)
@@ -86,5 +87,14 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
                             = (_, cert, _, error) => sslValidator.Validate((X509Certificate2)cert, error);
                     });
                 }));
+
+        if (forTests)
+        {
+            builder
+                .EnableDetailedErrors()
+                .EnableSensitiveDataLogging();
+        }
+
+        return builder;
     }
 }
