@@ -32,28 +32,20 @@ jobs:
             cd ${{ github.workspace }}/infrastructure/Tools/Broker
             sudo docker compose -f docker-compose.github.yaml up -d
 
-      - name: Sleep for 5 seconds
-        run: sleep 5
-
-      - name: Get logs of PostgreSQL
-        run: sudo docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml logs
-      - name: Get logs of Apache Kafka
-        run: sudo docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml logs
-
-      # - name: Setup .NET
-      #   uses: actions/setup-dotnet@v3
-      #   with:
-      #     dotnet-version: 9.0.x
-      # - name: Restore dependencies
-      #   run: dotnet restore
-      # - name: Build
-      #   run: dotnet build --no-restore
-      # - name: Test
-      #   run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
 
       - name: Stop PostgreSQL container
         if: always()
-        run: sudo docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml down -t 5
+        run: sudo docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml down -t 1
       - name: Stop Apache Kafka container
         if: always()
-        run: sudo docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml down -t 5
+        run: sudo docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml down -t 1
