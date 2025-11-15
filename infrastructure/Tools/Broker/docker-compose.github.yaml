@@ -2,8 +2,8 @@ services:
     kafka:
       container_name: kafka
       image: apache/kafka
-      #entrypoint: /bin/sh
-      #command: -c "whoami; id; ls -la /etc/kafka/secrets"
+      entrypoint: /bin/sh
+      command: /etc/github-actions/start-for-github.sh
       ports:
         - '8500:8500'
       restart: unless-stopped
@@ -40,4 +40,4 @@ services:
         KAFKA_SUPER_USERS: 'User:svc_kafka;User:superuser@kafka'
         KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
       volumes:
-        - ./config:/etc/kafka/secrets:ro
+        - ./config:/etc/github-actions:ro

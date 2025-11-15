@@ -104,6 +104,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{DDE18D
 		infrastructure\Tools\Database\config\crl.pem = infrastructure\Tools\Database\config\crl.pem
 		infrastructure\Tools\Database\config\pass.txt = infrastructure\Tools\Database\config\pass.txt
 		infrastructure\Tools\Database\config\pg_hba.conf = infrastructure\Tools\Database\config\pg_hba.conf
+		infrastructure\Tools\Database\config\start-for-github.sh = infrastructure\Tools\Database\config\start-for-github.sh
 		infrastructure\Tools\Database\config\svc_postgres.crt = infrastructure\Tools\Database\config\svc_postgres.crt
 		infrastructure\Tools\Database\config\svc_postgres.key = infrastructure\Tools\Database\config\svc_postgres.key
 		infrastructure\Tools\Database\config\svc_postgres.truststore.pem = infrastructure\Tools\Database\config\svc_postgres.truststore.pem
@@ -112,6 +113,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{EE413E12-3C44-4C4E-9AF5-3EB12B1E7897}"
 	ProjectSection(SolutionItems) = preProject
 		infrastructure\Tools\Broker\config\pass.txt = infrastructure\Tools\Broker\config\pass.txt
+		infrastructure\Tools\Broker\config\start-for-github.sh = infrastructure\Tools\Broker\config\start-for-github.sh
 		infrastructure\Tools\Broker\config\svc_kafka.keystore.p12 = infrastructure\Tools\Broker\config\svc_kafka.keystore.p12
 		infrastructure\Tools\Broker\config\svc_kafka.truststore.p12 = infrastructure\Tools\Broker\config\svc_kafka.truststore.p12
 	EndProjectSection
