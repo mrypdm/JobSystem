@@ -31,10 +31,10 @@ jobs:
       - name: Setup containers environments
         run: |
           sudo chmod 555 ${{github.workspace}}/infrastructure/Tools/Database/config/
-          sudo chmod 400 -R ${{github.workspace}}/infrastructure/Tools/Database/config/*
+          sudo chmod 500 -R ${{github.workspace}}/infrastructure/Tools/Database/config/*
           sudo chown 70:70 -R ${{github.workspace}}/infrastructure/Tools/Database/config/
           sudo chmod 555 ${{github.workspace}}/infrastructure/Tools/Broker/config/
-          sudo chmod 400 -R ${{github.workspace}}/infrastructure/Tools/Broker/config/*
+          sudo chmod 500 -R ${{github.workspace}}/infrastructure/Tools/Broker/config/*
           sudo chown 1000:1000 -R ${{github.workspace}}/infrastructure/Tools/Database/config/
 
       - name: View container environments
