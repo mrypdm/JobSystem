@@ -57,7 +57,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
             .ExecuteSqlAsync($"CALL pgdbo.p_jobs_set_results({jobId}, {jobStatus}, {results})", cancellationToken);
         logger.LogCritical(
             "Job [{JobId}] results saved to database with status [{JobStatus}] and size [{ResultsSize}]",
-            jobId, jobStatus, results);
+            jobId, jobStatus, results.Length);
     }
 
     /// <inheritdoc />

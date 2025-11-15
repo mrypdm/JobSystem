@@ -97,7 +97,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
     {
         // arrange
         var jobId = await CreateJobAndPublish("exit");
-        using var context = Services.GetRequiredService<JobDbContext>();
+        using var context = Services.GetRequiredKeyedService<JobDbContext>(Admin);
         await context.SetJobResultsAsync(jobId, JobStatus.Finished, [0x00, 0x11], default);
         var realEndTime = DateTime.UtcNow;
 
@@ -181,8 +181,6 @@ internal class ConsumerWorkerTests : IntegrationTestBase
             Timeout = jobTimeout,
             Script = jobScript
         }, default);
-        await context.SetJobResultsAsync(jobId, JobStatus.Finished, [0x00, 0x11], default);
-        var realEndTime = DateTime.UtcNow;
 
         using var producer = Services.GetRequiredService<IJobProducer<Guid, JobMessage>>();
         await producer.PublishAsync(new JobMessage { Id = jobId }, default);
