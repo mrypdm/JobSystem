@@ -1,16 +1,19 @@
-using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore;
+using Shared.Database.Migrations;
 
 namespace User.Database.Migrations;
 
 /// <summary>
 /// Migration for testing
 /// </summary>
-internal sealed class Initial : Migration
+internal sealed class Initial : BaseMigration
 {
     /// <inheritdoc />
-    protected override void Up(MigrationBuilder migrationBuilder)
+    public override async Task ApplyAsync(DbContext context, CancellationToken cancellationToken)
     {
-        migrationBuilder.Sql("""
+        await context.Database.EnsureCreatedAsync(cancellationToken);
+
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE ROLE "svc_jobs_webapp@postgres" WITH
                 LOGIN
                 NOSUPERUSER
@@ -19,20 +22,19 @@ internal sealed class Initial : Migration
                 NOCREATEROLE
                 NOREPLICATION
                 NOBYPASSRLS;
-            """);
+            """, cancellationToken);
 
-        migrationBuilder.Sql("""
+        await context.Database.ExecuteSqlRawAsync("""
             GRANT ALL ON DATABASE "Users" TO pg_database_owner;
             GRANT CONNECT ON DATABASE "Users" TO "svc_jobs_webapp@postgres";
-            """);
-
-        migrationBuilder.Sql("""
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE SCHEMA IF NOT EXISTS pgdbo AUTHORIZATION pg_database_owner;
             GRANT ALL ON SCHEMA pgdbo TO pg_database_owner;
             GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_webapp@postgres";
-            """);
+            """, cancellationToken);
 
-        migrationBuilder.Sql("""
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE TABLE IF NOT EXISTS pgdbo."Users"
             (
                 "Username" text NOT NULL,
@@ -42,9 +44,9 @@ internal sealed class Initial : Migration
             )
             TABLESPACE pg_default;
             ALTER TABLE IF EXISTS pgdbo."Users" OWNER to pg_database_owner;
-            """);
+            """, cancellationToken);
 
-        migrationBuilder.Sql("""
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE TABLE IF NOT EXISTS pgdbo."UsersJobs"
             (
                 "Username" text NOT NULL,
@@ -53,9 +55,9 @@ internal sealed class Initial : Migration
             )
             TABLESPACE pg_default;
             ALTER TABLE IF EXISTS pgdbo."UsersJobs" OWNER to pg_database_owner;
-            """);
+            """, cancellationToken);
 
-        migrationBuilder.Sql("""
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE OR REPLACE PROCEDURE pgdbo.p_users_add_new_user(IN username text, IN hash text, IN salt text)
             LANGUAGE 'sql'
             SECURITY DEFINER
@@ -68,10 +70,9 @@ internal sealed class Initial : Migration
             GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO pg_database_owner;
             GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO "svc_jobs_webapp@postgres";
             REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
-            CREATE OR REPLACE FUNCTION pgdbo.f_users_get_user(username text)
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
+            CREATE OR REPLACE FUNCTION pgdbo.f_users_get_user(IN username text)
             RETURNS TABLE("Username" text, "PasswordHash" text, "PasswordSalt" text)
             LANGUAGE 'sql'
             SECURITY DEFINER
@@ -85,19 +86,18 @@ internal sealed class Initial : Migration
             GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO pg_database_owner;
             GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO "svc_jobs_webapp@postgres";
             REVOKE ALL ON FUNCTION pgdbo.f_users_get_user(text) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
-            CREATE OR REPLACE PROCEDURE pgdbo.p_users_add_new_job(username text, job_id uuid)
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
+            CREATE OR REPLACE PROCEDURE pgdbo.p_users_add_new_job(IN username text, IN job_id uuid)
             LANGUAGE 'plpgsql'
             SECURITY DEFINER
             AS $BODY$
             DECLARE
-                current_user boolean;
+                user_existance boolean;
             BEGIN
-                SELECT EXISTS(SELECT 1 FROM pgdbo."Users" WHERE "Username" = username) into current_user;
+                SELECT EXISTS(SELECT 1 FROM pgdbo."Users" WHERE "Username" = username) into user_existance;
 
-                IF NOT current_user THEN
+                IF NOT user_existance THEN
                     RAISE EXCEPTION 'User % does not exists', username;
                 END IF;
 
@@ -110,10 +110,9 @@ internal sealed class Initial : Migration
             GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO pg_database_owner;
             GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO "svc_jobs_webapp@postgres";
             REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
-            CREATE OR REPLACE FUNCTION pgdbo.f_users_get_user_jobs(username text)
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
+            CREATE OR REPLACE FUNCTION pgdbo.f_users_get_user_jobs(IN username text)
             RETURNS TABLE("JobId" uuid)
             LANGUAGE 'sql'
             SECURITY DEFINER
@@ -127,23 +126,41 @@ internal sealed class Initial : Migration
             GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO pg_database_owner;
             GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO "svc_jobs_webapp@postgres";
             REVOKE ALL ON FUNCTION pgdbo.f_users_get_user_jobs(text) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
-            CREATE OR REPLACE FUNCTION pgdbo.f_users_check_user_job(username text, job_id uuid)
-            RETURNS TABLE("JobId" uuid)
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
+            CREATE OR REPLACE FUNCTION pgdbo.f_users_check_user_job(IN username text, IN job_id uuid)
+            RETURNS TABLE("Value" boolean)
             LANGUAGE 'sql'
             SECURITY DEFINER
             AS $BODY$
-                SELECT "JobId"
-                FROM pgdbo."Users" U JOIN pgdbo."UsersJobs" UJ ON U."Username" = UJ."Username"
-                WHERE U."Username" = username AND UJ."JobId" = job_id
+                SELECT EXISTS(
+                    SELECT 1
+                    FROM pgdbo."Users" U JOIN pgdbo."UsersJobs" UJ ON U."Username" = UJ."Username"
+                    WHERE U."Username" = username AND UJ."JobId" = job_id
+                )
             $BODY$;
 
-            ALTER FUNCTION pgdbo.f_users_get_user_jobs(text) OWNER TO pg_database_owner;
-            GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO pg_database_owner;
-            GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO "svc_jobs_webapp@postgres";
-            REVOKE ALL ON FUNCTION pgdbo.f_users_get_user_jobs(text) FROM PUBLIC;
-            """);
+            ALTER FUNCTION pgdbo.f_users_check_user_job(text, uuid) OWNER TO pg_database_owner;
+            GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO pg_database_owner;
+            GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO "svc_jobs_webapp@postgres";
+            REVOKE ALL ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) FROM PUBLIC;
+            """, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public override async Task DiscardAsync(DbContext context, CancellationToken cancellationToken)
+    {
+        await SafeDropSqlAsync(context, "DROP PROCEDURE pgdbo.p_users_add_new_user(text, text, text)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP FUNCTION pgdbo.f_users_get_user(text)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP PROCEDURE pgdbo.p_users_add_new_job(text, uuid)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP FUNCTION pgdbo.f_users_get_user_jobs(text)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP FUNCTION pgdbo.f_users_check_user_job(text, uuid)", cancellationToken);
+
+        await SafeDropSqlAsync(context, "DROP TABLE pgdbo.\"Users\"", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP TABLE pgdbo.\"UsersJobs\"", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP SCHEMA pgdbo", cancellationToken);
+
+        await SafeDropSqlAsync(context, "REVOKE ALL ON DATABASE \"Users\" FROM \"svc_jobs_webapp@postgres\"", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP ROLE \"svc_jobs_webapp@postgres\"", cancellationToken);
     }
 }

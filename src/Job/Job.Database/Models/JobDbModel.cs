@@ -25,17 +25,17 @@ public class JobDbModel
     /// <summary>
     /// When Job was created
     /// </summary>
-    public DateTimeOffset? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// When Job was started
     /// </summary>
-    public DateTimeOffset? StartedAt { get; set; }
+    public DateTime? StartedAt { get; set; }
 
     /// <summary>
     /// When Job was finished
     /// </summary>
-    public DateTimeOffset? FinishedAt { get; set; }
+    public DateTime? FinishedAt { get; set; }
 
     /// <summary>
     /// Script to Run

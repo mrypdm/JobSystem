@@ -1,16 +1,19 @@
-using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore;
+using Shared.Database.Migrations;
 
 namespace Job.Database.Migrations;
 
 /// <summary>
 /// Migration for testing
 /// </summary>
-internal sealed class Initial : Migration
+internal sealed class Initial : BaseMigration
 {
     /// <inheritdoc />
-    protected override void Up(MigrationBuilder migrationBuilder)
+    public override async Task ApplyAsync(DbContext context, CancellationToken cancellationToken)
     {
-        migrationBuilder.Sql("""
+        await context.Database.EnsureCreatedAsync(cancellationToken);
+
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE ROLE "svc_jobs_webapi@postgres" WITH
                 LOGIN
                 NOSUPERUSER
@@ -19,8 +22,8 @@ internal sealed class Initial : Migration
                 NOCREATEROLE
                 NOREPLICATION
                 NOBYPASSRLS;
-            """);
-        migrationBuilder.Sql("""
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE ROLE "svc_jobs_worker@postgres" WITH
                 LOGIN
                 NOSUPERUSER
@@ -29,40 +32,46 @@ internal sealed class Initial : Migration
                 NOCREATEROLE
                 NOREPLICATION
                 NOBYPASSRLS;
-            """);
+            """, cancellationToken);
 
-        migrationBuilder.Sql("""
+        await context.Database.ExecuteSqlRawAsync("""
             GRANT ALL ON DATABASE "Jobs" TO pg_database_owner;
             GRANT CONNECT ON DATABASE "Jobs" TO "svc_jobs_webapi@postgres";
             GRANT CONNECT ON DATABASE "Jobs" TO "svc_jobs_worker@postgres";
-            """);
-
-        migrationBuilder.Sql("""
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE SCHEMA IF NOT EXISTS pgdbo AUTHORIZATION pg_database_owner;
             GRANT ALL ON SCHEMA pgdbo TO pg_database_owner;
             GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_webapi@postgres";
             GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_worker@postgres";
-            """);
+            """, cancellationToken);
 
-        migrationBuilder.Sql("""
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE TABLE IF NOT EXISTS pgdbo."Jobs"
             (
                 "Id" uuid NOT NULL,
-                "Status" integer NOT NULL DEFAULT 0,
+                "Status" integer NOT NULL,
                 "Timeout" interval NOT NULL,
-                "CreatedAt" timestamp with time zone NOT NULL DEFAULT NOW(),
-                "StartedAt" timestamp with time zone,
-                "FinishedAt" timestamp with time zone,
+                "CreatedAt" timestamp without time zone NOT NULL,
+                "StartedAt" timestamp without time zone,
+                "FinishedAt" timestamp without time zone,
                 "Script" text NOT NULL,
-                "Results" bytea,
-                CONSTRAINT "PK_JOBS_ID" PRIMARY KEY ("Id"),
-                CONSTRAINT "CT_RESULTS_LESS_THAN_500MB" CHECK (octet_length("Results") <= (50 * 1024 * 1024))
+                "Results" bytea
             )
             TABLESPACE pg_default;
             ALTER TABLE IF EXISTS pgdbo."Jobs" OWNER to pg_database_owner;
-            """);
 
-        migrationBuilder.Sql("""
+            ALTER TABLE IF EXISTS pgdbo."Jobs"
+                ALTER COLUMN "Status" SET DEFAULT 0;
+
+            ALTER TABLE IF EXISTS pgdbo."Jobs"
+                ALTER COLUMN "CreatedAt" SET DEFAULT NOW();
+            ALTER TABLE IF EXISTS pgdbo."Jobs"
+                ADD CONSTRAINT "CT_RESULTS_LESS_THAN_500MB" CHECK (octet_length("Results") <= (50 * 1024 * 1024))
+                NOT VALID;
+            """, cancellationToken);
+
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_add_new(IN job_id uuid, IN timeout interval, IN script text)
             LANGUAGE 'plpgsql'
             SECURITY DEFINER
@@ -85,9 +94,8 @@ internal sealed class Initial : Migration
             GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) TO pg_database_owner;
             GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) TO "svc_jobs_webapi@postgres";
             REVOKE ALL ON PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE OR REPLACE FUNCTION pgdbo.f_jobs_get_results(job_id uuid)
             RETURNS TABLE("Status" integer, "StartedAt" timestamp without time zone, "FinishedAt" timestamp without time zone, "Results" bytea)
             LANGUAGE 'sql'
@@ -102,9 +110,8 @@ internal sealed class Initial : Migration
             GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO pg_database_owner;
             GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@postgres";
             REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE OR REPLACE FUNCTION pgdbo.f_jobs_set_lost(timeout interval)
             RETURNS TABLE("Id" uuid)
             LANGUAGE 'sql'
@@ -116,13 +123,12 @@ internal sealed class Initial : Migration
                 RETURNING "Id"
             $BODY$;
 
-            ALTER FUNCTION pgdbo.f_jobs_get_results(uuid) OWNER TO pg_database_owner;
-            GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO pg_database_owner;
-            GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@postgres";
-            REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
+            ALTER FUNCTION pgdbo.f_jobs_set_lost(interval) OWNER TO pg_database_owner;
+            GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_set_lost(interval) TO pg_database_owner;
+            GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_set_lost(interval) TO "svc_jobs_webapi@postgres";
+            REVOKE ALL ON FUNCTION pgdbo.f_jobs_set_lost(interval) FROM PUBLIC;
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE OR REPLACE FUNCTION pgdbo.f_jobs_get_new(job_id uuid)
             RETURNS TABLE("Id" uuid, "Timeout" interval, "Script" text)
             LANGUAGE 'sql'
@@ -130,16 +136,15 @@ internal sealed class Initial : Migration
             AS $BODY$
                 SELECT "Id", "Timeout", "Script"
                 FROM pgdbo."Jobs"
-                WHERE "Id" = job_id AND Status = 0
+                WHERE "Id" = job_id AND "Status" = 0
             $BODY$;
 
             ALTER FUNCTION pgdbo.f_jobs_get_new(uuid) OWNER TO pg_database_owner;
             GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_new(uuid) TO pg_database_owner;
             GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_new(uuid) TO "svc_jobs_worker@postgres";
             REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_new(uuid) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_set_running(IN job_id uuid)
             LANGUAGE 'plpgsql'
             SECURITY DEFINER
@@ -168,9 +173,8 @@ internal sealed class Initial : Migration
             GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_running(uuid) TO pg_database_owner;
             GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_running(uuid) TO "svc_jobs_worker@postgres";
             REVOKE ALL ON PROCEDURE pgdbo.p_jobs_set_running(uuid) FROM PUBLIC;
-            """);
-
-        migrationBuilder.Sql("""
+            """, cancellationToken);
+        await context.Database.ExecuteSqlRawAsync("""
             CREATE OR REPLACE PROCEDURE pgdbo.p_jobs_set_results(IN job_id uuid, IN status integer, IN results bytea)
             LANGUAGE 'plpgsql'
             SECURITY DEFINER
@@ -202,6 +206,24 @@ internal sealed class Initial : Migration
             GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea) TO pg_database_owner;
             GRANT EXECUTE ON PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea) TO "svc_jobs_worker@postgres";
             REVOKE ALL ON PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea) FROM PUBLIC;
-            """);
+            """, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public override async Task DiscardAsync(DbContext context, CancellationToken cancellationToken)
+    {
+        await SafeDropSqlAsync(context, "DROP PROCEDURE pgdbo.p_jobs_add_new(uuid, interval, text)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP FUNCTION pgdbo.f_jobs_get_results(uuid)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP FUNCTION pgdbo.f_jobs_set_lost(interval)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP FUNCTION pgdbo.f_jobs_get_new(uuid)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP PROCEDURE pgdbo.p_jobs_set_running(uuid)", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP PROCEDURE pgdbo.p_jobs_set_results(uuid, integer, bytea)", cancellationToken);
+
+        await SafeDropSqlAsync(context, "DROP TABLE pgdbo.\"Jobs\"", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP SCHEMA pgdbo", cancellationToken);
+        await SafeDropSqlAsync(context, "REVOKE ALL ON DATABASE \"Jobs\" FROM \"svc_jobs_webapi@postgres\"", cancellationToken);
+        await SafeDropSqlAsync(context, "REVOKE ALL ON DATABASE \"Jobs\" FROM \"svc_jobs_worker@postgres\"", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP ROLE \"svc_jobs_webapi@postgres\"", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP ROLE \"svc_jobs_worker@postgres\"", cancellationToken);
     }
 }

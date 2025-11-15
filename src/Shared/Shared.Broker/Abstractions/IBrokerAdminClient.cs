@@ -34,10 +34,10 @@ public interface IBrokerAdminClient : IDisposable
     /// <summary>
     /// Migrate Broker
     /// </summary>
-    Task MigrateAsync();
+    Task MigrateAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Reset Broker
     /// </summary>
-    Task ResetAsync();
+    Task ResetAsync(CancellationToken cancellationToken);
 }

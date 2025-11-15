@@ -22,7 +22,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
         try
         {
             await Database
-                .ExecuteSqlAsync($"call pgdbo.p_jobs_add_new({job.Id}, {job.Timeout}, {job.Script})", cancellationToken);
+                .ExecuteSqlAsync($"CALL pgdbo.p_jobs_add_new({job.Id}, {job.Timeout}, {job.Script})", cancellationToken);
             logger.LogCritical(
                 "Job [{JobId}] was added to database with timeout [{JobTimeout}] and script size [{ScriptSize}]",
                 job.Id, job.Timeout, job.Script.Length);
@@ -37,7 +37,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     public async Task<NewJobModel> GetNewJobAsync(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<NewJobModel>($"select * from pgdbo.f_jobs_get_new({jobId})")
+            .SqlQuery<NewJobModel>($"SELECT * FROM pgdbo.f_jobs_get_new({jobId})")
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -45,7 +45,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     public async Task SetJobRunningAsync(Guid jobId, CancellationToken cancellationToken)
     {
         await Database
-            .ExecuteSqlAsync($"call pgdbo.p_jobs_set_running({jobId})", cancellationToken);
+            .ExecuteSqlAsync($"CALL pgdbo.p_jobs_set_running({jobId})", cancellationToken);
         logger.LogCritical("Job [{JobId}] set as running", jobId);
     }
 
@@ -54,7 +54,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
         CancellationToken cancellationToken)
     {
         await Database
-            .ExecuteSqlAsync($"call pgdbo.p_jobs_set_results({jobId}, {jobStatus}, {results})", cancellationToken);
+            .ExecuteSqlAsync($"CALL pgdbo.p_jobs_set_results({jobId}, {jobStatus}, {results})", cancellationToken);
         logger.LogCritical(
             "Job [{JobId}] results saved to database with status [{JobStatus}] and size [{ResultsSize}]",
             jobId, jobStatus, results);
@@ -64,7 +64,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     public async Task<JobResultResponse> GetJobResultsAsync(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<JobResultResponse>($"select * from pgdbo.f_jobs_get_results({jobId})")
+            .SqlQuery<JobResultResponse>($"SELECT * FROM pgdbo.f_jobs_get_results({jobId})")
             .SingleOrDefaultAsync(cancellationToken);
     }
 

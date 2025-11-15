@@ -3,6 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Shared.Contract;
+using Shared.Database.Migrations;
 
 namespace Shared.Database;
 
@@ -11,10 +12,54 @@ namespace Shared.Database;
 /// </summary>
 public abstract class PostgreDbContext(DbContextOptions options) : DbContext(options)
 {
+    /// <inheritdoc />
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasDefaultSchema("pgdbo");
+        base.OnModelCreating(modelBuilder);
+    }
+
+    /// <summary>
+    /// Migrate Database
+    /// </summary>
+    public async Task MigrateAsync(CancellationToken cancellationToken)
+    {
+        var migrationInterface = typeof(IDatabaseMigration);
+
+        var migrationsTypes = GetType().Assembly.GetTypes()
+            .Where(m => !m.IsInterface && !m.IsAbstract && m.IsAssignableTo(migrationInterface));
+
+        foreach (var migrationType in migrationsTypes)
+        {
+            var migration = Activator.CreateInstance(migrationType) as IDatabaseMigration;
+            await migration.ApplyAsync(this, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Reset Database
+    /// </summary>
+    public async Task ResetAsync(CancellationToken cancellationToken)
+    {
+        var migrationInterface = typeof(IDatabaseMigration);
+
+        var migrationsTypes = GetType().Assembly.GetTypes()
+            .Where(m => !m.IsInterface && !m.IsAbstract && m.IsAssignableTo(migrationInterface));
+
+        foreach (var migrationType in migrationsTypes)
+        {
+            var migration = Activator.CreateInstance(migrationType) as IDatabaseMigration;
+            await migration.DiscardAsync(this, cancellationToken);
+        }
+
+        await Database.EnsureDeletedAsync(cancellationToken);
+        await Database.EnsureCreatedAsync(cancellationToken);
+    }
+
     /// <summary>
     /// Build options for <see cref="PostgreDbContext"/>
     /// </summary>
-    public static void BuildOptions(DbContextOptionsBuilder builder, DatabaseOptions databaseOptions,
+    public static DbContextOptionsBuilder BuildOptions(DbContextOptionsBuilder builder, DatabaseOptions databaseOptions,
         SslValidator sslValidator)
     {
         var connectionString = new NpgsqlConnectionStringBuilder
@@ -25,7 +70,7 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
             Username = databaseOptions.CommonName
         }.ConnectionString;
 
-        builder.UseNpgsql(
+        return builder.UseNpgsql(
             connectionString,
             options => options
                 .EnableRetryOnFailure(databaseOptions.RetriesCount, databaseOptions.RetryDelay, errorCodesToAdd: null)

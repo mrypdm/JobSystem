@@ -91,16 +91,16 @@ GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO "svc_jobs_webapp@postg
 REVOKE ALL ON FUNCTION pgdbo.f_users_get_user(text) FROM PUBLIC;
 
 -- Add new Job for User
-CREATE OR REPLACE PROCEDURE pgdbo.p_users_add_new_job(username text, job_id uuid)
+CREATE OR REPLACE PROCEDURE pgdbo.p_users_add_new_job(IN username text, IN job_id uuid)
 LANGUAGE 'plpgsql'
 SECURITY DEFINER
 AS $BODY$
 DECLARE
-    current_user boolean;
+    user_existance boolean;
 BEGIN
-    SELECT EXISTS(SELECT 1 FROM pgdbo."Users" WHERE "Username" = username) into current_user;
+    SELECT EXISTS(SELECT 1 FROM pgdbo."Users" WHERE "Username" = username) into user_existance;
 
-    IF NOT current_user THEN
+    IF NOT user_existance THEN
         RAISE EXCEPTION 'User % does not exists', username;
     END IF;
 
@@ -141,7 +141,7 @@ AS $BODY$
     WHERE U."Username" = username AND UJ."JobId" = job_id
 $BODY$;
 
-ALTER FUNCTION pgdbo.f_users_get_user_jobs(text) OWNER TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO "svc_jobs_webapp@postgres";
-REVOKE ALL ON FUNCTION pgdbo.f_users_get_user_jobs(text) FROM PUBLIC;
+ALTER FUNCTION pgdbo.f_users_check_user_job(text, uuid) OWNER TO pg_database_owner;
+GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO pg_database_owner;
+GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO "svc_jobs_webapp@postgres";
+REVOKE ALL ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) FROM PUBLIC;

@@ -13,12 +13,12 @@ public class JobResultResponse
     /// <summary>
     /// Datetime when job was started
     /// </summary>
-    public DateTimeOffset? StartedAt { get; set; }
+    public DateTime? StartedAt { get; set; }
 
     /// <summary>
     /// Datetime when job was finished
     /// </summary>
-    public DateTimeOffset? FinishedAt { get; set; }
+    public DateTime? FinishedAt { get; set; }
 
     /// <summary>
     /// Results of Job

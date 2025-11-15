@@ -1,8 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace User.Database.Models;
 
 /// <summary>
 /// Model of user
 /// </summary>
+[PrimaryKey(nameof(Username))]
 public class UserDbModel
 {
     /// <summary>

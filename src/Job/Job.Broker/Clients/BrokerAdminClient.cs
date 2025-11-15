@@ -102,7 +102,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
     }
 
     /// <inheritdoc />
-    public async Task MigrateAsync()
+    public async Task MigrateAsync(CancellationToken cancellationToken)
     {
         var migrationInterface = typeof(IBrokerMigration);
 
@@ -112,12 +112,12 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         foreach (var migrationType in migrationsTypes)
         {
             var migration = Activator.CreateInstance(migrationType) as IBrokerMigration;
-            await migration.ApplyAsync(this);
+            await migration.ApplyAsync(this, cancellationToken);
         }
     }
 
     /// <inheritdoc />
-    public async Task ResetAsync()
+    public async Task ResetAsync(CancellationToken cancellationToken)
     {
         var migrationInterface = typeof(IBrokerMigration);
 
@@ -127,7 +127,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         foreach (var migrationType in migrationsTypes)
         {
             var migration = Activator.CreateInstance(migrationType) as IBrokerMigration;
-            await migration.DiscardAsync(this);
+            await migration.DiscardAsync(this, cancellationToken);
         }
     }
 }

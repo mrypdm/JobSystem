@@ -16,13 +16,13 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
     /// <summary>
     /// Table of Users Jobs
     /// </summary>
-    public DbSet<UserJobDbModel> UserJobs { get; set; }
+    public DbSet<UserJobDbModel> UsersJobs { get; set; }
 
     /// <inheritdoc />
     public async Task AddNewUserAsync(UserDbModel user, CancellationToken cancellationToken)
     {
         await Database.ExecuteSqlAsync(
-            $"call p_users_add_new_user({user.Username}, {user.PasswordHash}, {user.PasswordSalt})",
+            $"CALL pgdbo.p_users_add_new_user({user.Username}, {user.PasswordHash}, {user.PasswordSalt})",
             cancellationToken);
         logger.LogCritical("User [{Username}] registered", user.Username);
     }
@@ -31,7 +31,7 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
     public async Task<UserDbModel> GetUserAsync(string username, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<UserDbModel>($"select * from f_users_get_user({username})")
+            .SqlQuery<UserDbModel>($"SELECT * FROM pgdbo.f_users_get_user({username})")
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -39,7 +39,7 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
     public async Task AddNewUserJobAsync(string username, Guid jobId, CancellationToken cancellationToken)
     {
         await Database.ExecuteSqlAsync(
-            $"call p_users_add_new_job({username}, {jobId})",
+            $"CALL pgdbo.p_users_add_new_job({username}, {jobId})",
             cancellationToken);
         logger.LogCritical("New Job [{JobId}] created by user [{Username}]", jobId, username);
     }
@@ -48,16 +48,15 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
     public async Task<Guid[]> GetUserJobsAsync(string username, CancellationToken cancellationToken)
     {
         return await Database
-            .SqlQuery<Guid>($"select * from f_users_get_user_jobs({username})")
+            .SqlQuery<Guid>($"SELECT * FROM pgdbo.f_users_get_user_jobs({username})")
             .ToArrayAsync(cancellationToken);
     }
 
     /// <inheritdoc />
     public async Task<bool> IsUserJobAsync(string username, Guid jobId, CancellationToken cancellationToken)
     {
-        var res = await Database
-            .SqlQuery<Guid>($"select * from f_users_check_user_job({username}, {jobId})")
+        return await Database
+            .SqlQuery<bool>($"SELECT * FROM pgdbo.f_users_check_user_job({username}, {jobId})")
             .SingleOrDefaultAsync(cancellationToken);
-        return res != Guid.Empty;
     }
 }

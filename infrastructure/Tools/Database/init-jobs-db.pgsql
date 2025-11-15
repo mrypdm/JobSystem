@@ -50,18 +50,25 @@ GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_worker@postgres";
 CREATE TABLE IF NOT EXISTS pgdbo."Jobs"
 (
     "Id" uuid NOT NULL,
-    "Status" integer NOT NULL DEFAULT 0,
+    "Status" integer NOT NULL,
     "Timeout" interval NOT NULL,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT NOW(),
-    "StartedAt" timestamp with time zone,
-    "FinishedAt" timestamp with time zone,
+    "CreatedAt" timestamp without time zone NOT NULL,
+    "StartedAt" timestamp without time zone,
+    "FinishedAt" timestamp without time zone,
     "Script" text NOT NULL,
-    "Results" bytea,
-    CONSTRAINT "PK_JOBS_ID" PRIMARY KEY ("Id"),
-    CONSTRAINT "CT_RESULTS_LESS_THAN_500MB" CHECK (octet_length("Results") <= (50 * 1024 * 1024))
+    "Results" bytea
 )
 TABLESPACE pg_default;
-ALTER TABLE IF EXISTS pgdbo."Jobs" OWNER to pg_database_owner;
+
+ALTER TABLE IF EXISTS pgdbo."Jobs"
+    OWNER TO pg_database_owner;
+ALTER TABLE IF EXISTS pgdbo."Jobs"
+    ALTER COLUMN "Status" SET DEFAULT 0;
+ALTER TABLE IF EXISTS pgdbo."Jobs"
+    ALTER COLUMN "CreatedAt" SET DEFAULT NOW();
+ALTER TABLE IF EXISTS pgdbo."Jobs"
+    ADD CONSTRAINT "CT_RESULTS_LESS_THAN_500MB" CHECK (octet_length("Results") <= (50 * 1024 * 1024))
+    NOT VALID;
 
 --
 -- Create functions for svc_jobs_webapi
@@ -119,10 +126,10 @@ AS $BODY$
     RETURNING "Id"
 $BODY$;
 
-ALTER FUNCTION pgdbo.f_jobs_get_results(uuid) OWNER TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_get_results(uuid) TO "svc_jobs_webapi@postgres";
-REVOKE ALL ON FUNCTION pgdbo.f_jobs_get_results(uuid) FROM PUBLIC;
+ALTER FUNCTION pgdbo.f_jobs_set_lost(interval) OWNER TO pg_database_owner;
+GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_set_lost(interval) TO pg_database_owner;
+GRANT EXECUTE ON FUNCTION pgdbo.f_jobs_set_lost(interval) TO "svc_jobs_webapi@postgres";
+REVOKE ALL ON FUNCTION pgdbo.f_jobs_set_lost(interval) FROM PUBLIC;
 
 --
 -- Create functions for svc_jobs_worker
@@ -136,7 +143,7 @@ SECURITY DEFINER
 AS $BODY$
     SELECT "Id", "Timeout", "Script"
     FROM pgdbo."Jobs"
-    WHERE "Id" = job_id AND Status = 0
+    WHERE "Id" = job_id AND "Status" = 0
 $BODY$;
 
 ALTER FUNCTION pgdbo.f_jobs_get_new(uuid) OWNER TO pg_database_owner;

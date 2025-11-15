@@ -9,7 +9,7 @@ namespace Job.Broker.Migrations;
 internal sealed class Initial : IBrokerMigration
 {
     /// <inheritdoc />
-    public async Task ApplyAsync(IBrokerAdminClient adminClient)
+    public async Task ApplyAsync(IBrokerAdminClient adminClient, CancellationToken cancellationToken)
     {
         await adminClient.CreateTopicAsync("Jobs");
         await adminClient.AllowActionAsync(ResourceType.Topic, "Jobs", AclOperation.Write, "svc_jobs_webapi@kafka");
@@ -19,12 +19,20 @@ internal sealed class Initial : IBrokerMigration
     }
 
     /// <inheritdoc />
-    public async Task DiscardAsync(IBrokerAdminClient adminClient)
+    public async Task DiscardAsync(IBrokerAdminClient adminClient, CancellationToken cancellationToken)
     {
         await adminClient.DisalloweActionAsync(ResourceType.Group, "Job.Worker.Group", AclOperation.Read,
             "svc_jobs_worker@kafka");
         await adminClient.DisalloweActionAsync(ResourceType.Topic, "Jobs", AclOperation.Read, "svc_jobs_worker@kafka");
         await adminClient.DisalloweActionAsync(ResourceType.Topic, "Jobs", AclOperation.Write, "svc_jobs_webapi@kafka");
-        await adminClient.RemoveTopicAsync("Jobs");
+
+        try
+        {
+            await adminClient.RemoveTopicAsync("Jobs");
+        }
+        catch (DeleteTopicsException ex) when (ex.Message.Contains("Unknown topic or partition"))
+        {
+            // NOP
+        }
     }
 }
