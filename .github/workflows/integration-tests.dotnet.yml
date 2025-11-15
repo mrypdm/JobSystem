@@ -5,12 +5,12 @@ on:
     branches: [ "master" ]
     paths:
       - 'src/**'
-      - '.github/**'
+      - '.github/workflows/integration-tests.dotnet.yml'
   pull_request:
     branches: [ "master" ]
     paths:
       - 'src/**'
-      - '.github/**'
+      - '.github/workflows/integration-tests.dotnet.yml'
 
 jobs:
   main:
@@ -46,6 +46,7 @@ jobs:
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Database
             docker compose -f docker-compose.github.yaml up -d
+
       - name: Start Apache Kafka container
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Broker
