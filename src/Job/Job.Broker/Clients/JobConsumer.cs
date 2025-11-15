@@ -9,6 +9,8 @@ namespace Job.Broker.Clients;
 /// <inheritdoc cref="IJobConsumer" />
 public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IJobConsumer<Guid, JobMessage>
 {
+    private bool _disposed;
+
     private readonly IConsumer<Guid, JobMessage> _consumer = new ConsumerBuilder<Guid, JobMessage>(
         new ConsumerConfig
         {
@@ -41,6 +43,11 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
     /// <inheritdoc />
     public void Dispose()
     {
+        if (Interlocked.CompareExchange(ref _disposed, true, false) != false)
+        {
+            return;
+        }
+
         _consumer.Close();
         _consumer.Dispose();
         logger.LogInformation("Consumer closed");

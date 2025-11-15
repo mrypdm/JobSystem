@@ -10,6 +10,8 @@ namespace Job.Broker.Clients;
 public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminClient> logger)
     : IBrokerAdminClient
 {
+    private bool _disposed;
+
     private readonly IAdminClient _client = new AdminClientBuilder(
         new AdminClientConfig()
         {
@@ -31,6 +33,11 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
     /// <inheritdoc />
     public void Dispose()
     {
+        if (Interlocked.CompareExchange(ref _disposed, true, false) != false)
+        {
+            return;
+        }
+
         _client.Dispose();
         logger.LogInformation("Broker admin client was disposed");
     }

@@ -9,6 +9,8 @@ namespace Job.Broker.Clients;
 /// <inheritdoc cref="IJobProducer"/>
 public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IJobProducer<Guid, JobMessage>
 {
+    private bool _disposed;
+
     private readonly IProducer<Guid, JobMessage> _producer = new ProducerBuilder<Guid, JobMessage>(
         new ProducerConfig()
         {
@@ -40,6 +42,11 @@ public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> lo
     /// <inheritdoc />
     public void Dispose()
     {
+        if (Interlocked.CompareExchange(ref _disposed, true, false) != false)
+        {
+            return;
+        }
+
         _producer.Flush();
         _producer.Dispose();
         logger.LogInformation("Producer closed");
