@@ -1,17 +1,16 @@
-using Microsoft.EntityFrameworkCore;
+using Shared.Database;
 
 namespace Tests.Common.Initializers;
 
 /// <summary>
-/// Initializer for databases
+/// Initializer for Postgres Databases
 /// </summary>
-public class DbInitializer(DbContext jobDbContext) : IInitializer
+public class DbInitializer(PostgreDbContext jobDbContext) : IInitializer
 {
     /// <inheritdoc />
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
-        await jobDbContext.Database.EnsureDeletedAsync(cancellationToken);
-        await jobDbContext.Database.EnsureCreatedAsync(cancellationToken);
-        await jobDbContext.Database.MigrateAsync(cancellationToken);
+        await jobDbContext.ResetAsync(cancellationToken);
+        await jobDbContext.MigrateAsync(cancellationToken);
     }
 }

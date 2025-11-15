@@ -10,7 +10,7 @@ public class BrokerInitializer(IBrokerAdminClient adminClient) : IInitializer
     /// <inheritdoc />
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
-        await adminClient.ResetAsync();
-        await adminClient.MigrateAsync();
+        await adminClient.ResetAsync(cancellationToken);
+        await adminClient.MigrateAsync(cancellationToken);
     }
 }
