@@ -33,9 +33,9 @@ jobs:
           sudo chown 1000:1000 -R ${{github.workspace}}/infrastructure/Tools/Database/config/
 
       - name: Start PostgreSQL container
-        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml up -d
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml --project-directory ${{ github.workspace }}/infrastructure/Tools/Database up -d
       - name: Start Apache Kafka container
-        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml up -d
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml --project-directory ${{ github.workspace }}/infrastructure/Tools/Broker up -d
 
       - name: Sleep for 5 seconds
         run: sleep 5
