@@ -7,7 +7,10 @@ using Job.Database.Contexts;
 using Job.Worker.Collectors;
 using Job.Worker.Environments;
 using Job.Worker.JobProcesses;
+using Job.Worker.Options;
 using Job.Worker.Processes;
+using Job.Worker.Resources.Analyzers;
+using Job.Worker.Resources.Readers;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Microsoft.EntityFrameworkCore;
@@ -47,13 +50,12 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         var jobId = await CreateJobAndPublish("echo \"Running as $(id)\"");
 
         var worker = Services.GetRequiredService<ConsumerWorker>();
-        var runner = Services.GetRequiredService<IJobRunner>();
 
         // act
         await worker.StartAsync(default);
-        await runner.WaitForAllJobs();
-        var endTime = DateTime.UtcNow;
+        await Task.Delay(TimeSpan.FromSeconds(10));
         await worker.StopAsync(default);
+        var endTime = DateTime.UtcNow;
 
         // assert
         using var context = Services.GetRequiredService<JobDbContext>();
@@ -73,13 +75,12 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         var jobId = await CreateJobAndPublish("sleep 10");
 
         var worker = Services.GetRequiredService<ConsumerWorker>();
-        var runner = Services.GetRequiredService<IJobRunner>();
 
         // act
         await worker.StartAsync(default);
-        await runner.WaitForAllJobs();
-        var endTime = DateTime.UtcNow;
+        await Task.Delay(TimeSpan.FromSeconds(10));
         await worker.StopAsync(default);
+        var endTime = DateTime.UtcNow;
 
         // assert
         using var context = Services.GetRequiredService<JobDbContext>();
@@ -102,13 +103,12 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         var realEndTime = DateTime.UtcNow;
 
         var worker = Services.GetRequiredService<ConsumerWorker>();
-        var runner = Services.GetRequiredService<IJobRunner>();
 
         // act
         await worker.StartAsync(default);
-        await runner.WaitForAllJobs();
-        var endTime = DateTime.UtcNow;
+        await Task.Delay(TimeSpan.FromSeconds(10));
         await worker.StopAsync(default);
+        var endTime = DateTime.UtcNow;
 
         // assert
         var jobResults = await context.GetJobResultsAsync(jobId, default);
@@ -140,6 +140,12 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         builder.Services.AddSingleton<IProcessRunner, ProcessRunner>();
         builder.Services.AddSingleton<IJobProcessRunner, DockerJobProcessRunner>();
         builder.Services.AddSingleton<IResultsCollector, ZipResultsCollector>();
+        builder.Services.AddSingleton<IResourcesReader, LinuxResourcesReader>();
+
+        builder.Services.AddSingleton(builder.Configuration.GetOptions<ResourcesAnalyzerOptions>());
+        builder.Services.AddSingleton<IResourcesAnalyzer, ResourcesAnalyzer>();
+
+        builder.Services.AddSingleton(builder.Configuration.GetOptions<JobEnvironmentOptions>());
         builder.Services.AddSingleton<IJobEnvironment, LinuxDockerJobEnvironment>();
 
         var workerDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("WorkerDatabaseOptions");
@@ -166,6 +172,8 @@ internal class ConsumerWorkerTests : IntegrationTestBase
             context => new DbInitializer(context.GetRequiredKeyedService<JobDbContext>(Admin)));
 
         builder.Services.AddSingleton<IJobRunner, JobRunner>();
+
+        builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerWorkerOptions>());
         builder.Services.AddTransient<ConsumerWorker>();
     }
 
