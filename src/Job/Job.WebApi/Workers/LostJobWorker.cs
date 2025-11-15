@@ -1,5 +1,6 @@
 using Job.Database.Contexts;
 using Job.WebApi.Options;
+using Shared.Contract.Owned;
 
 namespace Job.WebApi.Workers;
 
@@ -7,7 +8,7 @@ namespace Job.WebApi.Workers;
 /// Worker for finding Lost jobs
 /// </summary>
 public class LostJobWorker(
-    IServiceScopeFactory scopeFactory,
+    IOwnedService<IJobDbContext> jobDbContextOwned,
     ILogger<LostJobWorker> logger,
     LostJobWorkerOptions options) : IHostedService
 {
@@ -52,8 +53,7 @@ public class LostJobWorker(
     {
         try
         {
-            using var scope = scopeFactory.CreateAsyncScope();
-            using var jobsDbContext = scope.ServiceProvider.GetRequiredService<IJobDbContext>();
+            using var jobsDbContext = jobDbContextOwned.Value;
             await jobsDbContext.MarkLostJobsAsync(options.LostTimeoutForJobs, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

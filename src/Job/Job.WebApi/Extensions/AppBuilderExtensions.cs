@@ -15,6 +15,7 @@ using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Contract.Options;
+using Shared.Contract.Owned;
 using Shared.Database;
 
 namespace Job.WebApi.Extensions;
@@ -48,6 +49,7 @@ public static class AppBuilderExtensions
         var sslValidator = new SslValidator(dbOptions);
         builder.Services.AddDbContext<IJobDbContext, JobDbContext>(
             options => PostgreDbContext.BuildOptions(options, dbOptions, sslValidator));
+        builder.Services.AddSingleton<IOwnedService<IJobDbContext>, OwnedService<IJobDbContext>>();
         return builder;
     }
 

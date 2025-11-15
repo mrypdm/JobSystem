@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Moq;
 using Npgsql;
 using Shared.Broker.Abstractions;
+using Shared.Contract.Owned;
 using Tests.Common;
 
 namespace Job.Worker.UnitTests;
@@ -26,6 +27,7 @@ internal class ConsumerWorkerTests : TestBase
     private readonly Mock<IJobRunner> _runner = new();
     private readonly Mock<IResourcesAnalyzer> _resourceMonitor = new();
     private readonly Mock<IJobDbContext> _jobDbContext = new();
+    private readonly Mock<IOwnedService<IJobDbContext>> _jobDbContextOwned = new();
     private readonly ConsumerWorkerOptions _consumerWorkerOptions = new()
     {
         IterationDeplay = TimeSpan.FromSeconds(1)
@@ -37,6 +39,11 @@ internal class ConsumerWorkerTests : TestBase
         _consumer.Reset();
         _runner.Reset();
         _jobDbContext.Reset();
+        _jobDbContextOwned.Reset();
+
+        _jobDbContextOwned
+            .Setup(m => m.Value)
+            .Returns(_jobDbContext.Object);
     }
 
     [Test]
@@ -324,7 +331,7 @@ internal class ConsumerWorkerTests : TestBase
         builder.Services.AddSingleton(_consumer.Object);
         builder.Services.AddSingleton(_runner.Object);
         builder.Services.AddSingleton(_resourceMonitor.Object);
-        builder.Services.AddSingleton(_jobDbContext.Object);
+        builder.Services.AddSingleton(_jobDbContextOwned.Object);
         builder.Services.AddSingleton(_consumerWorkerOptions);
         builder.Services.AddTransient<ConsumerWorker>();
     }

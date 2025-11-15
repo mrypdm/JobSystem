@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Shared.Broker.Abstractions;
+using Shared.Contract.Owned;
 
 namespace Job.Worker.Workers;
 
@@ -19,7 +20,7 @@ public class ConsumerWorker(
     IJobConsumer<Guid, JobMessage> consumer,
     IJobRunner runner,
     IResourcesAnalyzer resourceMonitor,
-    IJobDbContext jobsDbContext,
+    IOwnedService<IJobDbContext> jobDbContextOwned,
     ConsumerWorkerOptions consumerWorkerOptions,
     ILogger<ConsumerWorker> logger)
     : IHostedService
@@ -91,7 +92,8 @@ public class ConsumerWorker(
         {
             _lastConsumed ??= consumer.Consume(cancellationToken);
 
-            var job = await jobsDbContext.GetNewJobAsync(_lastConsumed.Message.Value.Id, cancellationToken);
+            using var jobDbContext = jobDbContextOwned.Value;
+            var job = await jobDbContext.GetNewJobAsync(_lastConsumed.Message.Value.Id, cancellationToken);
             if (job is null)
             {
                 logger.LogWarning(
@@ -107,7 +109,7 @@ public class ConsumerWorker(
                     Timeout = job.Timeout,
                     Script = job.Script
                 });
-                await SetJobAsRunning(job.Id, cancellationToken);
+                await SetJobAsRunning(jobDbContext, job.Id, cancellationToken);
             }
 
             consumer.Commit(_lastConsumed);
@@ -123,11 +125,11 @@ public class ConsumerWorker(
         }
     }
 
-    private async Task SetJobAsRunning(Guid jobId, CancellationToken cancellationToken)
+    private async Task SetJobAsRunning(IJobDbContext jobDbContext, Guid jobId, CancellationToken cancellationToken)
     {
         try
         {
-            await jobsDbContext.SetJobRunningAsync(jobId, cancellationToken);
+            await jobDbContext.SetJobRunningAsync(jobId, cancellationToken);
         }
         catch (PostgresException e) when (e.MessageText.Contains("Job is finished"))
         {
