@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Shared.Contract;
 using Shared.Contract.Extensions;
@@ -16,18 +18,22 @@ namespace User.Database.IntegrationTests;
 /// </summary>
 internal class UserDbContextTests : IntegrationTestBase
 {
+    private const string Default = nameof(Default);
+    private const string Admin = nameof(Admin);
+
     [Test]
     public async Task AddNewUser_ShouldAddUser()
     {
         // arrange
         var expectedUser = CreateTestUser();
-        using var context = Services.GetRequiredService<UserDbContext>();
 
         // act
-        await context.AddNewUserAsync(expectedUser, default);
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
+        await defaultContext.AddNewUserAsync(expectedUser, default);
 
         // assert
-        var actualUser = context.Users.SingleOrDefault(m => m.Username == expectedUser.Username);
+        using var adminContext = Services.GetRequiredKeyedService<UserDbContext>(Admin);
+        var actualUser = adminContext.Users.SingleOrDefault(m => m.Username == expectedUser.Username);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualUser, Is.Not.Null);
@@ -41,11 +47,11 @@ internal class UserDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedUser = CreateTestUser();
-        using var context = Services.GetRequiredService<UserDbContext>();
-        await context.AddNewUserAsync(expectedUser, default);
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
+        await defaultContext.AddNewUserAsync(expectedUser, default);
 
         // act
-        var exception = Assert.ThrowsAsync<PostgresException>(() => context.AddNewUserAsync(expectedUser, default));
+        var exception = Assert.ThrowsAsync<PostgresException>(() => defaultContext.AddNewUserAsync(expectedUser, default));
     }
 
     [Test]
@@ -53,11 +59,11 @@ internal class UserDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedUser = CreateTestUser();
-        using var context = Services.GetRequiredService<UserDbContext>();
-        await context.AddNewUserAsync(expectedUser, default);
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
+        await defaultContext.AddNewUserAsync(expectedUser, default);
 
         // act
-        var actualUser = await context.GetUserAsync(expectedUser.Username, default);
+        var actualUser = await defaultContext.GetUserAsync(expectedUser.Username, default);
 
         // assert
         using var _ = Assert.EnterMultipleScope();
@@ -71,10 +77,10 @@ internal class UserDbContextTests : IntegrationTestBase
     public async Task GetUser_UserNotExists_ShouldReturnNull()
     {
         // arrange
-        using var context = Services.GetRequiredService<UserDbContext>();
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
 
         // act
-        var actualUser = await context.GetUserAsync("not_exist", default);
+        var actualUser = await defaultContext.GetUserAsync("not_exist", default);
 
         // assert
         Assert.That(actualUser, Is.Null);
@@ -87,14 +93,15 @@ internal class UserDbContextTests : IntegrationTestBase
         var expectedUser = CreateTestUser();
         var expectedJob = Guid.NewGuid();
 
-        using var context = Services.GetRequiredService<UserDbContext>();
-        await context.AddNewUserAsync(expectedUser, default);
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
+        await defaultContext.AddNewUserAsync(expectedUser, default);
 
         // act
-        await context.AddNewUserJobAsync(expectedUser.Username, expectedJob, default);
+        await defaultContext.AddNewUserJobAsync(expectedUser.Username, expectedJob, default);
 
         // assert
-        var actualJob = context.UsersJobs.SingleOrDefault(m => m.JobId == expectedJob);
+        using var adminContext = Services.GetRequiredKeyedService<UserDbContext>(Admin);
+        var actualJob = adminContext.UsersJobs.SingleOrDefault(m => m.JobId == expectedJob);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob, Is.Not.Null);
@@ -108,14 +115,15 @@ internal class UserDbContextTests : IntegrationTestBase
         // arrange
         var expectedJob = Guid.NewGuid();
 
-        using var context = Services.GetRequiredService<UserDbContext>();
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
 
         // act
         var exception = Assert.ThrowsAsync<PostgresException>(
-            () => context.AddNewUserJobAsync("not_exist", expectedJob, default));
+            () => defaultContext.AddNewUserJobAsync("not_exist", expectedJob, default));
 
         // assert
-        var actualJob = context.UsersJobs.SingleOrDefault(m => m.JobId == expectedJob);
+        using var adminContext = Services.GetRequiredKeyedService<UserDbContext>(Admin);
+        var actualJob = adminContext.UsersJobs.SingleOrDefault(m => m.JobId == expectedJob);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob, Is.Null);
@@ -131,15 +139,15 @@ internal class UserDbContextTests : IntegrationTestBase
         var expectedJob1 = Guid.NewGuid();
         var expectedJob2 = Guid.NewGuid();
 
-        using var context = Services.GetRequiredService<UserDbContext>();
-        await context.AddNewUserAsync(expectedUser1, default);
-        await context.AddNewUserAsync(expectedUser2, default);
-        await context.AddNewUserJobAsync(expectedUser1.Username, expectedJob1, default);
-        await context.AddNewUserJobAsync(expectedUser1.Username, expectedJob2, default);
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
+        await defaultContext.AddNewUserAsync(expectedUser1, default);
+        await defaultContext.AddNewUserAsync(expectedUser2, default);
+        await defaultContext.AddNewUserJobAsync(expectedUser1.Username, expectedJob1, default);
+        await defaultContext.AddNewUserJobAsync(expectedUser1.Username, expectedJob2, default);
 
         // act
-        var userJobs1 = await context.GetUserJobsAsync(expectedUser1.Username, default);
-        var userJobs2 = await context.GetUserJobsAsync(expectedUser2.Username, default);
+        var userJobs1 = await defaultContext.GetUserJobsAsync(expectedUser1.Username, default);
+        var userJobs2 = await defaultContext.GetUserJobsAsync(expectedUser2.Username, default);
 
         // assert
         using var _ = Assert.EnterMultipleScope();
@@ -154,10 +162,10 @@ internal class UserDbContextTests : IntegrationTestBase
     public async Task GetUserJobs_UserNotExists_ShouldReturnEmptyArray()
     {
         // arrange
-        using var context = Services.GetRequiredService<UserDbContext>();
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
 
         // act
-        var userJobs = await context.GetUserJobsAsync("not_exists", default);
+        var userJobs = await defaultContext.GetUserJobsAsync("not_exists", default);
 
         // assert
         using var _ = Assert.EnterMultipleScope();
@@ -172,12 +180,12 @@ internal class UserDbContextTests : IntegrationTestBase
         var expectedUser = CreateTestUser();
         var expectedJob = Guid.NewGuid();
 
-        using var context = Services.GetRequiredService<UserDbContext>();
-        await context.AddNewUserAsync(expectedUser, default);
-        await context.AddNewUserJobAsync(expectedUser.Username, expectedJob, default);
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
+        await defaultContext.AddNewUserAsync(expectedUser, default);
+        await defaultContext.AddNewUserJobAsync(expectedUser.Username, expectedJob, default);
 
         // act
-        var result = await context.IsUserJobAsync(expectedUser.Username, expectedJob, default);
+        var result = await defaultContext.IsUserJobAsync(expectedUser.Username, expectedJob, default);
 
         // assert
         Assert.That(result, Is.True);
@@ -191,12 +199,12 @@ internal class UserDbContextTests : IntegrationTestBase
         var expectedUser2 = CreateTestUser("second");
         var expectedJob = Guid.NewGuid();
 
-        using var context = Services.GetRequiredService<UserDbContext>();
-        await context.AddNewUserAsync(expectedUser1, default);
-        await context.AddNewUserJobAsync(expectedUser1.Username, expectedJob, default);
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
+        await defaultContext.AddNewUserAsync(expectedUser1, default);
+        await defaultContext.AddNewUserJobAsync(expectedUser1.Username, expectedJob, default);
 
         // act
-        var result = await context.IsUserJobAsync(expectedUser2.Username, expectedJob, default);
+        var result = await defaultContext.IsUserJobAsync(expectedUser2.Username, expectedJob, default);
 
         // assert
         Assert.That(result, Is.False);
@@ -208,11 +216,11 @@ internal class UserDbContextTests : IntegrationTestBase
         // arrange
         var expectedUser = CreateTestUser();
 
-        using var context = Services.GetRequiredService<UserDbContext>();
-        await context.AddNewUserAsync(expectedUser, default);
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
+        await defaultContext.AddNewUserAsync(expectedUser, default);
 
         // act
-        var result = await context.IsUserJobAsync(expectedUser.Username, Guid.Empty, default);
+        var result = await defaultContext.IsUserJobAsync(expectedUser.Username, Guid.Empty, default);
 
         // assert
         Assert.That(result, Is.False);
@@ -222,10 +230,10 @@ internal class UserDbContextTests : IntegrationTestBase
     public async Task IsUserJob_UserNotExists_ShouldReturnFalse()
     {
         // arrange
-        using var context = Services.GetRequiredService<UserDbContext>();
+        using var defaultContext = Services.GetRequiredKeyedService<UserDbContext>(Default);
 
         // act
-        var result = await context.IsUserJobAsync("not_exist", Guid.Empty, default);
+        var result = await defaultContext.IsUserJobAsync("not_exist", Guid.Empty, default);
 
         // assert
         Assert.That(result, Is.False);
@@ -238,11 +246,29 @@ internal class UserDbContextTests : IntegrationTestBase
 
         var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
         var sslValidator = new SslValidator(dbOptions);
-        builder.Services.AddDbContext<UserDbContext>(
-            options => PostgreDbContext.BuildOptions(options, dbOptions, sslValidator),
-            ServiceLifetime.Transient);
-        builder.Services.AddScoped<IInitializer>(
-            context => new DbInitializer(context.GetRequiredService<UserDbContext>()));
+        builder.Services.AddKeyedTransient("Default", (context, _) =>
+        {
+            var options = PostgreDbContext
+                .BuildOptions(new DbContextOptionsBuilder(), dbOptions, sslValidator)
+                .EnableDetailedErrors()
+                .EnableSensitiveDataLogging()
+                .Options;
+            return new UserDbContext(options, context.GetRequiredService<ILogger<UserDbContext>>());
+        });
+
+        var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminDatabaseOptions");
+        var adminSslValidator = new SslValidator(dbOptions);
+        builder.Services.AddKeyedTransient("Admin", (context, _) =>
+        {
+            var options = PostgreDbContext
+                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator)
+                .EnableDetailedErrors()
+                .EnableSensitiveDataLogging()
+                .Options;
+            return new UserDbContext(options, context.GetRequiredService<ILogger<UserDbContext>>());
+        });
+        builder.Services.AddTransient<IInitializer>(
+            context => new DbInitializer(context.GetKeyedService<UserDbContext>("Admin")));
     }
 
     private static UserDbModel CreateTestUser(string username = "username")

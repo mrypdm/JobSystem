@@ -14,7 +14,7 @@ internal sealed class Initial : BaseMigration
         await context.Database.EnsureCreatedAsync(cancellationToken);
 
         await context.Database.ExecuteSqlRawAsync("""
-            CREATE ROLE "svc_jobs_webapp@postgres" WITH
+            CREATE ROLE "svc_users_webapp@postgres" WITH
                 LOGIN
                 NOSUPERUSER
                 NOINHERIT
@@ -26,12 +26,12 @@ internal sealed class Initial : BaseMigration
 
         await context.Database.ExecuteSqlRawAsync("""
             GRANT ALL ON DATABASE "Users" TO pg_database_owner;
-            GRANT CONNECT ON DATABASE "Users" TO "svc_jobs_webapp@postgres";
+            GRANT CONNECT ON DATABASE "Users" TO "svc_users_webapp@postgres";
             """, cancellationToken);
         await context.Database.ExecuteSqlRawAsync("""
             CREATE SCHEMA IF NOT EXISTS pgdbo AUTHORIZATION pg_database_owner;
             GRANT ALL ON SCHEMA pgdbo TO pg_database_owner;
-            GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_webapp@postgres";
+            GRANT USAGE ON SCHEMA pgdbo TO "svc_users_webapp@postgres";
             """, cancellationToken);
 
         await context.Database.ExecuteSqlRawAsync("""
@@ -68,7 +68,7 @@ internal sealed class Initial : BaseMigration
 
             ALTER PROCEDURE pgdbo.p_users_add_new_user(text, text, text) OWNER TO pg_database_owner;
             GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO pg_database_owner;
-            GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO "svc_jobs_webapp@postgres";
+            GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO "svc_users_webapp@postgres";
             REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) FROM PUBLIC;
             """, cancellationToken);
         await context.Database.ExecuteSqlRawAsync("""
@@ -84,7 +84,7 @@ internal sealed class Initial : BaseMigration
 
             ALTER FUNCTION pgdbo.f_users_get_user(text) OWNER TO pg_database_owner;
             GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO pg_database_owner;
-            GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO "svc_jobs_webapp@postgres";
+            GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO "svc_users_webapp@postgres";
             REVOKE ALL ON FUNCTION pgdbo.f_users_get_user(text) FROM PUBLIC;
             """, cancellationToken);
         await context.Database.ExecuteSqlRawAsync("""
@@ -108,7 +108,7 @@ internal sealed class Initial : BaseMigration
 
             ALTER PROCEDURE pgdbo.p_users_add_new_job(text, uuid) OWNER TO pg_database_owner;
             GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO pg_database_owner;
-            GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO "svc_jobs_webapp@postgres";
+            GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO "svc_users_webapp@postgres";
             REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) FROM PUBLIC;
             """, cancellationToken);
         await context.Database.ExecuteSqlRawAsync("""
@@ -124,7 +124,7 @@ internal sealed class Initial : BaseMigration
 
             ALTER FUNCTION pgdbo.f_users_get_user_jobs(text) OWNER TO pg_database_owner;
             GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO pg_database_owner;
-            GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO "svc_jobs_webapp@postgres";
+            GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO "svc_users_webapp@postgres";
             REVOKE ALL ON FUNCTION pgdbo.f_users_get_user_jobs(text) FROM PUBLIC;
             """, cancellationToken);
         await context.Database.ExecuteSqlRawAsync("""
@@ -142,7 +142,7 @@ internal sealed class Initial : BaseMigration
 
             ALTER FUNCTION pgdbo.f_users_check_user_job(text, uuid) OWNER TO pg_database_owner;
             GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO pg_database_owner;
-            GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO "svc_jobs_webapp@postgres";
+            GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO "svc_users_webapp@postgres";
             REVOKE ALL ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) FROM PUBLIC;
             """, cancellationToken);
     }
@@ -160,7 +160,7 @@ internal sealed class Initial : BaseMigration
         await SafeDropSqlAsync(context, "DROP TABLE pgdbo.\"UsersJobs\"", cancellationToken);
         await SafeDropSqlAsync(context, "DROP SCHEMA pgdbo", cancellationToken);
 
-        await SafeDropSqlAsync(context, "REVOKE ALL ON DATABASE \"Users\" FROM \"svc_jobs_webapp@postgres\"", cancellationToken);
-        await SafeDropSqlAsync(context, "DROP ROLE \"svc_jobs_webapp@postgres\"", cancellationToken);
+        await SafeDropSqlAsync(context, "REVOKE ALL ON DATABASE \"Users\" FROM \"svc_users_webapp@postgres\"", cancellationToken);
+        await SafeDropSqlAsync(context, "DROP ROLE \"svc_users_webapp@postgres\"", cancellationToken);
     }
 }

@@ -1,7 +1,7 @@
 --
 -- Creating users
 --
-CREATE ROLE "svc_jobs_webapp@postgres" WITH
+CREATE ROLE "svc_users_webapp@postgres" WITH
     LOGIN
     NOSUPERUSER
     NOINHERIT
@@ -25,14 +25,14 @@ CREATE DATABASE "Users"
     IS_TEMPLATE = False;
 
 GRANT ALL ON DATABASE "Users" TO pg_database_owner;
-GRANT CONNECT ON DATABASE "Users" TO "svc_jobs_webapp@postgres";
+GRANT CONNECT ON DATABASE "Users" TO "svc_users_webapp@postgres";
 
 --
 -- Creating schema
 --
 CREATE SCHEMA IF NOT EXISTS pgdbo AUTHORIZATION pg_database_owner;
 GRANT ALL ON SCHEMA pgdbo TO pg_database_owner;
-GRANT USAGE ON SCHEMA pgdbo TO "svc_jobs_webapp@postgres";
+GRANT USAGE ON SCHEMA pgdbo TO "svc_users_webapp@postgres";
 
 --
 -- Creating tables
@@ -71,7 +71,7 @@ $BODY$;
 
 ALTER PROCEDURE pgdbo.p_users_add_new_user(text, text, text) OWNER TO pg_database_owner;
 GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO "svc_jobs_webapp@postgres";
+GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) TO "svc_users_webapp@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_user(text, text, text) FROM PUBLIC;
 
 -- Get User
@@ -87,7 +87,7 @@ $BODY$;
 
 ALTER FUNCTION pgdbo.f_users_get_user(text) OWNER TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO "svc_jobs_webapp@postgres";
+GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user(text) TO "svc_users_webapp@postgres";
 REVOKE ALL ON FUNCTION pgdbo.f_users_get_user(text) FROM PUBLIC;
 
 -- Add new Job for User
@@ -111,7 +111,7 @@ $BODY$;
 
 ALTER PROCEDURE pgdbo.p_users_add_new_job(text, uuid) OWNER TO pg_database_owner;
 GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO pg_database_owner;
-GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO "svc_jobs_webapp@postgres";
+GRANT EXECUTE ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) TO "svc_users_webapp@postgres";
 REVOKE ALL ON PROCEDURE pgdbo.p_users_add_new_job(text, uuid) FROM PUBLIC;
 
 -- Get Job of User
@@ -127,7 +127,7 @@ $BODY$;
 
 ALTER FUNCTION pgdbo.f_users_get_user_jobs(text) OWNER TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO "svc_jobs_webapp@postgres";
+GRANT EXECUTE ON FUNCTION pgdbo.f_users_get_user_jobs(text) TO "svc_users_webapp@postgres";
 REVOKE ALL ON FUNCTION pgdbo.f_users_get_user_jobs(text) FROM PUBLIC;
 
 -- Check that Job is belongs to User
@@ -143,5 +143,5 @@ $BODY$;
 
 ALTER FUNCTION pgdbo.f_users_check_user_job(text, uuid) OWNER TO pg_database_owner;
 GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO pg_database_owner;
-GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO "svc_jobs_webapp@postgres";
+GRANT EXECUTE ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) TO "svc_users_webapp@postgres";
 REVOKE ALL ON FUNCTION pgdbo.f_users_check_user_job(text, uuid) FROM PUBLIC;
