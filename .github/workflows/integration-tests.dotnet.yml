@@ -30,17 +30,26 @@ jobs:
 
       - name: Setup containers environments
         run: |
-          sudo chmod 500 ${{github.workspace}}/infrastructure/Tools/Database/config/
-          sudo chmod 400 -R ${{github.workspace}}/infrastructure/Tools/Database/config/*
+          sudo chmod 555 ${{github.workspace}}/infrastructure/Tools/Database/config/
+          sudo chmod 444 -R ${{github.workspace}}/infrastructure/Tools/Database/config/*
           sudo chown 70:70 -R ${{github.workspace}}/infrastructure/Tools/Database/config/
-          sudo chmod 500 ${{github.workspace}}/infrastructure/Tools/Broker/config/
-          sudo chmod 400 -R ${{github.workspace}}/infrastructure/Tools/Broker/config/*
+          sudo chmod 555 ${{github.workspace}}/infrastructure/Tools/Broker/config/
+          sudo chmod 444 -R ${{github.workspace}}/infrastructure/Tools/Broker/config/*
           sudo chown 1000:1000 -R ${{github.workspace}}/infrastructure/Tools/Database/config/
 
+      - name: View container environments
+        run: |
+          ls -la ${{github.workspace}}/infrastructure/Tools/Database/config
+          ls -la ${{github.workspace}}/infrastructure/Tools/Broker/config
+
       - name: Start PostgreSQL container
-        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml --project-directory ${{ github.workspace }}/infrastructure/Tools/Database up -d
+        run: |
+            cd ${{ github.workspace }}/infrastructure/Tools/Database
+            docker compose -f docker-compose.github.yaml up -d
       - name: Start Apache Kafka container
-        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml --project-directory ${{ github.workspace }}/infrastructure/Tools/Broker up -d
+        run: |
+            cd ${{ github.workspace }}/infrastructure/Tools/Broker
+            docker compose -f docker-compose.github.yaml up -d
 
       - name: Sleep for 5 seconds
         run: sleep 5
