@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tests.Common;
 
-namespace Job.Worker.UnitTests;
+namespace Tests.Unit.Job.Worker;
 
 /// <summary>
 /// Tests for <see cref="ProcessRunner"/>

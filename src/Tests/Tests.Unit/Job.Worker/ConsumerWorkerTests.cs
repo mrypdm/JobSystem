@@ -15,7 +15,7 @@ using Shared.Broker.Abstractions;
 using Shared.Contract.Owned;
 using Tests.Common;
 
-namespace Job.Worker.UnitTests;
+namespace Tests.Unit.Job.Worker;
 
 /// <summary>
 /// Tests for <see cref="ConsumerWorker"/>

@@ -2,10 +2,11 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Org.BouncyCastle.Security;
+using Shared.Contract;
 using Shared.Contract.SslOptions;
 using Tests.Common;
 
-namespace Shared.Contract.UnitTests;
+namespace Tests.Unit.Shared.Contract;
 
 /// <summary>
 /// Tests for <see cref="SslValidator"/>
@@ -15,12 +16,12 @@ public class SslValidatorTests : TestBase
 {
     private const string Password = "qwerty-123";
 
-    private const string WrongChainCrlPath = "TestData/crl.wrong-chain.pem";
-    private const string CrlPath = "TestData/crl.pem";
+    private const string WrongChainCrlPath = "TestData/ssl-validator/crl.wrong-chain.pem";
+    private const string CrlPath = "TestData/ssl-validator/crl.pem";
 
-    private const string DefaultCertificatePath = "TestData/svc_testhost.keystore.p12";
-    private const string RevokedCertificatePath = "TestData/svc_testhost@revoked.keystore.p12";
-    private const string WrongChainCertificatePath = "TestData/svc_testhost@wrong-chain.keystore.p12";
+    private const string DefaultCertificatePath = "TestData/ssl-validator/svc_testhost.keystore.p12";
+    private const string RevokedCertificatePath = "TestData/ssl-validator/svc_testhost@revoked.keystore.p12";
+    private const string WrongChainCertificatePath = "TestData/ssl-validator/svc_testhost@wrong-chain.keystore.p12";
 
     [Test]
     public void Init_WrongCrlSign_Throw()

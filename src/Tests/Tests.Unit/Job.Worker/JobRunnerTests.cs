@@ -1,3 +1,4 @@
+using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Collectors;
 using Job.Worker.Environments;
@@ -10,7 +11,7 @@ using Moq;
 using Shared.Contract.Owned;
 using Tests.Common;
 
-namespace Job.Worker.UnitTests;
+namespace Tests.Unit.Job.Worker;
 
 /// <summary>
 /// Tests for <see cref="JobRunner"/>
@@ -112,7 +113,7 @@ internal class JobRunnerTests : TestBase
         // assert
         Assert.That(runner.RunningJobsCount, Is.Zero);
         _jobDbContext.Verify(
-            m => m.SetJobResultsAsync(jobModel.Id, Contract.JobStatus.Fault, Array.Empty<byte>(), It.IsAny<CancellationToken>()),
+            m => m.SetJobResultsAsync(jobModel.Id, JobStatus.Fault, Array.Empty<byte>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

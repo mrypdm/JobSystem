@@ -10,7 +10,7 @@ using User.Database.Contexts;
 using User.WebApp.Controllers;
 using User.WebApp.Models;
 
-namespace User.WebApp.UnitTests;
+namespace Tests.Unit.User.WebApp;
 
 /// <summary>
 /// Tests for <see cref="JobController"/>

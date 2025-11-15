@@ -3,8 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tests.Common;
 
-namespace Job.Worker.UnitTests;
-
+namespace Tests.Unit.Job.Worker;
 /// <summary>
 /// Tests for <see cref="LinuxResourcesReader"/>
 /// </summary>
@@ -63,8 +62,8 @@ internal class LinuxResourcesReaderTests : TestBase
         base.ConfigureServices(builder);
         builder.Services.AddTransient(_ => new LinuxResourcesReader()
         {
-            CpuStatFilePath = Path.Combine("TestData", "proc-stat"),
-            RamStatFilePath = Path.Combine("TestData", "meminfo"),
+            CpuStatFilePath = Path.Combine("TestData/resource-reader", "proc-stat"),
+            RamStatFilePath = Path.Combine("TestData/resource-reader", "meminfo"),
         });
     }
 }

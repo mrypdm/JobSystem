@@ -7,7 +7,7 @@ using Moq;
 using Shared.Contract.Owned;
 using Tests.Common;
 
-namespace Job.WebApi.UnitTests;
+namespace Tests.Unit.Job.WebApi;
 
 /// <summary>
 /// Test for <see cref="LostJobWorker"/>

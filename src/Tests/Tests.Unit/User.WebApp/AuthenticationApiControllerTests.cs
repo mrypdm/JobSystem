@@ -17,7 +17,7 @@ using User.WebApp.Controllers.Api;
 using User.WebApp.Extensions;
 using User.WebApp.Models;
 
-namespace User.WebApp.UnitTests;
+namespace Tests.Unit.User.WebApp;
 
 /// <summary>
 /// Tests for <see cref="AuthenticationApiController"/>

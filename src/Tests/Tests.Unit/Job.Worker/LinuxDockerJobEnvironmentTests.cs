@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tests.Common;
 
-namespace Job.Worker.UnitTests;
+namespace Tests.Unit.Job.Worker;
 
 /// <summary>
 /// Tests for <see cref="LinuxDockerJobEnvironment"/>
@@ -19,7 +19,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     {
         CpuUsage = 0.5,
         MemoryUsage = 500,
-        JobsDirectory = "TestData"
+        JobsDirectory = "TestData/worker"
     };
 
     [Test]
@@ -61,7 +61,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     public void PrepareEnvironment_ShouldCreateEnvironemnt()
     {
         // arrange
-        _jobEnvironmentOptions.JobsDirectory = "TestData";
+        _jobEnvironmentOptions.JobsDirectory = "TestData/worker";
 
         var expectedScript = "hello, world";
         var jobModel = new RunJobModel()
@@ -88,7 +88,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
         Assert.That(actualScript, Is.EqualTo(expectedScript));
 
         var actualDocker = File.ReadAllText(Path.Combine(jobModel.Directory, "docker-compose.yaml"));
-        var expectedDocker = File.ReadAllText(Path.Combine("TestData", "docker-compose.yaml.expected"));
+        var expectedDocker = File.ReadAllText(Path.Combine("TestData/worker", "docker-compose.yaml.expected"));
         Assert.That(actualDocker, Is.EqualTo(expectedDocker));
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))

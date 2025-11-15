@@ -9,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tests.Common;
 
-namespace Job.WebApi.UnitTests;
+namespace Tests.Unit.Job.WebApi;
 
 /// <summary>
 /// Tests for <see cref="JobWebApiClient"/>
