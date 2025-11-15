@@ -61,7 +61,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     public void PrepareEnvironment_ShouldCreateEnvironemnt()
     {
         // arrange
-        _jobEnvironmentOptions.JobsDirectory = "TestData/worker";
+        _jobEnvironmentOptions.JobsDirectory = Path.GetFullPath("TestData/worker").Replace("\\", "/");
 
         var expectedScript = "hello, world";
         var jobModel = new RunJobModel()
@@ -69,8 +69,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
             Id = Guid.Parse("02c6a6eb-92ae-49d5-8743-1dded645d705"),
             Script = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedScript))
         };
-        var expectedDir = Path.Combine(Path.GetFullPath(_jobEnvironmentOptions.JobsDirectory), jobModel.Id.ToString())
-            .Replace("\\", "/");
+        var expectedDir = Path.Combine(_jobEnvironmentOptions.JobsDirectory, jobModel.Id.ToString()).Replace("\\", "/");
 
         var environment = Services.GetRequiredService<LinuxDockerJobEnvironment>();
 
@@ -89,7 +88,8 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
         Assert.That(actualScript, Is.EqualTo(expectedScript));
 
         var actualDocker = File.ReadAllText(Path.Combine(jobModel.Directory, "docker-compose.yaml"));
-        var expectedDocker = File.ReadAllText(Path.Combine("TestData/worker", "docker-compose.yaml.expected"));
+        var expectedDocker = File.ReadAllText(Path.Combine("TestData/worker", "docker-compose.yaml.expected"))
+            .Replace("<JOB-DIR>", _jobEnvironmentOptions.JobsDirectory);
         Assert.That(actualDocker, Is.EqualTo(expectedDocker));
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))

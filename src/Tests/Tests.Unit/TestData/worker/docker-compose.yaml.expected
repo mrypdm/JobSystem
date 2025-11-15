@@ -1,7 +1,8 @@
 services:
     job-02c6a6eb-92ae-49d5-8743-1dded645d705:
       image: alpine
-      command: -c /etc/job/run.sh
+      entrypoint: /bin/sh
+      command: -c "/bin/sh /etc/job/run.sh 1>/dev/stdout 2>/dev/stderr"
       restart: no
       user: 10000:10000
       deploy:
@@ -10,6 +11,6 @@ services:
             cpus: 0.5
             memory: 500M
       volumes:
-        - TestData/worker/02c6a6eb-92ae-49d5-8743-1dded645d705/run.sh:/etc/job/run.sh
-        - TestData/worker/02c6a6eb-92ae-49d5-8743-1dded645d705/stdout.txt:/dev/stdout
-        - TestData/worker/02c6a6eb-92ae-49d5-8743-1dded645d705/stderr.txt:/dev/stderr
+        - <JOB-DIR>/02c6a6eb-92ae-49d5-8743-1dded645d705/run.sh:/etc/job/run.sh
+        - <JOB-DIR>/02c6a6eb-92ae-49d5-8743-1dded645d705/stdout.txt:/dev/stdout
+        - <JOB-DIR>/02c6a6eb-92ae-49d5-8743-1dded645d705/stderr.txt:/dev/stderr
