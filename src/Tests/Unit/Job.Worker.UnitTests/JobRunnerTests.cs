@@ -7,6 +7,7 @@ using Job.Worker.Runners;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
+using Shared.Contract.Owned;
 using Tests.Common;
 
 namespace Job.Worker.UnitTests;
@@ -18,6 +19,7 @@ namespace Job.Worker.UnitTests;
 internal class JobRunnerTests : TestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();
+    private readonly Mock<IOwnedService<IJobDbContext>> _jobDbContextOwned = new();
     private readonly Mock<IJobEnvironment> _jobEnvironment = new();
     private readonly Mock<IJobProcessRunner> _jobProcessRunner = new();
     private readonly Mock<IResultsCollector> _resultsCollector = new();
@@ -26,9 +28,14 @@ internal class JobRunnerTests : TestBase
     public void SetUp()
     {
         _jobDbContext.Reset();
+        _jobDbContextOwned.Reset();
         _jobEnvironment.Reset();
         _jobProcessRunner.Reset();
         _resultsCollector.Reset();
+
+        _jobDbContextOwned
+            .Setup(m => m.Value)
+            .Returns(_jobDbContext.Object);
     }
 
     [Test]
@@ -40,7 +47,6 @@ internal class JobRunnerTests : TestBase
         // act & assert
         Assert.Throws<ArgumentNullException>(() => runner.RunJob(null));
     }
-
 
     [Test]
     public async Task RunJob_DuplicateJob_ShouldNotRun()
@@ -87,6 +93,30 @@ internal class JobRunnerTests : TestBase
     }
 
     [Test]
+    public async Task RunJob_ExceptionThrown_ShouldSetFaultResult()
+    {
+        // arrange
+        var jobModel = new RunJobModel();
+
+        _jobEnvironment
+            .Setup(m => m.PrepareEnvironment(It.IsAny<RunJobModel>()))
+            .Throws(new Exception("Bad excepiton"));
+
+        var runner = Services.GetRequiredService<JobRunner>();
+
+        // act
+        runner.RunJob(jobModel);
+        Assert.That(runner.RunningJobsCount, Is.EqualTo(1));
+        await runner.WaitForAllJobs();
+
+        // assert
+        Assert.That(runner.RunningJobsCount, Is.Zero);
+        _jobDbContext.Verify(
+            m => m.SetJobResultsAsync(jobModel.Id, Contract.JobStatus.Fault, Array.Empty<byte>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
     public async Task RunJob_ShouldCallInCorrectOrder()
     {
         // arrange
@@ -124,7 +154,7 @@ internal class JobRunnerTests : TestBase
     protected override void ConfigureServices(HostApplicationBuilder builder)
     {
         base.ConfigureServices(builder);
-        builder.Services.AddSingleton(_jobDbContext.Object);
+        builder.Services.AddSingleton(_jobDbContextOwned.Object);
         builder.Services.AddSingleton(_jobEnvironment.Object);
         builder.Services.AddSingleton(_jobProcessRunner.Object);
         builder.Services.AddSingleton(_resultsCollector.Object);

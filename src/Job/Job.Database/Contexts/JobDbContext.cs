@@ -14,7 +14,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     /// <summary>
     /// Jobs table
     /// </summary>
-    public DbSet<JobDbModel> Jobs { get; set; }
+    internal DbSet<JobDbModel> Jobs { get; set; }
 
     /// <inheritdoc />
     public async Task AddNewJobAsync(NewJobModel job, CancellationToken cancellationToken)

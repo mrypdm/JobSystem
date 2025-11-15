@@ -17,6 +17,7 @@ using Shared.Broker.Abstractions;
 using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
+using Shared.Contract.Owned;
 using Shared.Database;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -29,7 +30,9 @@ builder.Services.AddLogging(builder =>
 var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
 var sslValidator = new SslValidator(dbOptions);
 builder.Services.AddDbContext<IJobDbContext, JobDbContext>(
-    options => PostgreDbContext.BuildOptions(options, dbOptions, sslValidator));
+    options => PostgreDbContext.BuildOptions(options, dbOptions, sslValidator),
+    ServiceLifetime.Transient);
+builder.Services.AddSingleton<IOwnedService<IJobDbContext>, OwnedService<IJobDbContext>>();
 
 builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerOptions>());
 builder.Services.AddSingleton<IJobConsumer<Guid, JobMessage>, JobConsumer>();

@@ -10,8 +10,8 @@ public static class ConfigurationExtensions
     /// <summary>
     /// Get options from configuration
     /// </summary>
-    public static TOptions GetOptions<TOptions>(this IConfiguration config)
+    public static TOptions GetOptions<TOptions>(this IConfiguration config, string section = null)
     {
-        return config.GetSection(typeof(TOptions).Name).Get<TOptions>();
+        return config.GetSection(section ?? typeof(TOptions).Name).Get<TOptions>();
     }
 }
