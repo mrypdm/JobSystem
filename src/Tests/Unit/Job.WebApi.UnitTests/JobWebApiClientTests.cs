@@ -5,6 +5,7 @@ using Job.Contract;
 using Job.WebApi.Client;
 using Job.WebApi.Client.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tests.Common;
 
@@ -144,10 +145,11 @@ internal class JobWebApiClientTests : TestBase
         Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi has timed out"));
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddTransient(context => new JobWebApiClient(
+        base.ConfigureServices(builder);
+        builder.Services.AddTransient(context => new JobWebApiClient(
             new FlurlClient(BaseUrl),
             context.GetRequiredService<ILogger<JobWebApiClient>>(),
             ownedClient: true));

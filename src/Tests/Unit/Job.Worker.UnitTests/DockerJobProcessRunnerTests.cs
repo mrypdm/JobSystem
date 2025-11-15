@@ -3,6 +3,7 @@ using Job.Worker.JobProcesses;
 using Job.Worker.Models;
 using Job.Worker.Processes;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using Tests.Common;
 
@@ -115,10 +116,11 @@ internal class DockerJobProcessRunnerTests : TestBase
             Times.Once);
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddSingleton(_runner.Object);
-        services.AddTransient<DockerJobProcessRunner>();
+        base.ConfigureServices(builder);
+        builder.Services.AddSingleton(_runner.Object);
+        builder.Services.AddTransient<DockerJobProcessRunner>();
     }
 }

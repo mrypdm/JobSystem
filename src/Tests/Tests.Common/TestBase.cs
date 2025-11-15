@@ -16,7 +16,7 @@ public abstract class TestBase
     public void OneTimeSetUp()
     {
         var builder = Host.CreateApplicationBuilder(Environment.GetCommandLineArgs());
-        ConfigureServices(builder.Services);
+        ConfigureServices(builder);
         _host = builder.Build();
     }
 
@@ -34,14 +34,14 @@ public abstract class TestBase
     /// <summary>
     /// Configure services for tests
     /// </summary>
-    protected virtual void ConfigureServices(IServiceCollection services)
+    protected virtual void ConfigureServices(HostApplicationBuilder builder)
     {
-        services.AddLogging(builder =>
+        builder.Services.AddLogging(logBuilder =>
         {
-            builder.AddConsole();
-            builder.AddNUnit();
-            builder.SetMinimumLevel(LogLevel.Trace);
+            logBuilder.AddConsole();
+            logBuilder.AddNUnit();
+            logBuilder.SetMinimumLevel(LogLevel.Trace);
         });
-        services.AddTransient<TempDirectory>();
+        builder.Services.AddTransient<TempDirectory>();
     }
 }

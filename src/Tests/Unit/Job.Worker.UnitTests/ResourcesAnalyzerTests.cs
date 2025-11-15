@@ -4,6 +4,7 @@ using Job.Worker.Resources.Models;
 using Job.Worker.Resources.Readers;
 using Job.Worker.Runners;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using Tests.Common;
 
@@ -142,13 +143,14 @@ internal class ResourcesAnalyzerTests : TestBase
             .ReturnsAsync(driveStat);
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddSingleton(_jobRunner.Object);
-        services.AddSingleton(_resourcesReader.Object);
-        services.AddSingleton(_jobEnvironmentOptions);
-        services.AddSingleton(_resourceMonitorOptions);
-        services.AddTransient<ResourcesAnalyzer>();
+        base.ConfigureServices(builder);
+        builder.Services.AddSingleton(_jobRunner.Object);
+        builder.Services.AddSingleton(_resourcesReader.Object);
+        builder.Services.AddSingleton(_jobEnvironmentOptions);
+        builder.Services.AddSingleton(_resourceMonitorOptions);
+        builder.Services.AddTransient<ResourcesAnalyzer>();
     }
 }

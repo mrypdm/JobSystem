@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using Tests.Common;
 using User.Database.Contexts;
@@ -201,10 +202,11 @@ internal class JobApiControllerTests : TestBase
             () => controller.GetUserJobResultsAsync(Guid.NewGuid(), default));
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddTransient(context =>
+        base.ConfigureServices(builder);
+        builder.Services.AddTransient(context =>
         {
             var controller = new JobApiController(_userDbContext.Object, _jobApiClient.Object);
             controller.ControllerContext.HttpContext = new DefaultHttpContext()

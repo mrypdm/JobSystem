@@ -8,6 +8,7 @@ using Job.Worker.Resources.Analyzers;
 using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using Npgsql;
 using Shared.Broker.Abstractions;
@@ -316,14 +317,15 @@ internal class ConsumerWorkerTests : TestBase
         _runner.Verify(m => m.RunJob(It.IsAny<RunJobModel>()), Times.Never);
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddSingleton(_consumer.Object);
-        services.AddSingleton(_runner.Object);
-        services.AddSingleton(_resourceMonitor.Object);
-        services.AddSingleton(_jobDbContext.Object);
-        services.AddSingleton(_consumerWorkerOptions);
-        services.AddTransient<ConsumerWorker>();
+        base.ConfigureServices(builder);
+        builder.Services.AddSingleton(_consumer.Object);
+        builder.Services.AddSingleton(_runner.Object);
+        builder.Services.AddSingleton(_resourceMonitor.Object);
+        builder.Services.AddSingleton(_jobDbContext.Object);
+        builder.Services.AddSingleton(_consumerWorkerOptions);
+        builder.Services.AddTransient<ConsumerWorker>();
     }
 }

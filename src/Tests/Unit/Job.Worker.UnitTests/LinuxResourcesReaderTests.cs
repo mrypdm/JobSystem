@@ -1,5 +1,6 @@
 using Job.Worker.Resources.Readers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Tests.Common;
 
 namespace Job.Worker.UnitTests;
@@ -56,10 +57,11 @@ internal class LinuxResourcesReaderTests : TestBase
         Assert.That(cpuStat.Total, Is.EqualTo(driveInfo.TotalSize));
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddTransient(_ => new LinuxResourcesReader()
+        base.ConfigureServices(builder);
+        builder.Services.AddTransient(_ => new LinuxResourcesReader()
         {
             CpuStatFilePath = Path.Combine("TestData", "proc-stat"),
             RamStatFilePath = Path.Combine("TestData", "meminfo"),

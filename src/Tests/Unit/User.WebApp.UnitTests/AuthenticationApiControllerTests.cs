@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Common;
@@ -210,10 +211,11 @@ internal class AuthenticationApiControllerTests : TestBase
             Times.Once);
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddTransient(context =>
+        base.ConfigureServices(builder);
+        builder.Services.AddTransient(context =>
         {
             var controller = new AuthenticationApiController(
                 _userDbContext.Object,

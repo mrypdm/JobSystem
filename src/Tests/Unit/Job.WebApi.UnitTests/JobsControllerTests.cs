@@ -5,6 +5,7 @@ using Job.WebApi.Controllers;
 using Job.WebApi.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using Shared.Broker.Abstractions;
 using Tests.Common;
@@ -201,12 +202,13 @@ internal class JobControllerTests : TestBase
             Times.Once);
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddSingleton(_jobDbContext.Object);
-        services.AddSingleton(_jobProducer.Object);
-        services.AddSingleton(_jobsControllerOptions);
-        services.AddTransient<JobController>();
+        base.ConfigureServices(builder);
+        builder.Services.AddSingleton(_jobDbContext.Object);
+        builder.Services.AddSingleton(_jobProducer.Object);
+        builder.Services.AddSingleton(_jobsControllerOptions);
+        builder.Services.AddTransient<JobController>();
     }
 }

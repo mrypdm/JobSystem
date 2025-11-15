@@ -4,6 +4,7 @@ using Job.Worker.Environments;
 using Job.Worker.Models;
 using Job.Worker.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Tests.Common;
 
 namespace Job.Worker.UnitTests;
@@ -132,10 +133,11 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
         Assert.That(expectedFile, Does.Not.Exist);
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddSingleton(_jobEnvironmentOptions);
-        services.AddTransient<LinuxDockerJobEnvironment>();
+        base.ConfigureServices(builder);
+        builder.Services.AddSingleton(_jobEnvironmentOptions);
+        builder.Services.AddTransient<LinuxDockerJobEnvironment>();
     }
 }

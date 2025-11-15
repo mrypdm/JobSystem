@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Job.Worker.Processes;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Tests.Common;
 
 namespace Job.Worker.UnitTests;
@@ -38,9 +39,10 @@ internal class ProcessRunnerTests : TestBase
         }
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddTransient<ProcessRunner>();
+        base.ConfigureServices(builder);
+        builder.Services.AddTransient<ProcessRunner>();
     }
 }

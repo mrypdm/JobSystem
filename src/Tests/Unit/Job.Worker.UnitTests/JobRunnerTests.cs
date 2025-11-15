@@ -5,6 +5,7 @@ using Job.Worker.JobProcesses;
 using Job.Worker.Models;
 using Job.Worker.Runners;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using Tests.Common;
 
@@ -119,13 +120,14 @@ internal class JobRunnerTests : TestBase
         Assert.That(order, Is.EqualTo(5));
     }
 
-    protected override void ConfigureServices(IServiceCollection services)
+    /// <inheritdoc />
+    protected override void ConfigureServices(HostApplicationBuilder builder)
     {
-        base.ConfigureServices(services);
-        services.AddSingleton(_jobDbContext.Object);
-        services.AddSingleton(_jobEnvironment.Object);
-        services.AddSingleton(_jobProcessRunner.Object);
-        services.AddSingleton(_resultsCollector.Object);
-        services.AddTransient<JobRunner>();
+        base.ConfigureServices(builder);
+        builder.Services.AddSingleton(_jobDbContext.Object);
+        builder.Services.AddSingleton(_jobEnvironment.Object);
+        builder.Services.AddSingleton(_jobProcessRunner.Object);
+        builder.Services.AddSingleton(_resultsCollector.Object);
+        builder.Services.AddTransient<JobRunner>();
     }
 }
