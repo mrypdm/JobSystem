@@ -24,18 +24,18 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup containers environments
-        run: >-
-          chmod 500 ${{github.workspace}}/infrastrucutre/Tools/Database/config/
-          chmod 400 -R ${{github.workspace}}/infrastrucutre/Tools/Database/config/*
-          chown 70:70 -R ${{github.workspace}}/infrastrucutre/Tools/Database/config/
-          chmod 500 ${{github.workspace}}/infrastrucutre/Tools/Broker/config/
-          chmod 400 -R ${{github.workspace}}/infrastrucutre/Tools/Broker/config/*
-          chown 1000:1000 -R ${{github.workspace}}/infrastrucutre/Tools/Database/config/
+        run: |
+          chmod 500 ${{github.workspace}}/infrastructure/Tools/Database/config/
+          chmod 400 -R ${{github.workspace}}/infrastructure/Tools/Database/config/*
+          chown 70:70 -R ${{github.workspace}}/infrastructure/Tools/Database/config/
+          chmod 500 ${{github.workspace}}/infrastructure/Tools/Broker/config/
+          chmod 400 -R ${{github.workspace}}/infrastructure/Tools/Broker/config/*
+          chown 1000:1000 -R ${{github.workspace}}/infrastructure/Tools/Database/config/
 
       - name: Start PostgreSQL container
-        run: docker compose -f ${{ github.workspace }}/infrastrucutre/Tools/Database/docker-compose.github.yaml up -d
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml up -d
       - name: Start Apache Kafka container
-        run: docker compose -f ${{ github.workspace }}/infrastrucutre/Tools/Broker/docker-compose.github.yaml up -d
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml up -d
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -50,7 +50,7 @@ jobs:
 
       - name: Stop PostgreSQL container
         if: always()
-        run: docker compose -f ${{ github.workspace }}/infrastrucutre/Tools/Database/docker-compose.github.yaml down
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml down
       - name: Stop Apache Kafka container
         if: always()
-        run: docker compose -f ${{ github.workspace }}/infrastrucutre/Tools/Broker/docker-compose.github.yaml down
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml down
