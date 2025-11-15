@@ -11,12 +11,11 @@ using Tests.Common.Initializers;
 using User.Database.Contexts;
 using User.Database.Models;
 
-namespace User.Database.IntegrationTests;
+namespace Tests.Integration;
 
 /// <summary>
 /// Tests for <see cref="UserDbContext"/>
 /// </summary>
-[NonParallelizable]
 internal class UserDbContextTests : IntegrationTestBase
 {
     private const string Default = nameof(Default);
@@ -245,7 +244,7 @@ internal class UserDbContextTests : IntegrationTestBase
     {
         base.ConfigureServices(builder);
 
-        var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
+        var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>("WebAppDatabaseOptions");
         var sslValidator = new SslValidator(dbOptions);
         builder.Services.AddKeyedTransient(Default, (context, _) =>
         {
@@ -255,7 +254,7 @@ internal class UserDbContextTests : IntegrationTestBase
             return new UserDbContext(options, context.GetRequiredService<ILogger<UserDbContext>>());
         });
 
-        var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminDatabaseOptions");
+        var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminUsersDatabaseOptions");
         var adminSslValidator = new SslValidator(adminDbOptions);
         builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {

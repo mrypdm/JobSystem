@@ -12,12 +12,11 @@ using Shared.Database;
 using Tests.Common;
 using Tests.Common.Initializers;
 
-namespace Job.Database.IntegrationTests;
+namespace Tests.Integration;
 
 /// <summary>
 /// Tests for <see cref="JobDbContext"/>
 /// </summary>
-[NonParallelizable]
 internal class JobDbContextTests : IntegrationTestBase
 {
     private const string WebApi = nameof(WebApi);
@@ -370,7 +369,7 @@ internal class JobDbContextTests : IntegrationTestBase
             return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
         });
 
-        var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminDatabaseOptions");
+        var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminJobsDatabaseOptions");
         var adminSslValidator = new SslValidator(adminDbOptions);
         builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {

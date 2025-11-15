@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
-[assembly: Guid("fa30ae94-6dda-485c-88eb-5f8be2d7a076")]
+[assembly: Guid("2aaff838-b002-4033-8710-bfd19e25e7e6")]
 
 [assembly: Category("Integration")]
-
+[assembly: NonParallelizable]

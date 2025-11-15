@@ -23,14 +23,13 @@ using Shared.Database;
 using Tests.Common;
 using Tests.Common.Initializers;
 
-namespace Job.Worker.IntegrationTests;
+namespace Tests.Integration;
 
 /// <summary>
 /// Tests for <see cref="ConsumerWorker"/>
 /// </summary>
 [Ignore("Breaking other tests")]
-[NonParallelizable]
-public class ConsumerWorkerTests : IntegrationTestBase
+internal class ConsumerWorkerTests : IntegrationTestBase
 {
     private const string Admin = nameof(Admin);
 
@@ -132,7 +131,7 @@ public class ConsumerWorkerTests : IntegrationTestBase
         builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerOptions>());
         builder.Services.AddSingleton<IJobConsumer<Guid, JobMessage>, JobConsumer>();
 
-        builder.Services.AddSingleton(builder.Configuration.GetOptions<ProducerOptions>("AdminOptions"));
+        builder.Services.AddSingleton(builder.Configuration.GetOptions<ProducerOptions>());
         builder.Services.AddSingleton<IJobProducer<Guid, JobMessage>, JobProducer>();
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<AdminOptions>());
@@ -145,7 +144,7 @@ public class ConsumerWorkerTests : IntegrationTestBase
         builder.Services.AddSingleton<IResultsCollector, ZipResultsCollector>();
         builder.Services.AddSingleton<IJobEnvironment, LinuxDockerJobEnvironment>();
 
-        var workerDbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
+        var workerDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("WorkerDatabaseOptions");
         var workerSslValidator = new SslValidator(workerDbOptions);
         builder.Services.AddTransient<IJobDbContext>(context =>
         {
@@ -156,9 +155,9 @@ public class ConsumerWorkerTests : IntegrationTestBase
         });
         builder.Services.AddSingleton<IOwnedService<IJobDbContext>, OwnedService<IJobDbContext>>();
 
-        var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminDatabaseOptions");
+        var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminJobsDatabaseOptions");
         var adminSslValidator = new SslValidator(adminDbOptions);
-        builder.Services.AddKeyedTransient<JobDbContext>(Admin, (context, _) =>
+        builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {
             var options = PostgreDbContext
                 .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator, forTests: true)

@@ -1,3 +1,4 @@
+using Job.Broker;
 using Job.Broker.Clients;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,16 +8,14 @@ using Shared.Contract.Extensions;
 using Tests.Common;
 using Tests.Common.Initializers;
 
-namespace Job.Broker.Tests;
+namespace Tests.Integration;
 
 /// <summary>
 /// Tests for <see cref="JobProducer"/> and <see cref="JobConsumer"/>
 /// </summary>
-[NonParallelizable]
 internal class BrokerTests : IntegrationTestBase
 {
     [Test]
-    [Retry(3)] // Sometimes Kafka doesn't have time to load the ACL, causing the test to fail with authorization error
     public async Task ProduceConsume_ShouldSendMessage_ShouldReadMessage()
     {
         // arrange
