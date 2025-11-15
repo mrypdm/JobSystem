@@ -31,8 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{76A4D5B4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{DB249E03-3A9B-4878-811C-B7BD2E038418}"
 	ProjectSection(SolutionItems) = preProject
-		infrastructure\Tools\Database\docker-compose.dev.yaml = infrastructure\Tools\Database\docker-compose.dev.yaml
-		infrastructure\Tools\Database\docker-compose.prod.yaml = infrastructure\Tools\Database\docker-compose.prod.yaml
+		infrastructure\Tools\Database\docker-compose.github.yaml = infrastructure\Tools\Database\docker-compose.github.yaml
+		infrastructure\Tools\Database\docker-compose.yaml = infrastructure\Tools\Database\docker-compose.yaml
 		infrastructure\Tools\Database\init-jobs-db.pgsql = infrastructure\Tools\Database\init-jobs-db.pgsql
 		infrastructure\Tools\Database\init-users-db.pgsql = infrastructure\Tools\Database\init-users-db.pgsql
 		infrastructure\Tools\Database\init.sh = infrastructure\Tools\Database\init.sh
@@ -42,8 +42,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Broker", "Broker", "{D24A1ED0-D0E1-4FF0-8760-48AF0FCDFC98}"
 	ProjectSection(SolutionItems) = preProject
 		infrastructure\Tools\Broker\config.yaml.template = infrastructure\Tools\Broker\config.yaml.template
-		infrastructure\Tools\Broker\docker-compose.dev.yaml = infrastructure\Tools\Broker\docker-compose.dev.yaml
-		infrastructure\Tools\Broker\docker-compose.prod.yaml = infrastructure\Tools\Broker\docker-compose.prod.yaml
+		infrastructure\Tools\Broker\docker-compose.github.yaml = infrastructure\Tools\Broker\docker-compose.github.yaml
+		infrastructure\Tools\Broker\docker-compose.yaml = infrastructure\Tools\Broker\docker-compose.yaml
 		infrastructure\Tools\Broker\init.sh = infrastructure\Tools\Broker\init.sh
 	EndProjectSection
 EndProject

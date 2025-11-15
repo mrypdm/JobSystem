@@ -53,7 +53,6 @@ services:
         - ~/pgadmin/servers.json:/pgadmin4/servers.json
         - ~/pgadmin/certs:/certs:ro
 
-
 networks:
   postgres_network:
     name: postgres_network

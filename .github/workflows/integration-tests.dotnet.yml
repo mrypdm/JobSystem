@@ -16,67 +16,6 @@ jobs:
   main:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:alpine
-        ports:
-          - 5432:5432
-        options: >-
-          -c ssl=on
-          -c ssl_min_protocol_version=TLSv1.3
-          -c ssl_cert_file=/etc/postgres-config/svc_postgres.crt
-          -c ssl_key_file=/etc/postgres-config/svc_postgres.key
-          -c ssl_ca_file=/etc/postgres-config/svc_postgres.truststore.pem
-          -c ssl_crl_file=/etc/postgres-config/crl.pem
-          -c ssl_passphrase_command='cat /etc/postgres-config/pass.txt'
-          -c hba_file=/etc/postgres-config/pg_hba.conf
-          -c logging_collector=on
-          -c log_statement=all
-          -c log_directory=/var/log/postgresql
-          -c log_rotation_age=30d
-          -c log_destination=jsonlog
-        env:
-          POSTGRES_USER: superuser@postgres
-          POSTGRES_PASSWORD: superuser
-          POSTGRES_DB: postgres
-        volumes:
-          - ${{ github.workspace }}/infrastructure/Tools/Database/config:/etc/postgres-config
-
-      kafka:
-        image: apache/kafka
-        ports:
-          - 8500:8500
-        env:
-          KAFKA_NODE_ID: 1
-          CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'
-          KAFKA_PROCESS_ROLES: 'broker,controller'
-          KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:8000'
-          KAFKA_ADVERTISED_LISTENERS: 'CONTROLLER://localhost:8000,SSL://localhost:8500,SSL-INTERNAL://kafka:9000'
-          KAFKA_LISTENERS: 'CONTROLLER://:8000,SSL://:8500,SSL-INTERNAL://:9000'
-          KAFKA_INTER_BROKER_LISTENER_NAME: 'SSL-INTERNAL'
-          KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'SSL:SSL,CONTROLLER:SSL,SSL-INTERNAL:SSL'
-          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-          KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
-          KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
-          KAFKA_LOG_DIRS: /var/lib/kafka/data
-          KAFKA_SECURITY_PROTOCOL: SSL
-          KAFKA_CSECURITY_INTER_BROKER_PROTOCOL: SSL
-          KAFKA_SSL_KEYSTORE_FILENAME: svc_kafka.keystore.p12
-          KAFKA_SSL_KEYSTORE_CREDENTIALS: pass.txt
-          KAFKA_SSL_KEY_CREDENTIALS: pass.txt
-          KAFKA_SSL_TRUSTSTORE_FILENAME: svc_kafka.truststore.p12
-          KAFKA_SSL_TRUSTSTORE_CREDENTIALS: pass.txt
-          KAFKA_SSL_CLIENT_AUTH: required
-          KAFKA_SSL_PRINCIPAL_MAPPING_RULES: 'RULE:^CN=(.*?),.*/$1/,DEFAULT'
-          KAFKA_SUPER_USERS: 'User:svc_kafka;User:superuser@kafka'
-          KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
-        volumes:
-          - ${{ github.workspace }}/infrastructure/Tools/Broker/config:/etc/kafka/secrets
-
     defaults:
       run:
         working-directory: .
@@ -84,16 +23,34 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Setup containers environments
+        run: >-
+          chmod 500 ${{github.workspace}}/infrastrucutre/Tools/Database/config/
+          chmod 400 -R ${{github.workspace}}/infrastrucutre/Tools/Database/config/*
+          chown 70:70 -R ${{github.workspace}}/infrastrucutre/Tools/Database/config/
+          chmod 500 ${{github.workspace}}/infrastrucutre/Tools/Broker/config/
+          chmod 400 -R ${{github.workspace}}/infrastrucutre/Tools/Broker/config/*
+          chown 1000:1000 -R ${{github.workspace}}/infrastrucutre/Tools/Database/config/
+
+      - name: Start PostgreSQL container
+        run: docker compose -f ${{ github.workspace }}/infrastrucutre/Tools/Database/docker-compose.github.yaml up -d
+      - name: Start Apache Kafka container
+        run: docker compose -f ${{ github.workspace }}/infrastrucutre/Tools/Broker/docker-compose.github.yaml up -d
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 9.0.x
-
       - name: Restore dependencies
         run: dotnet restore
-
       - name: Build
         run: dotnet build --no-restore
-
       - name: Test
         run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
+
+      - name: Stop PostgreSQL container
+        if: always()
+        run: docker compose -f ${{ github.workspace }}/infrastrucutre/Tools/Database/docker-compose.github.yaml down
+      - name: Stop Apache Kafka container
+        if: always()
+        run: docker compose -f ${{ github.workspace }}/infrastrucutre/Tools/Broker/docker-compose.github.yaml down

@@ -4,9 +4,7 @@ services:
       hostname: kafka
       container_name: kafka
       ports:
-        - '8000:8000'
         - '8500:8500'
-        - '9000:9000'
       restart: unless-stopped
       user: 1000:1000
       environment:
@@ -41,7 +39,4 @@ services:
         KAFKA_SUPER_USERS: 'User:svc_kafka;User:superuser@kafka'
         KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
       volumes:
-        # Kafka cannot work well with NTFS, so use ~/ dir instead of ./
-        # because ./ dir is current project dir on Windows
-        - ~/kafka/data:/var/lib/kafka/data
-        - ~/kafka/secrets:/etc/kafka/secrets:ro
+        - ./config:/etc/kafka/secrets:ro

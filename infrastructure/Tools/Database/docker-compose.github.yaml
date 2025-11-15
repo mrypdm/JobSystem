@@ -11,11 +11,6 @@ services:
         -c ssl_crl_file=/etc/postgres-config/crl.pem
         -c ssl_passphrase_command='cat /etc/postgres-config/pass.txt'
         -c hba_file=/etc/postgres-config/pg_hba.conf
-        -c logging_collector=on
-        -c log_statement=all
-        -c log_directory=/var/log/postgresql
-        -c log_rotation_age=30d
-        -c log_destination=jsonlog
       restart: unless-stopped
       user: 70:70
       environment:
@@ -25,6 +20,4 @@ services:
       ports:
         - 5432:5432
       volumes:
-        - ~/postgres/data:/var/lib/postgresql
-        - ~/postgres/logs:/var/log/postgresql
-        - ~/postgres/config:/etc/postgres-config:ro
+        - ./config:/etc/postgres-config:ro

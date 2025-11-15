@@ -27,11 +27,6 @@ sudo chmod 500 $POSTGRES_DIR/config
 sudo chmod 400 $POSTGRES_DIR/config/*
 sudo chown $POSTGRES_USER:$POSTGRES_USER -R $POSTGRES_DIR/
 
-if [ "$1" != "debug" ]; then
-  cp docker-compose.prod.yaml docker-compose.yaml
-  exit
-fi
-
 #
 # Init pgadmin
 #
@@ -55,5 +50,3 @@ sudo chmod 600 $PGADMIN_DIR/servers.json
 sudo chmod 400 $PGADMIN_DIR/certs/*
 
 sudo chown $PGADMIN_USER:$PGADMIN_USER -R $PGADMIN_DIR/
-
-cp docker-compose.dev.yaml docker-compose.yaml
