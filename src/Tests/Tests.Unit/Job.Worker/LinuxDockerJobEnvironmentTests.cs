@@ -69,7 +69,8 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
             Id = Guid.Parse("02c6a6eb-92ae-49d5-8743-1dded645d705"),
             Script = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedScript))
         };
-        var expectedDir = Path.Combine(_jobEnvironmentOptions.JobsDirectory, jobModel.Id.ToString()).Replace("\\", "/");
+        var expectedDir = Path.Combine(Path.GetFullPath(_jobEnvironmentOptions.JobsDirectory), jobModel.Id.ToString())
+            .Replace("\\", "/");
 
         var environment = Services.GetRequiredService<LinuxDockerJobEnvironment>();
 
