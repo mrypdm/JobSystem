@@ -8,6 +8,16 @@ namespace User.Database.Contexts;
 /// <inheritdoc />
 public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logger) : PostgreDbContext(options), IUserDbContext
 {
+    /// <summary>
+    /// Table of Users
+    /// </summary>
+    public DbSet<UserDbModel> Users { get; set; }
+
+    /// <summary>
+    /// Table of Users Jobs
+    /// </summary>
+    public DbSet<UserJobDbModel> UserJobs { get; set; }
+
     /// <inheritdoc />
     public async Task AddNewUserAsync(UserDbModel user, CancellationToken cancellationToken)
     {

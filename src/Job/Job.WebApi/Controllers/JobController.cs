@@ -74,7 +74,7 @@ public class JobController(IJobDbContext jobDbContext, IJobProducer<Guid, JobMes
     public async Task<ActionResult<JobResultResponse>> GetJobResultsAsync([FromRoute] Guid jobId,
         CancellationToken cancellationToken)
     {
-        var results = await jobDbContext.GetJobResults(jobId, cancellationToken);
+        var results = await jobDbContext.GetJobResultsAsync(jobId, cancellationToken);
 
         if (results is null)
         {

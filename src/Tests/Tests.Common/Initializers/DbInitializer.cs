@@ -5,7 +5,7 @@ namespace Tests.Common.Initializers;
 /// <summary>
 /// Initializer for databases
 /// </summary>
-internal class DbInitializer(DbContext jobDbContext) : IInitializer
+public class DbInitializer(DbContext jobDbContext) : IInitializer
 {
     /// <inheritdoc />
     public async Task InitializeAsync(CancellationToken cancellationToken)

@@ -3,7 +3,7 @@ namespace Tests.Common.Initializers;
 /// <summary>
 /// Initializer for something
 /// </summary>
-internal interface IInitializer
+public interface IInitializer
 {
     /// <summary>
     /// Initialize something

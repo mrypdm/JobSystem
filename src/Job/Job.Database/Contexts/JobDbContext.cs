@@ -1,4 +1,5 @@
 using Job.Contract;
+using Job.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -10,6 +11,11 @@ namespace Job.Database.Contexts;
 public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger)
     : PostgreDbContext(options), IJobDbContext
 {
+    /// <summary>
+    /// Jobs table
+    /// </summary>
+    public DbSet<JobDbModel> Jobs { get; set; }
+
     /// <inheritdoc />
     public async Task AddNewJobAsync(NewJobModel job, CancellationToken cancellationToken)
     {
@@ -55,7 +61,7 @@ public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger
     }
 
     /// <inheritdoc />
-    public async Task<JobResultResponse> GetJobResults(Guid jobId, CancellationToken cancellationToken)
+    public async Task<JobResultResponse> GetJobResultsAsync(Guid jobId, CancellationToken cancellationToken)
     {
         return await Database
             .SqlQuery<JobResultResponse>($"select * from pgdbo.f_jobs_get_results({jobId})")

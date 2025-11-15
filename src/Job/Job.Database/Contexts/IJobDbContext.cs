@@ -31,7 +31,7 @@ public interface IJobDbContext : IDisposable
     /// <summary>
     /// Get Job results
     /// </summary>
-    Task<JobResultResponse> GetJobResults(Guid jobId, CancellationToken cancellationToken);
+    Task<JobResultResponse> GetJobResultsAsync(Guid jobId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Mark Jobs with timeout vialoation as lost

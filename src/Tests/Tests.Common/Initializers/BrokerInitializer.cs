@@ -5,7 +5,7 @@ namespace Tests.Common.Initializers;
 /// <summary>
 /// Initializer for Broker
 /// </summary>
-internal class BrokerInitializer(IBrokerAdminClient adminClient) : IInitializer
+public class BrokerInitializer(IBrokerAdminClient adminClient) : IInitializer
 {
     /// <inheritdoc />
     public async Task InitializeAsync(CancellationToken cancellationToken)

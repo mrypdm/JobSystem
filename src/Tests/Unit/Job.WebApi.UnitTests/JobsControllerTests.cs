@@ -165,7 +165,7 @@ internal class JobControllerTests : TestBase
         var results = new JobResultResponse();
 
         _jobDbContext
-            .Setup(m => m.GetJobResults(id, It.IsAny<CancellationToken>()))
+            .Setup(m => m.GetJobResultsAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(results);
 
         var controller = Services.GetRequiredService<JobController>();
@@ -176,7 +176,7 @@ internal class JobControllerTests : TestBase
         // assert
         Assert.That(result.Value, Is.SameAs(results));
         _jobDbContext.Verify(
-            m => m.GetJobResults(id, It.IsAny<CancellationToken>()),
+            m => m.GetJobResultsAsync(id, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -187,7 +187,7 @@ internal class JobControllerTests : TestBase
         var id = Guid.NewGuid();
 
         _jobDbContext
-            .Setup(m => m.GetJobResults(id, It.IsAny<CancellationToken>()))
+            .Setup(m => m.GetJobResultsAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync((JobResultResponse)null);
 
         var controller = Services.GetRequiredService<JobController>();
@@ -198,7 +198,7 @@ internal class JobControllerTests : TestBase
         // assert
         Assert.That(result.Result, Is.TypeOf<NotFoundObjectResult>());
         _jobDbContext.Verify(
-            m => m.GetJobResults(id, It.IsAny<CancellationToken>()),
+            m => m.GetJobResultsAsync(id, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

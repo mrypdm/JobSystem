@@ -92,11 +92,21 @@ REVOKE ALL ON FUNCTION pgdbo.f_users_get_user(text) FROM PUBLIC;
 
 -- Add new Job for User
 CREATE OR REPLACE PROCEDURE pgdbo.p_users_add_new_job(username text, job_id uuid)
-LANGUAGE 'sql'
+LANGUAGE 'plpgsql'
 SECURITY DEFINER
 AS $BODY$
+DECLARE
+    current_user boolean;
+BEGIN
+    SELECT EXISTS(SELECT 1 FROM pgdbo."Users" WHERE "Username" = username) into current_user;
+
+    IF NOT current_user THEN
+        RAISE EXCEPTION 'User % does not exists', username;
+    END IF;
+
     INSERT INTO pgdbo."UsersJobs" ("Username", "JobId")
-    VALUES (username, job_id)
+    VALUES (username, job_id);
+END
 $BODY$;
 
 ALTER PROCEDURE pgdbo.p_users_add_new_job(text, uuid) OWNER TO pg_database_owner;
@@ -111,8 +121,8 @@ LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
     SELECT "JobId"
-    FROM pgdbo."UsersJobs"
-    WHERE "Username" = username
+    FROM pgdbo."Users" U JOIN pgdbo."UsersJobs" UJ ON U."Username" = UJ."Username"
+    WHERE U."Username" = username
 $BODY$;
 
 ALTER FUNCTION pgdbo.f_users_get_user_jobs(text) OWNER TO pg_database_owner;
@@ -127,8 +137,8 @@ LANGUAGE 'sql'
 SECURITY DEFINER
 AS $BODY$
     SELECT "JobId"
-    FROM pgdbo."UsersJobs"
-    WHERE "Username" = username AND "JobId" = job_id
+    FROM pgdbo."Users" U JOIN pgdbo."UsersJobs" UJ ON U."Username" = UJ."Username"
+    WHERE U."Username" = username AND UJ."JobId" = job_id
 $BODY$;
 
 ALTER FUNCTION pgdbo.f_users_get_user_jobs(text) OWNER TO pg_database_owner;
