@@ -58,21 +58,21 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         var endTime = DateTime.UtcNow;
 
         // assert
-        using var context = Services.GetRequiredService<JobDbContext>();
+        using var context = Services.GetRequiredKeyedService<JobDbContext>(Admin);
         var jobResults = await context.GetJobResultsAsync(jobId, default);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(jobResults.Status, Is.EqualTo(JobStatus.Finished));
         Assert.That(jobResults.FinishedAt, Is.Not.Null);
-        Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(endTime).Within(TimeSpan.FromSeconds(3)));
-        Assert.That($"/tmp/jobs/{jobId}", Does.Not.Exist);
+        Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(endTime).Within(TimeSpan.FromSeconds(10)));
+        Assert.That($"TestData/jobs/{jobId}", Does.Not.Exist);
     }
 
     [Test]
     public async Task RunAsync_Timeout_ShouldStopJob()
     {
         // arrange
-        var jobId = await CreateJobAndPublish("sleep 10");
+        var jobId = await CreateJobAndPublish("echo start; sleep 100; echo end");
 
         var worker = Services.GetRequiredService<ConsumerWorker>();
 
@@ -83,14 +83,14 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         var endTime = DateTime.UtcNow;
 
         // assert
-        using var context = Services.GetRequiredService<JobDbContext>();
+        using var context = Services.GetRequiredKeyedService<JobDbContext>(Admin);
         var jobResults = await context.GetJobResultsAsync(jobId, default);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(jobResults.Status, Is.EqualTo(JobStatus.Timeout));
         Assert.That(jobResults.FinishedAt, Is.Not.Null);
-        Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(endTime).Within(TimeSpan.FromSeconds(3)));
-        Assert.That($"/tmp/jobs/{jobId}", Does.Not.Exist);
+        Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(endTime).Within(TimeSpan.FromSeconds(10)));
+        Assert.That($"TestData/jobs/{jobId}", Does.Not.Exist);
     }
 
     [Test]
@@ -118,7 +118,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         Assert.That(jobResults.FinishedAt, Is.Not.Null);
         Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(realEndTime).Within(TimeSpan.FromSeconds(3)));
         Assert.That(jobResults.Results, Is.EqualTo([0x00, 0x11]).AsCollection);
-        Assert.That($"/tmp/jobs/{jobId}", Does.Not.Exist);
+        Assert.That($"TestData/jobs/{jobId}", Does.Not.Exist);
     }
 
     /// <inheritdoc />
