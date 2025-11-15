@@ -2,12 +2,12 @@ services:
     kafka:
       container_name: kafka
       image: apache/kafka
-      entrypoint: /bin/sh
-      command: -c "whoami; ls -la /etc/kafka/secrets"
+      #entrypoint: /bin/sh
+      #command: -c "whoami; id; ls -la /etc/kafka/secrets"
       ports:
         - '8500:8500'
       restart: unless-stopped
-      user: 1000:1000
+      user: 0:0
       environment:
         KAFKA_NODE_ID: 1
         CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'
