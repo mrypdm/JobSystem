@@ -4,6 +4,7 @@ using Job.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Shared.Contract;
 using Shared.Contract.Extensions;
@@ -18,6 +19,10 @@ namespace Job.Database.IntegrationTests;
 /// </summary>
 internal class JobDbContextTests : IntegrationTestBase
 {
+    private const string WebApi = nameof(WebApi);
+    private const string Worker = nameof(Worker);
+    private const string Admin = nameof(Admin);
+
     [Test]
     public async Task AddNewJob_ShouldAddNewJob()
     {
@@ -29,13 +34,14 @@ internal class JobDbContextTests : IntegrationTestBase
             Timeout = TimeSpan.FromSeconds(5)
         };
 
-        using var context = Services.GetRequiredService<JobDbContext>();
+        using var webApiContext = Services.GetRequiredKeyedService<JobDbContext>(WebApi);
 
         // act
-        await context.AddNewJobAsync(expectedJob, default);
+        await webApiContext.AddNewJobAsync(expectedJob, default);
 
         // assert
-        var actualJob = await context.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob.Id);
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        var actualJob = await adminContext.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob.Id);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob, Is.Not.Null);
@@ -66,15 +72,16 @@ internal class JobDbContextTests : IntegrationTestBase
             Timeout = TimeSpan.FromSeconds(10)
         };
 
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await context.AddNewJobAsync(firstJob, default);
-        context.ChangeTracker.Clear();
+        using var webApiContext = Services.GetRequiredKeyedService<JobDbContext>(WebApi);
+        await webApiContext.AddNewJobAsync(firstJob, default);
+        webApiContext.ChangeTracker.Clear();
 
         // act
-        await context.AddNewJobAsync(secondJob, default);
+        await webApiContext.AddNewJobAsync(secondJob, default);
 
         // assert
-        var actualJob = await context.Jobs.SingleOrDefaultAsync(m => m.Id == firstJob.Id);
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        var actualJob = await adminContext.Jobs.SingleOrDefaultAsync(m => m.Id == firstJob.Id);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob, Is.Not.Null);
@@ -88,12 +95,12 @@ internal class JobDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedJob = CreateTestJob();
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
 
         // act
-        var actualJob = await context.GetNewJobAsync(expectedJob.Id, default);
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
+        var actualJob = await workerContext.GetNewJobAsync(expectedJob.Id, default);
 
         // assert
         using var _ = Assert.EnterMultipleScope();
@@ -107,10 +114,10 @@ internal class JobDbContextTests : IntegrationTestBase
     public async Task GetNewJob_NotExists_ShouldReturnNull()
     {
         // arrange
-        using var context = Services.GetRequiredService<JobDbContext>();
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
 
         // act
-        var actualJob = await context.GetNewJobAsync(Guid.NewGuid(), default);
+        var actualJob = await workerContext.GetNewJobAsync(Guid.NewGuid(), default);
 
         // assert
         Assert.That(actualJob, Is.Null);
@@ -124,12 +131,12 @@ internal class JobDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedJob = CreateTestJob(jobStatus);
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
 
         // act
-        var actualJob = await context.GetNewJobAsync(expectedJob.Id, default);
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
+        var actualJob = await workerContext.GetNewJobAsync(expectedJob.Id, default);
 
         // assert
         Assert.That(actualJob, Is.Null);
@@ -140,15 +147,16 @@ internal class JobDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedJob = CreateTestJob();
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
+        adminContext.ChangeTracker.Clear();
 
         // act
-        await context.SetJobRunningAsync(expectedJob.Id, default);
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
+        await workerContext.SetJobRunningAsync(expectedJob.Id, default);
 
         // assert
-        var actualJob = await context.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob.Id);
+        var actualJob = await adminContext.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob.Id);
         Assert.That(actualJob.Status, Is.EqualTo(JobStatus.Running));
     }
 
@@ -157,15 +165,15 @@ internal class JobDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedJob = CreateTestJob(JobStatus.Running);
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
 
         // act
-        await context.SetJobRunningAsync(expectedJob.Id, default);
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
+        await workerContext.SetJobRunningAsync(expectedJob.Id, default);
 
         // assert
-        var actualJob = await context.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob.Id);
+        var actualJob = await adminContext.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob.Id);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob.Status, Is.EqualTo(JobStatus.Running));
@@ -177,13 +185,13 @@ internal class JobDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedJob = CreateTestJob(JobStatus.Finished);
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
 
         // act
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
         var exception = Assert.ThrowsAsync<PostgresException>(
-            () => context.SetJobRunningAsync(expectedJob.Id, default));
+            () => workerContext.SetJobRunningAsync(expectedJob.Id, default));
 
         // assert
         Assert.That(
@@ -198,15 +206,16 @@ internal class JobDbContextTests : IntegrationTestBase
         var expectedJob = CreateTestJob(JobStatus.Running);
         var expectedResults = new byte[] { 0x00, 0x11 };
 
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
+        adminContext.ChangeTracker.Clear();
 
         // act
-        await context.SetJobResultsAsync(expectedJob.Id, JobStatus.Finished, expectedResults, default);
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
+        await workerContext.SetJobResultsAsync(expectedJob.Id, JobStatus.Finished, expectedResults, default);
 
         // assert
-        var actualJob = await context.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob.Id);
+        var actualJob = await adminContext.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob.Id);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob.Status, Is.EqualTo(JobStatus.Finished));
@@ -218,13 +227,13 @@ internal class JobDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedJob = CreateTestJob(JobStatus.Finished);
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
 
         // act
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
         var exception = Assert.ThrowsAsync<PostgresException>(
-            () => context.SetJobResultsAsync(expectedJob.Id, JobStatus.Finished, [], default));
+            () => workerContext.SetJobResultsAsync(expectedJob.Id, JobStatus.Finished, [], default));
 
         // assert
         Assert.That(
@@ -239,13 +248,13 @@ internal class JobDbContextTests : IntegrationTestBase
         var expectedJob = CreateTestJob(JobStatus.Running);
         var expectedResults = new byte[60 * 1024 * 1024]; // 60 MB
 
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
 
         // act
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
         var exception = Assert.ThrowsAsync<PostgresException>(
-            () => context.SetJobResultsAsync(expectedJob.Id, JobStatus.Finished, expectedResults, default));
+            () => workerContext.SetJobResultsAsync(expectedJob.Id, JobStatus.Finished, expectedResults, default));
 
         // assert
         Assert.That(
@@ -260,13 +269,13 @@ internal class JobDbContextTests : IntegrationTestBase
     {
         // arrange
         var expectedJob = CreateTestJob(JobStatus.Running);
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
 
         // act
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
         var exception = Assert.ThrowsAsync<PostgresException>(
-            () => context.SetJobResultsAsync(expectedJob.Id, jobStatus, [], default));
+            () => workerContext.SetJobResultsAsync(expectedJob.Id, jobStatus, [], default));
 
         // assert
         Assert.That(
@@ -280,12 +289,13 @@ internal class JobDbContextTests : IntegrationTestBase
         // arrange
         var expectedJob = CreateTestJob(JobStatus.Finished, DateTime.UtcNow,
             DateTime.UtcNow.AddHours(1), [0x00, 0x11]);
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob);
-        context.ChangeTracker.Clear();
+
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob);
 
         // act
-        var jobResults = await context.GetJobResultsAsync(expectedJob.Id, default);
+        using var webApiContext = Services.GetRequiredKeyedService<JobDbContext>(WebApi);
+        var jobResults = await webApiContext.GetJobResultsAsync(expectedJob.Id, default);
 
         // assert
         using var _ = Assert.EnterMultipleScope();
@@ -300,10 +310,10 @@ internal class JobDbContextTests : IntegrationTestBase
     public async Task GetJobResults_JobNotExists_ShouldReturnNull()
     {
         // arrange
-        using var context = Services.GetRequiredService<JobDbContext>();
+        using var webApiContext = Services.GetRequiredKeyedService<JobDbContext>(WebApi);
 
         // act
-        var jobResults = await context.GetJobResultsAsync(Guid.NewGuid(), default);
+        var jobResults = await webApiContext.GetJobResultsAsync(Guid.NewGuid(), default);
 
         // assert
         Assert.That(jobResults, Is.Null);
@@ -315,17 +325,19 @@ internal class JobDbContextTests : IntegrationTestBase
         // arrange
         var expectedJob1 = CreateTestJob(JobStatus.Running, createdAt: DateTime.UtcNow.AddDays(-1));
         var expectedJob2 = CreateTestJob(JobStatus.Running, createdAt: DateTime.UtcNow);
-        using var context = Services.GetRequiredService<JobDbContext>();
-        await AddJobAsync(context, expectedJob1);
-        await AddJobAsync(context, expectedJob2);
-        context.ChangeTracker.Clear();
+
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+        await AddJobAsync(adminContext, expectedJob1);
+        await AddJobAsync(adminContext, expectedJob2);
+        adminContext.ChangeTracker.Clear();
 
         // act
-        await context.MarkLostJobsAsync(TimeSpan.FromHours(1), default);
+        using var webApiContext = Services.GetRequiredKeyedService<JobDbContext>(WebApi);
+        await webApiContext.MarkLostJobsAsync(TimeSpan.FromHours(1), default);
 
         // assert
-        var actualJob1 = await context.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob1.Id);
-        var actualJob2 = await context.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob2.Id);
+        var actualJob1 = await adminContext.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob1.Id);
+        var actualJob2 = await adminContext.Jobs.SingleOrDefaultAsync(m => m.Id == expectedJob2.Id);
 
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob1.Status, Is.EqualTo(JobStatus.Lost));
@@ -337,16 +349,43 @@ internal class JobDbContextTests : IntegrationTestBase
     {
         base.ConfigureServices(builder);
 
-        var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
-        var sslValidator = new SslValidator(dbOptions);
-        builder.Services.AddDbContext<JobDbContext>(
-            options => PostgreDbContext
-                .BuildOptions(options, dbOptions, sslValidator)
+        var webApiDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("WebApiDatabaseOptions");
+        var webApiSslValidator = new SslValidator(webApiDbOptions);
+        builder.Services.AddKeyedTransient(WebApi, (context, _) =>
+        {
+            var options = PostgreDbContext
+                .BuildOptions(new DbContextOptionsBuilder(), webApiDbOptions, webApiSslValidator)
                 .EnableDetailedErrors()
-                .EnableSensitiveDataLogging(),
-            ServiceLifetime.Transient);
+                .EnableSensitiveDataLogging()
+                .Options;
+            return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
+        });
+
+        var workerDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("WorkerDatabaseOptions");
+        var workerSslValidator = new SslValidator(workerDbOptions);
+        builder.Services.AddKeyedTransient(Worker, (context, _) =>
+        {
+            var options = PostgreDbContext
+                .BuildOptions(new DbContextOptionsBuilder(), workerDbOptions, workerSslValidator)
+                .EnableDetailedErrors()
+                .EnableSensitiveDataLogging()
+                .Options;
+            return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
+        });
+
+        var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminDatabaseOptions");
+        var adminSslValidator = new SslValidator(adminDbOptions);
+        builder.Services.AddKeyedTransient(Admin, (context, _) =>
+        {
+            var options = PostgreDbContext
+                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator)
+                .EnableDetailedErrors()
+                .EnableSensitiveDataLogging()
+                .Options;
+            return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
+        });
         builder.Services.AddTransient<IInitializer>(
-            context => new DbInitializer(context.GetRequiredService<JobDbContext>()));
+            context => new DbInitializer(context.GetRequiredKeyedService<JobDbContext>(Admin)));
     }
 
     private static JobDbModel CreateTestJob(

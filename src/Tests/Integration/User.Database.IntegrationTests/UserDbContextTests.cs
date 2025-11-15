@@ -246,7 +246,7 @@ internal class UserDbContextTests : IntegrationTestBase
 
         var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
         var sslValidator = new SslValidator(dbOptions);
-        builder.Services.AddKeyedTransient("Default", (context, _) =>
+        builder.Services.AddKeyedTransient(Default, (context, _) =>
         {
             var options = PostgreDbContext
                 .BuildOptions(new DbContextOptionsBuilder(), dbOptions, sslValidator)
@@ -257,8 +257,8 @@ internal class UserDbContextTests : IntegrationTestBase
         });
 
         var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminDatabaseOptions");
-        var adminSslValidator = new SslValidator(dbOptions);
-        builder.Services.AddKeyedTransient("Admin", (context, _) =>
+        var adminSslValidator = new SslValidator(adminDbOptions);
+        builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {
             var options = PostgreDbContext
                 .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator)
@@ -268,7 +268,7 @@ internal class UserDbContextTests : IntegrationTestBase
             return new UserDbContext(options, context.GetRequiredService<ILogger<UserDbContext>>());
         });
         builder.Services.AddTransient<IInitializer>(
-            context => new DbInitializer(context.GetKeyedService<UserDbContext>("Admin")));
+            context => new DbInitializer(context.GetRequiredKeyedService<UserDbContext>(Admin)));
     }
 
     private static UserDbModel CreateTestUser(string username = "username")
