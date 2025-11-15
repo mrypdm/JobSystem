@@ -39,8 +39,8 @@ jobs:
 
       - name: View container environments
         run: |
-          ls -la ${{github.workspace}}/infrastructure/Tools/Database/config
-          ls -la ${{github.workspace}}/infrastructure/Tools/Broker/config
+          sudo ls -la ${{github.workspace}}/infrastructure/Tools/Database/config
+          sudo ls -la ${{github.workspace}}/infrastructure/Tools/Broker/config
 
       - name: Start PostgreSQL container
         run: |
