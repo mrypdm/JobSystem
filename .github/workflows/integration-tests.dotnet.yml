@@ -23,6 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: View container environments
+        run: |
+          ls -la ${{github.workspace}}/infrastructure/Tools/Database/config
+          ls -la ${{github.workspace}}/infrastructure/Tools/Broker/config
+
       - name: Setup containers environments
         run: |
           sudo chmod 500 ${{github.workspace}}/infrastructure/Tools/Database/config/
