@@ -70,7 +70,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         Assert.That(jobResults.FinishedAt, Is.Not.Null);
         Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(endTime).Within(TimeSpan.FromSeconds(10)));
         Assert.That($"TestData/jobs/{jobId}", Does.Not.Exist);
-        AssertResults(jobResults.Results, "Running as uid=10000 gid=10000 groups=10000", "This is stderr");
+        AssertResults(jobResults.Results, "Running as uid=10000 gid=10000 groups=10000\n", "This is stderr\n");
     }
 
     [Test]
@@ -96,7 +96,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         Assert.That(jobResults.FinishedAt, Is.Not.Null);
         Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(endTime).Within(TimeSpan.FromSeconds(10)));
         Assert.That($"TestData/jobs/{jobId}", Does.Not.Exist);
-        AssertResults(jobResults.Results, "start", "");
+        AssertResults(jobResults.Results, "start\n", "");
     }
 
     [Test]
