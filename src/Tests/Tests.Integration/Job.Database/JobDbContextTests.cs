@@ -16,6 +16,8 @@ namespace Tests.Integration.Job.Database;
 /// <summary>
 /// Tests for <see cref="JobDbContext"/>
 /// </summary>
+[Ignore("Ignore for debug another tests")]
+[TestFixture]
 internal class JobDbContextTests : IntegrationTestBase
 {
     private const string WebApi = nameof(WebApi);

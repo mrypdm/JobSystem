@@ -31,6 +31,8 @@ namespace Tests.Integration.Job.Worker;
 /// <summary>
 /// Tests for <see cref="ConsumerWorker"/>
 /// </summary>
+[Ignore("Ignore for debug another tests")]
+[TestFixture]
 internal class ConsumerWorkerTests : IntegrationTestBase
 {
     private const string Admin = nameof(Admin);

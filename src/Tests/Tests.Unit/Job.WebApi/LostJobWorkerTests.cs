@@ -12,6 +12,7 @@ namespace Tests.Unit.Job.WebApi;
 /// <summary>
 /// Test for <see cref="LostJobWorker"/>
 /// </summary>
+[TestFixture]
 internal class LostJobWorkerTests : TestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();

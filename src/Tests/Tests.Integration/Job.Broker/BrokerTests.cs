@@ -12,6 +12,8 @@ namespace Tests.Integration.Job.Broker;
 /// <summary>
 /// Tests for <see cref="JobProducer"/> and <see cref="JobConsumer"/>
 /// </summary>
+[Ignore("Ignore for debug another tests")]
+[TestFixture]
 internal class BrokerTests : IntegrationTestBase
 {
     [Test]

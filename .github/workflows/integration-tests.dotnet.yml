@@ -63,6 +63,10 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
 
+      - name: Get Job.WebApi container logs
+        if: always()
+        run: docker compose -f ${{ github.workspace }}/src/Job/Job.WebApi/docker-compose.github.yaml logs
+
       - name: Stop Job.WebApi container
         if: always()
         run: docker compose -f ${{ github.workspace }}/src/Job/Job.WebApi/docker-compose.github.yaml down -t 1

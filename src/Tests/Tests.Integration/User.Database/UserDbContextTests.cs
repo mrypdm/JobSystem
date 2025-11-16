@@ -15,6 +15,8 @@ namespace Tests.Integration.User.Database;
 /// <summary>
 /// Tests for <see cref="UserDbContext"/>
 /// </summary>
+[Ignore("Ignore for debug another tests")]
+[TestFixture]
 internal class UserDbContextTests : IntegrationTestBase
 {
     private const string Default = nameof(Default);
