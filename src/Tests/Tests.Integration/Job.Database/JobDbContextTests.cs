@@ -11,7 +11,7 @@ using Shared.Contract.Extensions;
 using Shared.Database;
 using Tests.Integration.Initializers;
 
-namespace Tests.Integration;
+namespace Tests.Integration.Job.Database;
 
 /// <summary>
 /// Tests for <see cref="JobDbContext"/>

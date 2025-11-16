@@ -10,7 +10,7 @@ using Tests.Integration.Initializers;
 using User.Database.Contexts;
 using User.Database.Models;
 
-namespace Tests.Integration;
+namespace Tests.Integration.User.Database;
 
 /// <summary>
 /// Tests for <see cref="UserDbContext"/>

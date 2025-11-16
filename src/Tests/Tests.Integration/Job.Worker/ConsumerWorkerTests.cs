@@ -26,7 +26,7 @@ using Shared.Contract.Owned;
 using Shared.Database;
 using Tests.Integration.Initializers;
 
-namespace Tests.Integration;
+namespace Tests.Integration.Job.Worker;
 
 /// <summary>
 /// Tests for <see cref="ConsumerWorker"/>

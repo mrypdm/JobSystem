@@ -7,7 +7,7 @@ using Shared.Broker.Options;
 using Shared.Contract.Extensions;
 using Tests.Integration.Initializers;
 
-namespace Tests.Integration;
+namespace Tests.Integration.Job.Broker;
 
 /// <summary>
 /// Tests for <see cref="JobProducer"/> and <see cref="JobConsumer"/>
