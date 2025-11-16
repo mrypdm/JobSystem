@@ -19,10 +19,10 @@ services:
         - 5000:443
       volumes:
         - ./config:/etc/job.webapi.d/:ro
-      networks:
-        - test-net
+#       networks:
+#         - test-net
 
-networks:
-  test-net:
-    name: jobs_system_network
-    external: true
+# networks:
+#   test-net:
+#     name: jobs_system_network
+#     external: true
