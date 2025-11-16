@@ -43,12 +43,14 @@ jobs:
             cd ${{ github.workspace }}/infrastructure/Tools/Database
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
+            sleep 5 # waiting for full startup of service
 
       - name: Start Apache Kafka container
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Broker
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
+            sleep 5 # waiting for full startup of service
 
       - name: Initialize PostgreSQL and Apache Kafka
         run: |
@@ -61,6 +63,7 @@ jobs:
             cd ${{ github.workspace }}/src/Job/Job.WebApi
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
+            sleep 5 # waiting for full startup of service
 
       - name: Test
         run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
