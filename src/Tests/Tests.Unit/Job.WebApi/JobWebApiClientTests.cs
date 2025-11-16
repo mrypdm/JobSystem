@@ -80,6 +80,28 @@ internal class JobWebApiClientTests : TestBase
     }
 
     [Test]
+    public void CreateNewJob_CallHasNotBeenMade_ShouldThrow()
+    {
+        // arrange
+        _httpTest.SimulateException(new FlurlHttpException(new FlurlCall()
+        {
+            Request = new FlurlRequest(BaseUrl),
+            HttpRequestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(BaseUrl))
+        }));
+
+        var client = Services.GetRequiredService<JobWebApiClient>();
+
+        // act
+        var exc = Assert.ThrowsAsync<JobWebApiException>(
+            () => client.CreateNewJobAsync(new CreateJobRequest(), default));
+
+        // assert
+        using var _ = Assert.EnterMultipleScope();
+        Assert.That(exc.StatusCode, Is.Null);
+        Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi failed"));
+    }
+
+    [Test]
     public void CreateNewJob_Timeout_ShouldThrow()
     {
         // arrange
@@ -92,7 +114,7 @@ internal class JobWebApiClientTests : TestBase
             () => client.CreateNewJobAsync(new CreateJobRequest(), default));
 
         // assert
-        Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi has timed out"));
+        Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi timed out"));
     }
 
     [Test]
@@ -136,6 +158,28 @@ internal class JobWebApiClientTests : TestBase
     }
 
     [Test]
+    public void GetJobResults_CallHasNotBeenMade_ShouldThrow()
+    {
+        // arrange
+        _httpTest.SimulateException(new FlurlHttpException(new FlurlCall()
+        {
+            Request = new FlurlRequest(BaseUrl),
+            HttpRequestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri(BaseUrl))
+        }));
+
+        var client = Services.GetRequiredService<JobWebApiClient>();
+
+        // act
+        var exc = Assert.ThrowsAsync<JobWebApiException>(
+            () => client.GetJobResultsAsync(Guid.Empty, default));
+
+        // assert
+        using var _ = Assert.EnterMultipleScope();
+        Assert.That(exc.StatusCode, Is.Null);
+        Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi failed"));
+    }
+
+    [Test]
     public void GetJobResults_Timeout_ShouldThrow()
     {
         // arrange
@@ -148,7 +192,7 @@ internal class JobWebApiClientTests : TestBase
             () => client.CreateNewJobAsync(new CreateJobRequest(), default));
 
         // assert
-        Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi has timed out"));
+        Assert.That(exc.Message, Is.EqualTo("Call to Job.WebApi timed out"));
     }
 
     /// <inheritdoc />

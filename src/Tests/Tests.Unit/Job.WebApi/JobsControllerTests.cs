@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using Shared.Broker.Abstractions;
+using Shared.Contract.Owned;
 using Tests.Common;
 
 namespace Tests.Unit.Job.WebApi;
@@ -19,6 +20,7 @@ namespace Tests.Unit.Job.WebApi;
 internal class JobControllerTests : TestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();
+    private readonly Mock<IOwnedService<IJobDbContext>> _jobDbContextOwned = new();
     private readonly Mock<IJobProducer<Guid, JobMessage>> _jobProducer = new();
     private readonly JobControllerOptions _jobsControllerOptions = new()
     {
@@ -30,7 +32,12 @@ internal class JobControllerTests : TestBase
     public void SetUp()
     {
         _jobDbContext.Reset();
+        _jobDbContextOwned.Reset();
         _jobProducer.Reset();
+
+        _jobDbContextOwned
+            .Setup(m => m.Value)
+            .Returns(_jobDbContext.Object);
     }
 
     [Test]
@@ -206,7 +213,7 @@ internal class JobControllerTests : TestBase
     protected override void ConfigureServices(HostApplicationBuilder builder)
     {
         base.ConfigureServices(builder);
-        builder.Services.AddSingleton(_jobDbContext.Object);
+        builder.Services.AddSingleton(_jobDbContextOwned.Object);
         builder.Services.AddSingleton(_jobProducer.Object);
         builder.Services.AddSingleton(_jobsControllerOptions);
         builder.Services.AddTransient<JobController>();
