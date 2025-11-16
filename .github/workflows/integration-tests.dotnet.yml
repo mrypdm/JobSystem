@@ -30,6 +30,12 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
       - name: Start PostgreSQL container
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Database
@@ -45,7 +51,7 @@ jobs:
       - name: Initialize PostgreSQL and Apache Kafka
         run: |
             cd ${{ github.workspace }}/src/Shared/Shared.SimpleInitializer
-            dotnet run
+            dotnet run --no-build
             cd ${{ github.workspace }}
 
       - name: Start Job.WebApi container
@@ -54,10 +60,6 @@ jobs:
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
 
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore
       - name: Test
         run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
 

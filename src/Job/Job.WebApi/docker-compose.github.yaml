@@ -13,7 +13,7 @@ services:
         DatabaseOptions__HostName: postgres
         DatabaseOptions__Password: qwerty-123
 
-        ProducerOptions__Servers: 'kafka:8500'
+        ProducerOptions__Servers: kafka:9000
         ProducerOptions__Password: qwerty-123
       ports:
         - 5000:443
