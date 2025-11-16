@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Security.Claims;
-using Flurl.Http;
 using Job.WebApi.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -10,7 +9,6 @@ using Shared.Contract.Extensions;
 using Shared.Contract.Options;
 using Shared.Database;
 using User.Database.Contexts;
-using User.WebApp.Models;
 
 namespace User.WebApp.Extensions;
 
@@ -51,26 +49,9 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddJobApi(this WebApplicationBuilder builder)
     {
-        var jobWebApiOptions = builder.Configuration.GetOptions<JobWebApiOptions>();
-        var sslValidator = new SslValidator(jobWebApiOptions);
-        builder.Services.AddSingleton<IJobWebApiClient>(context => new JobWebApiClient(
-            context.GetRequiredKeyedService<IFlurlClient>(nameof(JobWebApiClient)),
-            context.GetRequiredService<ILogger<JobWebApiClient>>())
-        );
-        builder.Services.AddKeyedSingleton(nameof(JobWebApiClient), (_, _) =>
-            FlurlHttp
-                .ConfigureClientForUrl(jobWebApiOptions.Url)
-                .ConfigureInnerHandler(handler =>
-                {
-                    handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-                    handler.CheckCertificateRevocationList = false;
-                    handler.ServerCertificateCustomValidationCallback
-                        = (_, cert, _, policy) => sslValidator.Validate(cert, policy);
-                    handler.ClientCertificates.Add(jobWebApiOptions.Certificate);
-                })
-                .Build()
-        );
-
+        builder.Services.AddSingleton(builder.Configuration.GetOptions<JobWebApiClientOptions>());
+        builder.Services.AddSingleton<IJobWebApiClient, JobWebApiClient>();
+        builder.Services.AddSingleton<IFlurlClientFactory, FlurlClientFactory>();
         return builder;
     }
 

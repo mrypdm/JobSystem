@@ -14,3 +14,10 @@ services:
         - 5432:5432
       volumes:
         - ./config:/etc/github-actions:ro
+      networks:
+        - test-net
+
+networks:
+  test-net:
+    name: jobs_system_network
+    driver: bridge

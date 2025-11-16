@@ -6,7 +6,7 @@ using Job.WebApi.Client;
 using Job.WebApi.Client.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Moq;
 using Tests.Common;
 
 namespace Tests.Unit.Job.WebApi;
@@ -20,10 +20,16 @@ internal class JobWebApiClientTests : TestBase
     private const string BaseUrl = "http://localhost:8080";
     private HttpTest _httpTest = null;
 
+    private readonly Mock<IFlurlClientFactory> _factory = new();
+
     [SetUp]
     public void SetUp()
     {
         _httpTest = new HttpTest();
+        _factory.Reset();
+        _factory
+            .Setup(m => m.Create(It.IsAny<JobWebApiClientOptions>()))
+            .Returns(new FlurlClient(BaseUrl));
     }
 
     [TearDown]
@@ -149,9 +155,8 @@ internal class JobWebApiClientTests : TestBase
     protected override void ConfigureServices(HostApplicationBuilder builder)
     {
         base.ConfigureServices(builder);
-        builder.Services.AddTransient(context => new JobWebApiClient(
-            new FlurlClient(BaseUrl),
-            context.GetRequiredService<ILogger<JobWebApiClient>>(),
-            ownedClient: true));
+        builder.Services.AddSingleton(new JobWebApiClientOptions());
+        builder.Services.AddSingleton(_factory.Object);
+        builder.Services.AddTransient<JobWebApiClient>();
     }
 }

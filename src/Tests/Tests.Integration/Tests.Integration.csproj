@@ -34,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Job\Job.Database\Job.Database.csproj" />
     <ProjectReference Include="..\..\Job\Job.Broker\Job.Broker.csproj" />
+    <ProjectReference Include="..\..\Job\Job.WebApi.Client\Job.WebApi.Client.csproj" />
     <ProjectReference Include="..\..\Job\Job.Worker\Job.Worker.csproj" />
     <ProjectReference Include="..\..\User\User.Database\User.Database.csproj" />
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />

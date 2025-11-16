@@ -6,8 +6,8 @@ using User.Database.Models;
 namespace User.Database.Contexts;
 
 /// <inheritdoc />
-public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logger) : PostgreDbContext(options),
-    IUserDbContext
+public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logger)
+    : PostgreDbContext(options), IUserDbContext
 {
     /// <summary>
     /// Table of Users

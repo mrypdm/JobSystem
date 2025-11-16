@@ -24,7 +24,7 @@ using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Contract.Owned;
 using Shared.Database;
-using Tests.Integration.Initializers;
+using Shared.Database.Migrations;
 
 namespace Tests.Integration.Job.Worker;
 
@@ -158,10 +158,13 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         var workerSslValidator = new SslValidator(workerDbOptions);
         builder.Services.AddTransient<IJobDbContext>(context =>
         {
-            var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), workerDbOptions, workerSslValidator, forTests: true)
-                .Options;
-            return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
+            var options = PostgreDbContext.BuildOptions(
+                new DbContextOptionsBuilder(),
+                workerDbOptions,
+                workerSslValidator,
+                context.GetRequiredService<ILoggerFactory>(),
+                forTests: true);
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
         });
         builder.Services.AddSingleton<IOwnedService<IJobDbContext>, OwnedService<IJobDbContext>>();
 
@@ -169,10 +172,13 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         var adminSslValidator = new SslValidator(adminDbOptions);
         builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {
-            var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator, forTests: true)
-                .Options;
-            return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
+            var options = PostgreDbContext.BuildOptions(
+                new DbContextOptionsBuilder(),
+                adminDbOptions,
+                adminSslValidator,
+                context.GetRequiredService<ILoggerFactory>(),
+                forTests: true);
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
         });
         builder.Services.AddTransient<IInitializer>(
             context => new DbInitializer(context.GetRequiredKeyedService<JobDbContext>(Admin)));

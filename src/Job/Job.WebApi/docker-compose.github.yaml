@@ -1,0 +1,27 @@
+services:
+    job_webapi:
+      container_name: job_webapi
+      build:
+        context: ../../..
+        dockerfile: src/Job/Job.WebApi/Dockerfile
+      restart: unless-stopped
+      user: 2000:2000
+      environment:
+        WebServerOptions__Password: qwerty-123
+
+        DatabaseOptions__Host: postgres
+        DatabaseOptions__Password: qwerty-123
+
+        ProducerOptions__Servers: kafka:8500
+        ProducerOptions__Password: qwerty-123
+      ports:
+        - 5000:443
+      volumes:
+        - ./config:/etc/job.webapi.d/:ro
+      networks:
+        - test-net
+
+networks:
+  test-net:
+    name: jobs_system_network
+    external: true

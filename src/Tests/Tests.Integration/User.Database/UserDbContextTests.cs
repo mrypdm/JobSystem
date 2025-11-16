@@ -6,7 +6,7 @@ using Npgsql;
 using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Database;
-using Tests.Integration.Initializers;
+using Shared.Database.Migrations;
 using User.Database.Contexts;
 using User.Database.Models;
 
@@ -247,20 +247,26 @@ internal class UserDbContextTests : IntegrationTestBase
         var sslValidator = new SslValidator(dbOptions);
         builder.Services.AddKeyedTransient(Default, (context, _) =>
         {
-            var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), dbOptions, sslValidator, forTests: true)
-                .Options;
-            return new UserDbContext(options, context.GetRequiredService<ILogger<UserDbContext>>());
+            var options = PostgreDbContext.BuildOptions(
+                new DbContextOptionsBuilder(),
+                dbOptions,
+                sslValidator,
+                context.GetRequiredService<ILoggerFactory>(),
+                forTests: true);
+            return new UserDbContext(options.Options, context.GetRequiredService<ILogger<UserDbContext>>());
         });
 
         var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminUsersDatabaseOptions");
         var adminSslValidator = new SslValidator(adminDbOptions);
         builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {
-            var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator, forTests: true)
-                .Options;
-            return new UserDbContext(options, context.GetRequiredService<ILogger<UserDbContext>>());
+            var options = PostgreDbContext.BuildOptions(
+                new DbContextOptionsBuilder(),
+                adminDbOptions,
+                adminSslValidator,
+                context.GetRequiredService<ILoggerFactory>(),
+                forTests: true);
+            return new UserDbContext(options.Options, context.GetRequiredService<ILogger<UserDbContext>>());
         });
         builder.Services.AddTransient<IInitializer>(
             context => new DbInitializer(context.GetRequiredKeyedService<UserDbContext>(Admin)));

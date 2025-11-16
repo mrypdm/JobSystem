@@ -9,7 +9,7 @@ using Npgsql;
 using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Database;
-using Tests.Integration.Initializers;
+using Shared.Database.Migrations;
 
 namespace Tests.Integration.Job.Database;
 
@@ -352,30 +352,39 @@ internal class JobDbContextTests : IntegrationTestBase
         var webApiSslValidator = new SslValidator(webApiDbOptions);
         builder.Services.AddKeyedTransient(WebApi, (context, _) =>
         {
-            var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), webApiDbOptions, webApiSslValidator, forTests: true)
-                .Options;
-            return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
+            var options = PostgreDbContext.BuildOptions(
+                new DbContextOptionsBuilder(),
+                webApiDbOptions,
+                webApiSslValidator,
+                context.GetRequiredService<ILoggerFactory>(),
+                forTests: true);
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
         });
 
         var workerDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("WorkerDatabaseOptions");
         var workerSslValidator = new SslValidator(workerDbOptions);
         builder.Services.AddKeyedTransient(Worker, (context, _) =>
         {
-            var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), workerDbOptions, workerSslValidator, forTests: true)
-                .Options;
-            return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
+            var options = PostgreDbContext.BuildOptions(
+                new DbContextOptionsBuilder(),
+                workerDbOptions,
+                workerSslValidator,
+                context.GetRequiredService<ILoggerFactory>(),
+                forTests: true);
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
         });
 
         var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminJobsDatabaseOptions");
         var adminSslValidator = new SslValidator(adminDbOptions);
         builder.Services.AddKeyedTransient(Admin, (context, _) =>
         {
-            var options = PostgreDbContext
-                .BuildOptions(new DbContextOptionsBuilder(), adminDbOptions, adminSslValidator, forTests: true)
-                .Options;
-            return new JobDbContext(options, context.GetRequiredService<ILogger<JobDbContext>>());
+            var options = PostgreDbContext.BuildOptions(
+                new DbContextOptionsBuilder(),
+                adminDbOptions,
+                adminSslValidator,
+                context.GetRequiredService<ILoggerFactory>(),
+                forTests: true);
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
         });
         builder.Services.AddTransient<IInitializer>(
             context => new DbInitializer(context.GetRequiredKeyedService<JobDbContext>(Admin)));

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Contract;
 using Tests.Common;
-using Tests.Integration.Initializers;
 
 namespace Tests.Integration;
 

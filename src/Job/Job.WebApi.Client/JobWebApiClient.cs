@@ -6,23 +6,24 @@ using Microsoft.Extensions.Logging;
 namespace Job.WebApi.Client;
 
 /// <inheritdoc />
-public sealed class JobWebApiClient(IFlurlClient httpClient, ILogger<JobWebApiClient> logger, bool ownedClient = false)
-    : IJobWebApiClient
+public sealed class JobWebApiClient(
+    IFlurlClientFactory factory,
+    JobWebApiClientOptions options,
+    ILogger<JobWebApiClient> logger) : IJobWebApiClient
 {
+    private readonly IFlurlClient _httpClient = factory.Create(options);
+
     /// <inheritdoc />
     public void Dispose()
     {
-        if (ownedClient)
-        {
-            httpClient.Dispose();
-        }
+        _httpClient.Dispose();
     }
 
     /// <inheritdoc />
     public async Task<Guid> CreateNewJobAsync(CreateJobRequest request, CancellationToken cancellationToken)
     {
         LogHttpRequest("POST", $"/api/jobs");
-        return await DoHttpRequest(() => httpClient
+        return await DoHttpRequest(() => _httpClient
             .Request("api", "jobs")
             .PostJsonAsync(request, cancellationToken: cancellationToken)
             .ReceiveJson<Guid>());
@@ -32,7 +33,7 @@ public sealed class JobWebApiClient(IFlurlClient httpClient, ILogger<JobWebApiCl
     public async Task<JobResultResponse> GetJobResultsAsync(Guid jobId, CancellationToken cancellationToken)
     {
         LogHttpRequest("GET", $"/api/jobs/{jobId}");
-        return await DoHttpRequest(() => httpClient
+        return await DoHttpRequest(() => _httpClient
             .Request("api", "jobs", jobId.ToString())
             .GetJsonAsync<JobResultResponse>(cancellationToken: cancellationToken));
     }

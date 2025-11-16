@@ -1,6 +1,6 @@
-using Shared.Broker.Abstractions;
+using Shared.Contract;
 
-namespace Tests.Integration.Initializers;
+namespace Shared.Broker.Abstractions;
 
 /// <summary>
 /// Initializer for Broker

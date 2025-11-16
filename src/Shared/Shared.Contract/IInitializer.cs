@@ -1,4 +1,4 @@
-namespace Tests.Integration.Initializers;
+namespace Shared.Contract;
 
 /// <summary>
 /// Initializer for something

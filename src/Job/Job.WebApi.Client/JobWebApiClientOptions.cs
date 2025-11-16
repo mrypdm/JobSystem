@@ -1,11 +1,11 @@
 using Shared.Contract.SslOptions;
 
-namespace User.WebApp.Models;
+namespace Job.WebApi.Client;
 
 /// <summary>
-/// Options for connect to Job.WebApi
+/// Options for <see cref="JobWebApiClient"/>
 /// </summary>
-public class JobWebApiOptions : Pkcs12CertificateOptions
+public class JobWebApiClientOptions : Pkcs12CertificateOptions
 {
     /// <summary>
     /// URL for connect

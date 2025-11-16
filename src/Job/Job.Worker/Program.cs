@@ -53,5 +53,5 @@ builder.Services.AddSingleton<IJobRunner, JobRunner>();
 builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerWorkerOptions>());
 builder.Services.AddHostedService<ConsumerWorker>();
 
-var app = builder.Build();
+using var app = builder.Build();
 app.Run();

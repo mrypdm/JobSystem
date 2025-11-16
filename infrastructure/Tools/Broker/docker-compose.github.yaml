@@ -41,3 +41,10 @@ services:
         KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
       volumes:
         - ./config:/etc/github-actions:ro
+      networks:
+        - test-net
+
+networks:
+  test-net:
+    name: jobs_system_network
+    external: true
