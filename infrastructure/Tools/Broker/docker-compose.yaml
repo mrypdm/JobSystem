@@ -3,9 +3,9 @@ services:
       container_name: kafka
       image: apache/kafka
       ports:
-        - '8000:8000'
-        - '8500:8500'
-        - '9000:9000'
+        - 8000:8000
+        - 8500:8500
+        - 9000:9000
       restart: unless-stopped
       user: 1000:1000
       environment:

@@ -14,7 +14,9 @@ public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> lo
     private readonly IProducer<Guid, JobMessage> _producer = new ProducerBuilder<Guid, JobMessage>(
         new ProducerConfig()
         {
-            BootstrapServers = options.Servers,
+            BootstrapServers = options.Servers == "kafka:8500"
+                ? options.Servers
+                : throw new Exception($"Invalid kafka server: {options.Servers}"),
             ClientId = options.ClientId,
 
             SecurityProtocol = SecurityProtocol.Ssl,

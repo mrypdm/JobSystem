@@ -54,16 +54,12 @@ jobs:
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
 
-      - name: sleep 3
-        run: |
-            sleep 3
-
-      # - name: Restore dependencies
-      #   run: dotnet restore
-      # - name: Build
-      #   run: dotnet build --no-restore
-      # - name: Test
-      #   run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
 
       - name: Get Job.WebApi container logs
         if: always()
