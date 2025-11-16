@@ -18,7 +18,15 @@ public class LostJobWorker(
     /// <inheritdoc />
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _workerTask = RunLoopAsync(_wokerCancellation.Token);
+        _workerTask = options.IsEnabled
+            ? RunLoopAsync(_wokerCancellation.Token)
+            : Task.CompletedTask;
+
+        if (!options.IsEnabled)
+        {
+            logger.LogInformation("[{Worker}] is disabled", nameof(LostJobWorker));
+        }
+
         return Task.CompletedTask;
     }
 

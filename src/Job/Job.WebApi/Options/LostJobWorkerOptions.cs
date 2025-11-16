@@ -8,6 +8,11 @@ namespace Job.WebApi.Options;
 public class LostJobWorkerOptions
 {
     /// <summary>
+    /// If worker is enabled
+    /// </summary>
+    public bool IsEnabled { get; set; }
+
+    /// <summary>
     /// Delay between consume tries
     /// </summary>
     public TimeSpan IterationDeplay { get; set; }

@@ -7,12 +7,13 @@ services:
       restart: unless-stopped
       user: 2000:2000
       environment:
+        LostJobWorkerOptions__IsEnabled: false
         WebServerOptions__Password: qwerty-123
 
         DatabaseOptions__HostName: postgres
         DatabaseOptions__Password: qwerty-123
 
-        ProducerOptions__Servers: kafka:8500
+        ProducerOptions__Servers: 'kafka:8500'
         ProducerOptions__Password: qwerty-123
       ports:
         - 5000:443

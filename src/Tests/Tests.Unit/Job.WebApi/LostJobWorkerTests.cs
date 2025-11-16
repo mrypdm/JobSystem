@@ -19,6 +19,7 @@ internal class LostJobWorkerTests : TestBase
     private readonly Mock<IOwnedService<IJobDbContext>> _jobDbContextOwned = new();
     private readonly LostJobWorkerOptions _lostJobWorkerOptions = new()
     {
+        IsEnabled = true,
         IterationDeplay = TimeSpan.FromSeconds(15),
         LostTimeoutForJobs = TimeSpan.FromHours(1)
     };
@@ -38,7 +39,7 @@ internal class LostJobWorkerTests : TestBase
     public async Task Run_ShouldStartLoop_AndMarkLostJobInIt()
     {
         // arrange
-
+        _lostJobWorkerOptions.IsEnabled = true;
         var worker = Services.GetRequiredService<LostJobWorker>();
 
         _jobDbContext
@@ -55,12 +56,30 @@ internal class LostJobWorkerTests : TestBase
             Times.Once);
     }
 
+    [Test]
+    public async Task Run_Disabled_ShouldDoNothing()
+    {
+        // arrange
+        _lostJobWorkerOptions.IsEnabled = false;
+        var worker = Services.GetRequiredService<LostJobWorker>();
+
+        // act
+        await worker.StartAsync(default);
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        await worker.StopAsync(default);
+
+        // assert
+        _jobDbContext.Verify(
+            m => m.MarkLostJobsAsync(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     /// <inheritdoc />
     protected override void ConfigureServices(HostApplicationBuilder builder)
     {
         base.ConfigureServices(builder);
         builder.Services.AddSingleton(_jobDbContextOwned.Object);
         builder.Services.AddSingleton(_lostJobWorkerOptions);
-        builder.Services.AddScoped<LostJobWorker>();
+        builder.Services.AddTransient<LostJobWorker>();
     }
 }
