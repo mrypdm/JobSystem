@@ -8,14 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,11 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Job\Job.Database\Job.Database.csproj" />
-    <ProjectReference Include="..\..\Job\Job.Broker\Job.Broker.csproj" />
-    <ProjectReference Include="..\..\Job\Job.WebApi.Client\Job.WebApi.Client.csproj" />
-    <ProjectReference Include="..\..\Job\Job.Worker\Job.Worker.csproj" />
-    <ProjectReference Include="..\..\User\User.Database\User.Database.csproj" />
+    <ProjectReference Include="..\..\src\Job\Job.WebApi\Job.WebApi.csproj" />
+    <ProjectReference Include="..\..\src\Job\Job.WebApi.Client\Job.WebApi.Client.csproj" />
+    <ProjectReference Include="..\..\src\Job\Job.Worker\Job.Worker.csproj" />
+    <ProjectReference Include="..\..\src\User\User.WebApp\User.WebApp.csproj" />
     <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
 

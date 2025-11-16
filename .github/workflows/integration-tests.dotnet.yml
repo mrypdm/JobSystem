@@ -5,15 +5,17 @@ on:
     branches: [ "master" ]
     paths:
       - 'src/**'
+      - 'tests/**'
       - 'infrastructure/Tools/**'
-      - '!src/Tests/Tests.Unit/**'
+      - '!tests/Tests/Tests.Unit/**'
       - '.github/workflows/integration-tests.dotnet.yml'
   pull_request:
     branches: [ "master" ]
     paths:
       - 'src/**'
+      - 'tests/**'
       - 'infrastructure/Tools/**'
-      - '!src/Tests/Tests.Unit/**'
+      - '!tests/Tests/Tests.Unit/**'
       - '.github/workflows/integration-tests.dotnet.yml'
 
 jobs:
