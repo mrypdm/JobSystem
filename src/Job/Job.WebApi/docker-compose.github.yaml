@@ -9,7 +9,7 @@ services:
       environment:
         WebServerOptions__Password: qwerty-123
 
-        DatabaseOptions__Host: postgres
+        DatabaseOptions__HostName: postgres
         DatabaseOptions__Password: qwerty-123
 
         ProducerOptions__Servers: kafka:8500
