@@ -20,6 +20,7 @@ namespace Tests.Integration.Job.WebApi.Client;
 [TestFixture]
 internal class JobWebApiClientTests : IntegrationTestBase
 {
+    [Test]
     public async Task CreateNewJob_ShouldReturnJobId_AndCreateJobInDatabase()
     {
         // arrange
@@ -44,6 +45,7 @@ internal class JobWebApiClientTests : IntegrationTestBase
         Assert.That(actualJob.Script, Is.EqualTo(expectedScript));
     }
 
+    [Test]
     public async Task GetJobResults_ShouldGetJobResults()
     {
         // arrange

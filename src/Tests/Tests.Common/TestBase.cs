@@ -40,7 +40,7 @@ public abstract class TestBase
         {
             logBuilder.AddConsole();
             logBuilder.AddNUnit();
-            logBuilder.SetMinimumLevel(LogLevel.Trace);
+            logBuilder.SetMinimumLevel(LogLevel.Debug);
         });
         builder.Services.AddTransient<TempDirectory>();
     }
