@@ -71,7 +71,6 @@ public static class AppBuilderExtensions
     public static WebApplicationBuilder AddBroker(this WebApplicationBuilder builder)
     {
         var producerOptions = builder.Configuration.GetOptions<ProducerOptions>();
-        throw new Exception(producerOptions.Servers);
         builder.Services.AddSingleton(producerOptions);
         builder.Services.AddSingleton<IJobProducer<Guid, JobMessage>, JobProducer>();
         return builder;
