@@ -45,7 +45,7 @@ jobs:
       - name: Initialize PostgreSQL and Apache Kafka
         run: |
             cd ${{ github.workspace }}/src/Shared/Shared.SimpleInitializer
-            dotnet run --no-build
+            dotnet run
             cd ${{ github.workspace }}
 
       - name: Start Job.WebApi container
