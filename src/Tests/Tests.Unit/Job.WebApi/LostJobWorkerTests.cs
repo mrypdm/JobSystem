@@ -34,7 +34,7 @@ internal class LostJobWorkerTests : TestBase
     }
 
     [Test]
-    public async Task RunAsync_ShouldStartLoop_AndMarkLostJobInIt()
+    public async Task Run_ShouldStartLoop_AndMarkLostJobInIt()
     {
         // arrange
 

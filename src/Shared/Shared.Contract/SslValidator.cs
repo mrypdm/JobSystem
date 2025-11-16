@@ -55,11 +55,8 @@ public class SslValidator
 
         return CertificateCache.GetOrCreate(certificate.Thumbprint, entry =>
         {
-            var externalValidation = errors == SslPolicyErrors.None
-                || (errors == SslPolicyErrors.RemoteCertificateChainErrors
-                    && chain.ChainStatus.Length == 1
-                    && chain.ChainStatus[0].Status == X509ChainStatusFlags.UntrustedRoot);
-
+            // allow untrusted root because we have our custom root loaded to application
+            var externalValidation = errors == SslPolicyErrors.None || IsUntrustedRootError(errors, chain);
             var isValid = externalValidation
                 && !IsRevoked(certificate)
                 && _validationChain.Build(certificate);
@@ -76,5 +73,31 @@ public class SslValidator
     public bool IsRevoked(X509Certificate2 certificate)
     {
         return certificate is null || _revokedCertificates.Contains(certificate.SerialNumber);
+    }
+
+    private static bool IsUntrustedRootError(SslPolicyErrors errors, X509Chain chain)
+    {
+        if (errors != SslPolicyErrors.RemoteCertificateChainErrors || chain.ChainStatus.Length != 1)
+        {
+            return false;
+        }
+
+        var rootValidationError = chain.ChainStatus[0];
+
+        // windows way
+        if (rootValidationError.Status == X509ChainStatusFlags.UntrustedRoot
+            && rootValidationError.StatusInformation == "A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.")
+        {
+            return true;
+        }
+
+        // linux way
+        if (rootValidationError.Status == X509ChainStatusFlags.PartialChain
+            && rootValidationError.StatusInformation == "unable to get local issuer certificate")
+        {
+            return true;
+        }
+
+        return false;
     }
 }

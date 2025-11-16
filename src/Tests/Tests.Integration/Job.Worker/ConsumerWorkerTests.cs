@@ -45,7 +45,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
     }
 
     [Test]
-    public async Task RunAsync_ShouldRunJob_AndSaveResults()
+    public async Task Run_ShouldRunJob_AndSaveResults()
     {
         // arrange
         var jobId = await CreateJobAndPublish("""
@@ -74,7 +74,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
     }
 
     [Test]
-    public async Task RunAsync_Timeout_ShouldStopJob()
+    public async Task Run_Timeout_ShouldStopJob()
     {
         // arrange
         var jobId = await CreateJobAndPublish("echo start; sleep 100; echo end");
@@ -100,7 +100,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
     }
 
     [Test]
-    public async Task RunAsync_AlreadyFinished_ShouldNotRun()
+    public async Task Run_AlreadyFinished_ShouldNotRun()
     {
         // arrange
         var jobId = await CreateJobAndPublish("exit");

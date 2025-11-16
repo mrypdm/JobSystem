@@ -41,7 +41,7 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_NullRequest_ShouldReturnBadRequest()
+    public async Task AddNewJob_NullRequest_ShouldReturnBadRequest()
     {
         // arrange
         var controller = Services.GetRequiredService<JobController>();
@@ -54,7 +54,7 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_EmptyScript_ShouldReturnBadRequest()
+    public async Task AddNewJob_EmptyScript_ShouldReturnBadRequest()
     {
         // arrange
         var request = new CreateJobRequest() { Script = "" };
@@ -68,7 +68,7 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_NotBase64Script_ShouldReturnBadRequest()
+    public async Task AddNewJob_NotBase64Script_ShouldReturnBadRequest()
     {
         // arrange
         var request = new CreateJobRequest() { Script = "not_base_64" };
@@ -82,7 +82,7 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_LargeTimeout_ShouldReturnBadRequest()
+    public async Task AddNewJob_LargeTimeout_ShouldReturnBadRequest()
     {
         // arrange
         var request = new CreateJobRequest() { Timeout = TimeSpan.FromDays(100) };
@@ -96,7 +96,7 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_EmptyTimeout_EmptyId_ShouldUseDefaultTimeout_ShouldGenerateId()
+    public async Task AddNewJob_EmptyTimeout_EmptyId_ShouldUseDefaultTimeout_ShouldGenerateId()
     {
         // arrange
         NewJobModel actualJob = null;
@@ -119,7 +119,7 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
-    public async Task AddNewJobAsync_ShouldAddToDatabase_ThenSendToBroker()
+    public async Task AddNewJob_ShouldAddToDatabase_ThenSendToBroker()
     {
         // arrange
         var request = new CreateJobRequest()
@@ -165,7 +165,7 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
-    public async Task GetJobResultsAsync_ShouldGetResultsFromDatabase()
+    public async Task GetJobResults_ShouldGetResultsFromDatabase()
     {
         // arrange
         var id = Guid.NewGuid();
@@ -188,7 +188,7 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
-    public async Task GetJobResultsAsync_NullResults_ShouldReturnNotFound()
+    public async Task GetJobResults_NullResults_ShouldReturnNotFound()
     {
         // arrange
         var id = Guid.NewGuid();
