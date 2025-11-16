@@ -6,7 +6,6 @@ services:
       command: /etc/github-actions/start-for-github.sh
       ports:
         - 8500:8500
-        - 9000:9000
       restart: unless-stopped
       user: 0:0
       environment:
