@@ -25,29 +25,50 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Start PostgreSQL container
-        run: |
-            cd ${{ github.workspace }}/infrastructure/Tools/Database
-            sudo docker compose -f docker-compose.github.yaml up -d
-      - name: Start Apache Kafka container
-        run: |
-            cd ${{ github.workspace }}/infrastructure/Tools/Broker
-            sudo docker compose -f docker-compose.github.yaml up -d
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 9.0.x
+
       - name: Restore dependencies
         run: dotnet restore
+
       - name: Build
         run: dotnet build --no-restore
+
+      - name: Start PostgreSQL container
+        run: |
+            cd ${{ github.workspace }}/infrastructure/Tools/Database
+            docker compose -f docker-compose.github.yaml up -d
+            cd ${{ github.workspace }}
+
+      - name: Start Apache Kafka container
+        run: |
+            cd ${{ github.workspace }}/infrastructure/Tools/Broker
+            docker compose -f docker-compose.github.yaml up -d
+            cd ${{ github.workspace }}
+
+      - name: Initialize PostgreSQL and Apache Kafka
+        run: |
+            cd ${{ github.workspace }}/src/Shared/Shared.SimpleInitializer
+            dotnet run --no-build
+            cd ${{ github.workspace }}
+
+      - name: Start Job.WebApi container
+        run: |
+            cd ${{ github.workspace }}/src/Job/Job.WebApi
+            docker compose -f docker-compose.github.yaml up -d
+            cd ${{ github.workspace }}
+
       - name: Test
         run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
 
+      - name: Stop Job.WebApi container
+        if: always()
+        run: docker compose -f ${{ github.workspace }}/src/Job/Job.WebApi/docker-compose.github.yaml down -t 1
       - name: Stop PostgreSQL container
         if: always()
-        run: sudo docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml down -t 1
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml down -t 1
       - name: Stop Apache Kafka container
         if: always()
-        run: sudo docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml down -t 1
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml down -t 1
