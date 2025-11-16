@@ -7,9 +7,9 @@ foreach (var env in envVars.Keys)
     Console.WriteLine($"{env} = {envVars[env]}");
 }
 
-if (envVars.Contains("ProducerOptions:Servers"))
+if (envVars.Contains("ProducerOptions__Servers"))
 {
-    var server = (string)envVars["ProducerOptions:Servers"];
+    var server = (string)envVars["ProducerOptions__Servers"];
 
     if (server != "kafka:8500")
     {
