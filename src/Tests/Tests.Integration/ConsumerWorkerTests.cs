@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text;
 using Job.Broker;
@@ -47,7 +48,10 @@ internal class ConsumerWorkerTests : IntegrationTestBase
     public async Task RunAsync_ShouldRunJob_AndSaveResults()
     {
         // arrange
-        var jobId = await CreateJobAndPublish("echo \"Running as $(id)\"");
+        var jobId = await CreateJobAndPublish("""
+            echo "Running as $(id)"
+            echo "This is stderr" >&2
+            """);
 
         var worker = Services.GetRequiredService<ConsumerWorker>();
 
@@ -66,6 +70,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         Assert.That(jobResults.FinishedAt, Is.Not.Null);
         Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(endTime).Within(TimeSpan.FromSeconds(10)));
         Assert.That($"TestData/jobs/{jobId}", Does.Not.Exist);
+        AssertResults(jobResults.Results, "Running as uid=10000 gid=10000 groups=10000", "This is stderr");
     }
 
     [Test]
@@ -91,6 +96,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         Assert.That(jobResults.FinishedAt, Is.Not.Null);
         Assert.That(jobResults.FinishedAt.Value, Is.EqualTo(endTime).Within(TimeSpan.FromSeconds(10)));
         Assert.That($"TestData/jobs/{jobId}", Does.Not.Exist);
+        AssertResults(jobResults.Results, "start", "");
     }
 
     [Test]
@@ -195,5 +201,23 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         await producer.PublishAsync(new JobMessage { Id = jobId }, default);
 
         return jobId;
+    }
+
+    private static void AssertResults(byte[] zipArchive, string expectedStdout, string expectedStderr)
+    {
+        Assert.That(zipArchive, Is.Not.Empty);
+
+        using var memoryStream = new MemoryStream(zipArchive);
+        using var archive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+        Assert.That(ReadZipEntry(archive.GetEntry("stdout.txt")), Is.EqualTo(expectedStdout));
+        Assert.That(ReadZipEntry(archive.GetEntry("stderr.txt")), Is.EqualTo(expectedStderr));
+    }
+
+    private static string ReadZipEntry(ZipArchiveEntry entry)
+    {
+        Assert.That(entry, Is.Not.Null);
+        using var stream = entry.Open();
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }
