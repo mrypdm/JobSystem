@@ -1,13 +1,10 @@
 using System.Text;
-using Job.Broker.Clients;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.WebApi.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Shared.Broker.Abstractions;
-using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Database;
@@ -83,8 +80,5 @@ internal class JobWebApiClientTests : IntegrationTestBase
         builder.Services.AddDbContext<JobDbContext>(
             options => PostgreDbContext.BuildOptions(options, adminDbOptions, adminSslValidator, forTests: true),
             ServiceLifetime.Transient);
-
-        builder.Services.AddSingleton(builder.Configuration.GetOptions<AdminOptions>());
-        builder.Services.AddTransient<IBrokerAdminClient, BrokerAdminClient>();
     }
 }
