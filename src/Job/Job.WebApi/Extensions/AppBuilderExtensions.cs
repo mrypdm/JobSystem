@@ -90,6 +90,10 @@ public static class AppBuilderExtensions
                 httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
                 httpsOptions.ServerCertificate = webServerOptions.Certificate;
                 httpsOptions.ServerCertificateChain = webServerOptions.CertificateChain;
+
+                // we have certificate validation as part of Authentication flow
+                // so disable double check
+                httpsOptions.AllowAnyClientCertificate();
             });
         });
         return builder;
