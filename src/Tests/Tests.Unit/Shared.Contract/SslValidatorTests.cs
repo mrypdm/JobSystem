@@ -62,7 +62,7 @@ public class SslValidatorTests : TestBase
         var certToTest = GetCertificate(certPath);
 
         // act
-        var result = validator.Validate(certToTest, errors);
+        var result = validator.Validate(certToTest, X509Chain.Create(), errors);
 
         // assert
         Assert.That(result, Is.EqualTo(expected));

@@ -46,7 +46,7 @@ public class SslValidator
     /// <summary>
     /// Validate certificate
     /// </summary>
-    public bool Validate(X509Certificate2 certificate, SslPolicyErrors errors)
+    public bool Validate(X509Certificate2 certificate, X509Chain chain, SslPolicyErrors errors)
     {
         if (certificate is null)
         {
@@ -55,7 +55,12 @@ public class SslValidator
 
         return CertificateCache.GetOrCreate(certificate.Thumbprint, entry =>
         {
-            var isValid = errors == SslPolicyErrors.None
+            var externalValidation = errors == SslPolicyErrors.None
+                || (errors == SslPolicyErrors.RemoteCertificateChainErrors
+                    && chain.ChainStatus.Length == 1
+                    && chain.ChainStatus[0].Status == X509ChainStatusFlags.UntrustedRoot);
+
+            var isValid = externalValidation
                 && !IsRevoked(certificate)
                 && _validationChain.Build(certificate);
 

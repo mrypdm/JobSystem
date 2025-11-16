@@ -51,12 +51,16 @@ public sealed class JobWebApiClient(
         }
         catch (FlurlHttpTimeoutException e)
         {
-            throw new JobWebApiTimeoutException("Call to Job.WebApi has timed out", e);
+            throw new JobWebApiTimeoutException("Call to Job.WebApi timed out", e);
+        }
+        catch (FlurlHttpException e) when (e.Call.Response is not null)
+        {
+            var content = await e.Call.Response.GetStringAsync();
+            throw new JobWebApiException(e.Call.Response.ResponseMessage.StatusCode, content, e);
         }
         catch (FlurlHttpException e)
         {
-            var content = await e.Call.Response?.GetStringAsync();
-            throw new JobWebApiException(e.Call.Response?.ResponseMessage.StatusCode, content, e);
+            throw new JobWebApiException(null, "Call to Job.WebApi failed", e);
         }
     }
 }

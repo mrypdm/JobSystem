@@ -89,7 +89,7 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
                         sslOptions.CertificateRevocationCheckMode = X509RevocationMode.NoCheck;
                         sslOptions.ClientCertificates = databaseOptions.CertificateChain;
                         sslOptions.RemoteCertificateValidationCallback
-                            = (_, cert, _, error) => sslValidator.Validate((X509Certificate2)cert, error);
+                            = (_, cert, chain, error) => sslValidator.Validate((X509Certificate2)cert, chain, error);
                     });
                 }));
 
