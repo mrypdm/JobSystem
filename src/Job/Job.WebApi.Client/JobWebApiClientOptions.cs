@@ -11,4 +11,9 @@ public class JobWebApiClientOptions : Pkcs12CertificateOptions
     /// URL for connect
     /// </summary>
     public string Url { get; set; }
+
+    /// <summary>
+    /// Call timeout
+    /// </summary>
+    public TimeSpan Timeout { get; set; }
 }

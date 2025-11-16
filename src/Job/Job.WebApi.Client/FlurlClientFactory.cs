@@ -22,6 +22,10 @@ public class FlurlClientFactory : IFlurlClientFactory
                     = (_, cert, chain, policy) => sslValidator.Validate(cert, chain, policy);
                 handler.ClientCertificates.Add(options.Certificate);
             })
+            .WithSettings(settings =>
+            {
+                settings.Timeout = options.Timeout;
+            })
             .Build();
         client.BaseUrl = options.Url;
         return client;
