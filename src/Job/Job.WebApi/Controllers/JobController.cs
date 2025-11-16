@@ -5,6 +5,7 @@ using Job.Database.Contexts;
 using Job.WebApi.Options;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Broker.Abstractions;
+using Shared.Contract.Owned;
 
 namespace Job.WebApi.Controllers;
 
@@ -12,7 +13,7 @@ namespace Job.WebApi.Controllers;
 /// Controller for manage jobs
 /// </summary>
 [Route("api/jobs")]
-public class JobController(IJobDbContext jobDbContext, IJobProducer<Guid, JobMessage> jobProducer,
+public class JobController(IOwnedService<IJobDbContext> jobDbContextOwned, IJobProducer<Guid, JobMessage> jobProducer,
     JobControllerOptions options, ILogger<JobController> logger)
     : Controller
 {
@@ -61,6 +62,7 @@ public class JobController(IJobDbContext jobDbContext, IJobProducer<Guid, JobMes
             return BadRequest("Job script must be base64 encoded");
         }
 
+        using var jobDbContext = jobDbContextOwned.Value;
         await jobDbContext.AddNewJobAsync(newJob, cancellationToken);
         await jobProducer.PublishAsync(new JobMessage() { Id = newJob.Id }, cancellationToken);
 
@@ -74,6 +76,7 @@ public class JobController(IJobDbContext jobDbContext, IJobProducer<Guid, JobMes
     public async Task<ActionResult<JobResultResponse>> GetJobResultsAsync([FromRoute] Guid jobId,
         CancellationToken cancellationToken)
     {
+        using var jobDbContext = jobDbContextOwned.Value;
         var results = await jobDbContext.GetJobResultsAsync(jobId, cancellationToken);
 
         if (results is null)
