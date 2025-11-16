@@ -49,6 +49,7 @@ public class LostJobWorker(
             }
         }
     }
+
     private async Task RunIterationAsync(CancellationToken cancellationToken)
     {
         try
