@@ -50,7 +50,8 @@ public static class AppBuilderExtensions
         var sslValidator = new SslValidator(dbOptions);
         builder.Services.AddDbContext<IJobDbContext, JobDbContext>(
             options => PostgreDbContext.BuildOptions(options, dbOptions, sslValidator),
-            ServiceLifetime.Transient);
+            contextLifetime: ServiceLifetime.Transient,
+            optionsLifetime: ServiceLifetime.Transient);
         builder.Services.AddSingleton<IOwnedService<IJobDbContext>, OwnedService<IJobDbContext>>();
         return builder;
     }
