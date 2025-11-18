@@ -2,6 +2,7 @@ using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 using Microsoft.Extensions.Logging;
 using Shared.Broker.Abstractions;
+using Shared.Broker.Helpers;
 using Shared.Broker.Options;
 
 namespace Job.Broker.Clients;
@@ -12,22 +13,9 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
 {
     private bool _disposed;
 
-    private readonly IAdminClient _client = new AdminClientBuilder(
-        new AdminClientConfig()
-        {
-            BootstrapServers = options.Servers,
-            ClientId = options.ClientId,
-
-            SecurityProtocol = SecurityProtocol.Ssl,
-            EnableSslCertificateVerification = true,
-            SslCaLocation = options.TruststoreFilePath,
-            SslCertificateLocation = options.CertificateFilePath,
-            SslKeyLocation = options.KeyFilePath,
-            SslKeyPassword = options.Password,
-            SslCrlLocation = options.RevocationListFilePath,
-
-            Acks = Acks.All,
-        })
+    private readonly IAdminClient _client = new AdminClientBuilder(options.ToConfig())
+        .SetLogHandler(logger.GetLogHandler<IAdminClient>("AdminClient"))
+        .SetErrorHandler(logger.GetErrorHandler<IAdminClient>("AdminClient"))
         .Build();
 
     /// <inheritdoc />

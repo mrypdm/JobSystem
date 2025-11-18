@@ -2,6 +2,7 @@ using Confluent.Kafka;
 using Job.Broker.Converters;
 using Microsoft.Extensions.Logging;
 using Shared.Broker.Abstractions;
+using Shared.Broker.Helpers;
 using Shared.Broker.Options;
 
 namespace Job.Broker.Clients;
@@ -11,32 +12,11 @@ public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> lo
 {
     private bool _disposed;
 
-    private readonly IProducer<Guid, JobMessage> _producer = new ProducerBuilder<Guid, JobMessage>(
-        new ProducerConfig()
-        {
-            BootstrapServers = options.Servers,
-            ClientId = options.ClientId,
-
-            SecurityProtocol = SecurityProtocol.Ssl,
-            EnableSslCertificateVerification = true,
-            SslCaLocation = options.TruststoreFilePath,
-            SslCertificateLocation = options.CertificateFilePath,
-            SslKeyLocation = options.KeyFilePath,
-            SslKeyPassword = options.Password,
-            SslCrlLocation = options.RevocationListFilePath,
-
-            EnableDeliveryReports = true,
-            DeliveryReportFields = "key",
-            Acks = Acks.Leader,
-        })
+    private readonly IProducer<Guid, JobMessage> _producer = new ProducerBuilder<Guid, JobMessage>(options.ToConfig())
         .SetKeySerializer(new GuidConverter())
         .SetValueSerializer(new JobMessageConverter())
-        .SetLogHandler((_, logMessage) =>
-        {
-            logger.Log(
-                (LogLevel)logMessage.LevelAs(LogLevelType.MicrosoftExtensionsLogging),
-                "[{ProducerName}] {Message}", logMessage.Name, logMessage.Message);
-        })
+        .SetLogHandler(logger.GetLogHandler<IProducer<Guid, JobMessage>>("Producer"))
+        .SetErrorHandler(logger.GetErrorHandler<IProducer<Guid, JobMessage>>("Producer"))
         .Build();
 
     /// <inheritdoc />

@@ -7,7 +7,7 @@ namespace Shared.Broker.Options;
 /// <summary>
 /// Common options for Broker
 /// </summary>
-public class BrokerOptions : PemCertificateOptions
+public abstract class BrokerOptions<TConfig> : PemCertificateOptions
 {
     /// <summary>
     /// Broker servers in format 'host:port'
@@ -23,4 +23,9 @@ public class BrokerOptions : PemCertificateOptions
     /// Name of topic
     /// </summary>
     public string Topic { get; set; }
+
+    /// <summary>
+    /// Convert options to <typeparamref name="TConfig"/>
+    /// </summary>
+    public abstract TConfig ToConfig();
 }

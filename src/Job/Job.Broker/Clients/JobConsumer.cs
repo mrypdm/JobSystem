@@ -2,6 +2,7 @@ using Confluent.Kafka;
 using Job.Broker.Converters;
 using Microsoft.Extensions.Logging;
 using Shared.Broker.Abstractions;
+using Shared.Broker.Helpers;
 using Shared.Broker.Options;
 
 namespace Job.Broker.Clients;
@@ -11,33 +12,11 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
 {
     private bool _disposed;
 
-    private readonly IConsumer<Guid, JobMessage> _consumer = new ConsumerBuilder<Guid, JobMessage>(
-        new ConsumerConfig
-        {
-            BootstrapServers = options.Servers,
-            ClientId = options.ClientId,
-            GroupId = options.GroupId,
-
-            SecurityProtocol = SecurityProtocol.Ssl,
-            EnableSslCertificateVerification = true,
-            SslCaLocation = options.TruststoreFilePath,
-            SslCertificateLocation = options.CertificateFilePath,
-            SslKeyLocation = options.KeyFilePath,
-            SslKeyPassword = options.Password,
-            SslCrlLocation = options.RevocationListFilePath,
-
-            EnableAutoCommit = false,
-            AutoOffsetReset = AutoOffsetReset.Earliest,
-            Acks = Acks.Leader
-        })
+    private readonly IConsumer<Guid, JobMessage> _consumer = new ConsumerBuilder<Guid, JobMessage>(options.ToConfig())
         .SetKeyDeserializer(new GuidConverter())
         .SetValueDeserializer(new JobMessageConverter())
-        .SetLogHandler((_, logMessage) =>
-        {
-            logger.Log(
-                (LogLevel)logMessage.LevelAs(LogLevelType.MicrosoftExtensionsLogging),
-                "[{ConsumerName}] {Message}", logMessage.Name, logMessage.Message);
-        })
+        .SetLogHandler(logger.GetLogHandler<IConsumer<Guid, JobMessage>>("Consumer"))
+        .SetErrorHandler(logger.GetErrorHandler<IConsumer<Guid, JobMessage>>("Consumer"))
         .Build();
 
     /// <inheritdoc />

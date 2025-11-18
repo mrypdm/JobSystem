@@ -1,6 +1,7 @@
+using Shared.Broker.Abstractions;
 using Shared.Contract;
 
-namespace Shared.Broker.Abstractions;
+namespace Shared.Broker.Helpers;
 
 /// <summary>
 /// Initializer for Broker
