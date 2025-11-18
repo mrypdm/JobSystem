@@ -13,7 +13,7 @@ namespace Job.WebApi.Controllers;
 /// Controller for manage jobs
 /// </summary>
 [Route("api/jobs")]
-public class JobController(IOwnedService<IJobDbContext> jobDbContextOwned, IJobProducer<Guid, JobMessage> jobProducer,
+public class JobController(IOwnedService<IJobDbContext> jobDbContextOwned, IBrokerProducer<Guid, JobMessage> jobProducer,
     JobControllerOptions options, ILogger<JobController> logger)
     : Controller
 {

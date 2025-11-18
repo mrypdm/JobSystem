@@ -1,9 +1,9 @@
 namespace Shared.Broker.Abstractions;
 
 /// <summary>
-/// Broker producer of Jobs
+/// Broker producer
 /// </summary>
-public interface IJobProducer<TKey, TMessage> : IDisposable
+public interface IBrokerProducer<TKey, TMessage> : IDisposable
 {
     /// <summary>
     /// Publish message to broker

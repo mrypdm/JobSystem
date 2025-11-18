@@ -40,7 +40,7 @@ builder.Services.AddDbContext<IJobDbContext, JobDbContext>(
 builder.Services.AddSingleton<IOwnedService<IJobDbContext>, OwnedService<IJobDbContext>>();
 
 builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerOptions>());
-builder.Services.AddSingleton<IJobConsumer<Guid, JobMessage>, JobConsumer>();
+builder.Services.AddSingleton<IBrokerConsumer<Guid, JobMessage>, JobConsumer>();
 
 builder.Services.AddSingleton(builder.Configuration.GetOptions<JobEnvironmentOptions>());
 builder.Services.AddSingleton<IJobEnvironment, LinuxDockerJobEnvironment>();

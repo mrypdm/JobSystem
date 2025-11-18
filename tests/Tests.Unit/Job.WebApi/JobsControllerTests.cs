@@ -21,7 +21,7 @@ internal class JobControllerTests : TestBase
 {
     private readonly Mock<IJobDbContext> _jobDbContext = new();
     private readonly Mock<IOwnedService<IJobDbContext>> _jobDbContextOwned = new();
-    private readonly Mock<IJobProducer<Guid, JobMessage>> _jobProducer = new();
+    private readonly Mock<IBrokerProducer<Guid, JobMessage>> _jobProducer = new();
     private readonly JobControllerOptions _jobsControllerOptions = new()
     {
         MaxTimeout = TimeSpan.FromSeconds(60),

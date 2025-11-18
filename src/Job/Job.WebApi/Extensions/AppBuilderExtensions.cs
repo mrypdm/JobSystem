@@ -74,7 +74,7 @@ public static class AppBuilderExtensions
     {
         var producerOptions = builder.Configuration.GetOptions<ProducerOptions>();
         builder.Services.AddSingleton(producerOptions);
-        builder.Services.AddSingleton<IJobProducer<Guid, JobMessage>, JobProducer>();
+        builder.Services.AddSingleton<IBrokerProducer<Guid, JobMessage>, JobProducer>();
         return builder;
     }
 

@@ -7,7 +7,7 @@ using Shared.Broker.Options;
 namespace Job.Broker.Clients;
 
 /// <inheritdoc cref="IJobProducer"/>
-public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IJobProducer<Guid, JobMessage>
+public sealed class JobProducer(ProducerOptions options, ILogger<JobProducer> logger) : IBrokerProducer<Guid, JobMessage>
 {
     private bool _disposed;
 

@@ -17,7 +17,7 @@ namespace Job.Worker.Workers;
 /// Worker for Jobs
 /// </summary>
 public class ConsumerWorker(
-    IJobConsumer<Guid, JobMessage> consumer,
+    IBrokerConsumer<Guid, JobMessage> consumer,
     IJobRunner runner,
     IResourcesAnalyzer resourceMonitor,
     IOwnedService<IJobDbContext> jobDbContextOwned,

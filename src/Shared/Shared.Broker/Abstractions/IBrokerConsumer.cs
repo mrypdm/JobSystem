@@ -3,9 +3,9 @@ using Confluent.Kafka;
 namespace Shared.Broker.Abstractions;
 
 /// <summary>
-/// Broker consumer of Jobs
+/// Broker consumer
 /// </summary>
-public interface IJobConsumer<TKey, TMessage> : IDisposable
+public interface IBrokerConsumer<TKey, TMessage> : IDisposable
 {
     /// <summary>
     /// Subceribe to Broker

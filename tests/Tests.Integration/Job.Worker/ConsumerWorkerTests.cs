@@ -134,10 +134,10 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         base.ConfigureServices(builder);
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<ConsumerOptions>());
-        builder.Services.AddTransient<IJobConsumer<Guid, JobMessage>, JobConsumer>();
+        builder.Services.AddTransient<IBrokerConsumer<Guid, JobMessage>, JobConsumer>();
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<ProducerOptions>());
-        builder.Services.AddTransient<IJobProducer<Guid, JobMessage>, JobProducer>();
+        builder.Services.AddTransient<IBrokerProducer<Guid, JobMessage>, JobProducer>();
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<AdminOptions>());
         builder.Services.AddTransient<IBrokerAdminClient, BrokerAdminClient>();
@@ -204,7 +204,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
             Script = jobScript
         }, default);
 
-        using var producer = Services.GetRequiredService<IJobProducer<Guid, JobMessage>>();
+        using var producer = Services.GetRequiredService<IBrokerProducer<Guid, JobMessage>>();
         await producer.PublishAsync(new JobMessage { Id = jobId }, default);
 
         return jobId;

@@ -24,7 +24,7 @@ namespace Tests.Unit.Job.Worker;
 [TestFixture]
 internal class ConsumerWorkerTests : TestBase
 {
-    private readonly Mock<IJobConsumer<Guid, JobMessage>> _consumer = new();
+    private readonly Mock<IBrokerConsumer<Guid, JobMessage>> _consumer = new();
     private readonly Mock<IJobRunner> _runner = new();
     private readonly Mock<IResourcesAnalyzer> _resourceMonitor = new();
     private readonly Mock<IJobDbContext> _jobDbContext = new();

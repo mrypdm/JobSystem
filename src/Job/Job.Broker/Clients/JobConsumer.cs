@@ -7,7 +7,7 @@ using Shared.Broker.Options;
 namespace Job.Broker.Clients;
 
 /// <inheritdoc cref="IJobConsumer" />
-public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IJobConsumer<Guid, JobMessage>
+public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IBrokerConsumer<Guid, JobMessage>
 {
     private bool _disposed;
 
