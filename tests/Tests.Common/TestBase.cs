@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Shared.Contract.Extensions;
 
 namespace Tests.Common;
 
@@ -38,9 +39,11 @@ public abstract class TestBase
     {
         builder.Services.AddLogging(logBuilder =>
         {
-            logBuilder.AddConsole();
-            logBuilder.AddNUnit();
-            logBuilder.SetMinimumLevel(LogLevel.Information);
+            logBuilder.ClearProviders();
+            logBuilder
+                .SetMinimumLevel(LogLevel.Information)
+                .AddFilter(null, LogLevel.Information);
+            logBuilder.AddSimpleLogger(options => options.IsEnabled = () => TestContext.Progress is not null);
         });
         builder.Services.AddTransient<TempDirectory>();
     }

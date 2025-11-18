@@ -14,6 +14,7 @@ using Shared.Broker.Abstractions;
 using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
+using Shared.Contract.Logging;
 using Shared.Contract.Options;
 using Shared.Contract.Owned;
 using Shared.Database;
@@ -95,6 +96,22 @@ public static class AppBuilderExtensions
                 // so disable double check
                 httpsOptions.AllowAnyClientCertificate();
             });
+        });
+        return builder;
+    }
+
+    /// <summary>
+    /// Configure Logging
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddLogging(logBuilder =>
+        {
+            logBuilder.ClearProviders();
+            logBuilder.AddConsoleFormatter<SimpleConsoleFormatter, SimpleFormatterOptions>();
+            logBuilder.AddConsole(options => options.FormatterName = nameof(SimpleConsoleFormatter));
         });
         return builder;
     }

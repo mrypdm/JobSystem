@@ -17,14 +17,18 @@ using Shared.Broker.Abstractions;
 using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
+using Shared.Contract.Logging;
+using Shared.Contract.Options;
 using Shared.Contract.Owned;
 using Shared.Database;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddLogging(builder =>
+builder.Services.AddLogging(logBuilder =>
 {
-    builder.AddConsole();
+    logBuilder.ClearProviders();
+    logBuilder.AddConsoleFormatter<SimpleConsoleFormatter, SimpleFormatterOptions>();
+    logBuilder.AddConsole(options => options.FormatterName = nameof(SimpleConsoleFormatter));
 });
 
 var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();

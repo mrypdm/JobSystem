@@ -24,7 +24,7 @@ public class LostJobWorker(
 
         if (!options.IsEnabled)
         {
-            logger.LogInformation("[{Worker}] is disabled", nameof(LostJobWorker));
+            logger.LogInformation("Worker is disabled");
         }
 
         return Task.CompletedTask;
@@ -71,7 +71,7 @@ public class LostJobWorker(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Cannot consume message");
+            logger.LogError(e, "Cannot mark Jobs as Lost");
         }
     }
 }

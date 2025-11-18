@@ -3,6 +3,7 @@ using Job.WebApi.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder
+    .ConfigureLogging()
     .ConfigureWebServer()
     .AddSwagger()
     .AddCertificateAuthentication()
