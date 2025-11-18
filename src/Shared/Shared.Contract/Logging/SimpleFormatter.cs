@@ -23,6 +23,7 @@ public class SimpleFormatter(SimpleFormatterOptions options)
         }
 
         var message = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception);
+        var exception = logEntry.Exception?.ToString();
         textWriter.WriteLine($"[{GetTimestamp()} {GetLogLevel(logEntry.LogLevel)}] [{logEntry.Category}] {message}");
 
         if (options.IncludeScopes && scopeProvider is not null)
@@ -30,9 +31,9 @@ public class SimpleFormatter(SimpleFormatterOptions options)
             scopeProvider.ForEachScope((scope, state) => state.WriteLine($"\t=> {scope}"), textWriter);
         }
 
-        if (logEntry.Exception is not null)
+        if (exception is not null && !message.Contains(exception))
         {
-            textWriter.WriteLine($"{logEntry.Exception}");
+            textWriter.WriteLine(exception);
         }
     }
 
