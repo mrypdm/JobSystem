@@ -67,7 +67,7 @@ public class LostJobWorker(
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            logger.LogWarning("Consuming cancelled");
+            logger.LogWarning("Iteration cancelled");
         }
         catch (Exception e)
         {

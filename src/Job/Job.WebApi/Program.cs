@@ -12,7 +12,7 @@ builder
     .AddBroker()
     .AddControllers();
 
-var application = builder.Build();
+using var application = builder.Build();
 
 application
     .UseHsts()
