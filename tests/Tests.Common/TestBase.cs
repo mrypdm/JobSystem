@@ -14,7 +14,7 @@ public abstract class TestBase
     private IHost _host;
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public void ConfigureTestHost()
     {
         var builder = Host.CreateApplicationBuilder(Environment.GetCommandLineArgs());
         ConfigureServices(builder);
@@ -22,7 +22,7 @@ public abstract class TestBase
     }
 
     [OneTimeTearDown]
-    public void OneTimeTearDown()
+    public void DisposeTestHost()
     {
         _host.Dispose();
     }
@@ -47,6 +47,5 @@ public abstract class TestBase
                 logOptions => logOptions.IsEnabled = () => TestContext.Progress is not null,
                 formatOptions => formatOptions.WithColors = false);
         });
-        builder.Services.AddTransient<TempDirectory>();
     }
 }

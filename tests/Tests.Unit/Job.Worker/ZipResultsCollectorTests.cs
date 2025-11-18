@@ -46,18 +46,16 @@ internal class ZipResultsCollectorTests : TestBase
     public async Task CollectResults_ShouldCallZip_AndSaveToModel()
     {
         // arrange
-        using var tempDir = Services.GetRequiredService<TempDirectory>();
-
         var expectedCommand = new string[] { "zip", "results.zip", "stdout.txt", "stderr.txt" };
         var expectedResults = new byte[] { 0x00, 0x11 };
 
         var jobModel = new RunJobModel
         {
             Id = Guid.NewGuid(),
-            Directory = tempDir.Path
+            Directory = "TestData"
         };
 
-        File.WriteAllBytes(Path.Combine(tempDir.Path, "results.zip"), expectedResults);
+        File.WriteAllBytes(Path.Combine("TestData", "results.zip"), expectedResults);
 
         var collector = Services.GetRequiredService<ZipResultsCollector>();
 

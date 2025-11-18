@@ -19,7 +19,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     {
         CpuUsage = 0.5,
         MemoryUsage = 500,
-        JobsDirectory = "TestData/worker"
+        JobsDirectory = Path.GetFullPath("TestData/worker").Replace("\\", "/")
     };
 
     [Test]
@@ -61,8 +61,6 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     public void PrepareEnvironment_ShouldCreateEnvironemnt()
     {
         // arrange
-        _jobEnvironmentOptions.JobsDirectory = Path.GetFullPath("TestData/worker").Replace("\\", "/");
-
         var expectedScript = "hello, world";
         var jobModel = new RunJobModel()
         {
@@ -110,8 +108,6 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     public void PrepareEnvironment_EnvironmentExist_ShouldDeleteEnvironment()
     {
         // arrange
-        using var tempDir = Services.GetRequiredService<TempDirectory>();
-        _jobEnvironmentOptions.JobsDirectory = tempDir.Path;
         var environment = Services.GetRequiredService<LinuxDockerJobEnvironment>();
 
         var jobId = Guid.NewGuid();
