@@ -34,6 +34,6 @@ public class AdminOptions : BrokerOptions<AdminClientConfig>
             SslCrlLocation = RevocationListFilePath,
 
             Acks = Acks.All,
-        }
+        };
     }
 }

@@ -26,6 +26,6 @@ public class ProducerOptions : BrokerOptions<ProducerConfig>
             EnableDeliveryReports = true,
             DeliveryReportFields = "key",
             Acks = Acks.Leader,
-        }
+        };
     }
 }

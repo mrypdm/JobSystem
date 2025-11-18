@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shared.Broker.Abstractions;
+using Shared.Broker.Helpers;
 using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
@@ -56,13 +57,9 @@ builder.Services.AddTransient(context =>
 builder.Services.AddTransient<IInitializer>(
     context => new DbInitializer(context.GetRequiredService<UserDbContext>()));
 
-var host = builder.Build();
+using var host = builder.Build();
 
 var lifeTime = host.Services.GetService<IHostApplicationLifetime>()
     ?? throw new InvalidOperationException("Cannot get application lifetime");
-foreach (var initializer in host.Services.GetServices<IInitializer>())
-{
-    await initializer.InitializeAsync(lifeTime.ApplicationStopping);
-}
-
-host.Dispose();
+await Task.WhenAll(host.Services.GetServices<IInitializer>()
+    .Select(m => m.InitializeAsync(lifeTime.ApplicationStopping)));

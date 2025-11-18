@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shared.Broker.Abstractions;
+using Shared.Broker.Helpers;
 using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
