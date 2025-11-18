@@ -104,8 +104,6 @@ public static class AppBuilderExtensions
     /// <summary>
     /// Configure Logging
     /// </summary>
-    /// <param name="builder"></param>
-    /// <returns></returns>
     public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
     {
         builder.Services.AddLogging(logBuilder =>

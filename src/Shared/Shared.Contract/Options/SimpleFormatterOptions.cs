@@ -14,4 +14,9 @@ public class SimpleFormatterOptions : ConsoleFormatterOptions
         UseUtcTimestamp = false;
         TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff K";
     }
+
+    /// <summary>
+    /// Write colofulr logs or not. Default: <see langword="true"/>.
+    /// </summary>
+    public bool WithColors { get; set; } = true;
 }

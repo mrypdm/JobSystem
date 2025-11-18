@@ -43,7 +43,9 @@ public abstract class TestBase
             logBuilder
                 .SetMinimumLevel(LogLevel.Information)
                 .AddFilter(null, LogLevel.Information);
-            logBuilder.AddSimpleLogger(options => options.IsEnabled = () => TestContext.Progress is not null);
+            logBuilder.AddSimpleLogger(
+                logOptions => logOptions.IsEnabled = () => TestContext.Progress is not null,
+                formatOptions => formatOptions.WithColors = false);
         });
         builder.Services.AddTransient<TempDirectory>();
     }

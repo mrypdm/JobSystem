@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Shared.Contract;
 using Shared.Contract.Extensions;
+using Shared.Contract.Logging;
 using Shared.Contract.Options;
 using Shared.Database;
 using User.Database.Contexts;
@@ -70,6 +71,20 @@ public static class AppBuilderExtensions
                 httpsOptions.ServerCertificate = webServerOptions.Certificate;
                 httpsOptions.ServerCertificateChain = webServerOptions.CertificateChain;
             });
+        });
+        return builder;
+    }
+
+    /// <summary>
+    /// Configure Logging
+    /// </summary>
+    public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddLogging(logBuilder =>
+        {
+            logBuilder.ClearProviders();
+            logBuilder.AddConsoleFormatter<SimpleConsoleFormatter, SimpleFormatterOptions>();
+            logBuilder.AddConsole(options => options.FormatterName = nameof(SimpleConsoleFormatter));
         });
         return builder;
     }

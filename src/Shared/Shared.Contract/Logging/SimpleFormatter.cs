@@ -43,7 +43,7 @@ public class SimpleFormatter(SimpleFormatterOptions options)
 
     private string GetLogLevel(LogLevel logLevel)
     {
-        return logLevel switch
+        var logLevelStr = logLevel switch
         {
             LogLevel.Trace => "TRC",
             LogLevel.Debug => "DBG",
@@ -53,6 +53,26 @@ public class SimpleFormatter(SimpleFormatterOptions options)
             LogLevel.Critical => "CRT",
             _ => "NON",
         };
+
+        if (!options.WithColors)
+        {
+            return logLevelStr;
+        }
+
+        const string defaultColor = "\e[39m\e[22m";
+
+        var logLevelColor = logLevel switch
+        {
+            LogLevel.Trace => "\e[1m\e[34m", // Blue
+            LogLevel.Debug => "\e[1m\e[36m", // Cyan
+            LogLevel.Information => "\e[32m", // DarkGreen
+            LogLevel.Warning => "\e[1m\e[33m", // Yellow
+            LogLevel.Error => "\e[1m\e[31m", // Red
+            LogLevel.Critical => "\e[1m\e[35m", // Magenta
+            _ => defaultColor
+        };
+
+        return $"{logLevelColor}{logLevelStr}{defaultColor}";
     }
 }
 

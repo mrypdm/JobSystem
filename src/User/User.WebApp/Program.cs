@@ -4,6 +4,7 @@ using User.WebApp.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 builder
+    .ConfigureLogging()
     .ConfigureWebServer()
     .AddSwagger()
     .AddDatabase()
@@ -25,7 +26,7 @@ builder.Services.AddAntiforgery(opt =>
     opt.HeaderName = "X-CSRF-TOKEN";
 });
 
-var application = builder.Build();
+using var application = builder.Build();
 
 if (!application.Environment.IsDevelopment())
 {
