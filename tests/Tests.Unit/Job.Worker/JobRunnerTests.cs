@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Job.Contract;
 using Job.Database.Contexts;
 using Job.Worker.Collectors;
@@ -101,7 +102,7 @@ internal class JobRunnerTests : TestBase
 
         _jobEnvironment
             .Setup(m => m.PrepareEnvironment(It.IsAny<RunJobModel>()))
-            .Throws(new Exception("Bad excepiton"));
+            .Throws(new UnreachableException("Exception by Test"));
 
         var runner = Services.GetRequiredService<JobRunner>();
 

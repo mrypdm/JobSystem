@@ -80,7 +80,7 @@ internal class JobApiControllerTests : TestBase
 
         _jobApiClient
             .Setup(m => m.CreateNewJobAsync(It.IsAny<CreateJobRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new JobWebApiException(HttpStatusCode.BadRequest, "message", null));
+            .ThrowsAsync(new JobWebApiException(HttpStatusCode.BadRequest, "Exception by Test", null));
 
         using var controller = Services.GetRequiredService<JobApiController>();
 
@@ -107,7 +107,7 @@ internal class JobApiControllerTests : TestBase
 
         _jobApiClient
             .Setup(m => m.CreateNewJobAsync(It.IsAny<CreateJobRequest>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new JobWebApiTimeoutException("message", null));
+            .ThrowsAsync(new JobWebApiTimeoutException("Exception by Test", null));
 
         using var controller = Services.GetRequiredService<JobApiController>();
 
@@ -172,7 +172,7 @@ internal class JobApiControllerTests : TestBase
             .ReturnsAsync(true);
         _jobApiClient
             .Setup(m => m.GetJobResultsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new JobWebApiException(HttpStatusCode.NotFound, "message", null));
+            .ThrowsAsync(new JobWebApiException(HttpStatusCode.NotFound, "Exception by Test", null));
 
         using var controller = Services.GetRequiredService<JobApiController>();
 
@@ -193,7 +193,7 @@ internal class JobApiControllerTests : TestBase
             .ReturnsAsync(true);
         _jobApiClient
             .Setup(m => m.GetJobResultsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new JobWebApiTimeoutException("message", null));
+            .ThrowsAsync(new JobWebApiTimeoutException("Exception by Test", null));
 
         using var controller = Services.GetRequiredService<JobApiController>();
 

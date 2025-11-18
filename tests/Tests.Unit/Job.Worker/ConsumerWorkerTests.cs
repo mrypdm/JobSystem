@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Confluent.Kafka;
 using Job.Broker;
 using Job.Contract;
@@ -52,7 +53,7 @@ internal class ConsumerWorkerTests : TestBase
         // arrange
         _consumer
             .Setup(m => m.Consume(It.IsAny<CancellationToken>()))
-            .Throws(new Exception());
+            .Throws(new UnreachableException("Exception by Test"));
 
         var worker = Services.GetRequiredService<ConsumerWorker>();
 
@@ -91,7 +92,7 @@ internal class ConsumerWorkerTests : TestBase
             .Returns(consumeResult);
         _jobDbContext
             .SetupSequence(m => m.GetNewJobAsync(jobId, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new PostgresException("Very bad exception", "", "", ""))
+            .ThrowsAsync(new PostgresException("Exception by Test", "", "", ""))
             .ReturnsAsync(jobModel);
 
         var worker = Services.GetRequiredService<ConsumerWorker>();
@@ -136,7 +137,7 @@ internal class ConsumerWorkerTests : TestBase
             .ReturnsAsync(jobModel);
         _runner
             .SetupSequence(m => m.RunJob(It.IsAny<RunJobModel>()))
-            .Throws(new Exception("Very bad exception"))
+            .Throws(new UnreachableException("Exception by Test"))
             .Pass();
 
         var worker = Services.GetRequiredService<ConsumerWorker>();
@@ -181,7 +182,7 @@ internal class ConsumerWorkerTests : TestBase
             .ReturnsAsync(jobModel);
         _jobDbContext
             .SetupSequence(m => m.SetJobRunningAsync(jobId, It.IsAny<CancellationToken>()))
-            .Throws(new PostgresException("Very bad exception", "", "", ""))
+            .Throws(new PostgresException("Exception by Test", "", "", ""))
             .PassAsync();
 
         var worker = Services.GetRequiredService<ConsumerWorker>();

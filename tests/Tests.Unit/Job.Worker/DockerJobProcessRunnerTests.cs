@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Job.Contract;
 using Job.Worker.JobProcesses;
 using Job.Worker.Models;
@@ -68,13 +69,13 @@ internal class DockerJobProcessRunnerTests : TestBase
     [Test]
     public Task RunProcess_Timeouted_ShouldTimeout()
     {
-        return RunProcessWithResult(JobStatus.Timeout, new OperationCanceledException());
+        return RunProcessWithResult(JobStatus.Timeout, new OperationCanceledException("Exception by Test"));
     }
 
     [Test]
     public Task RunProcess_Failed_ShouldFault()
     {
-        return RunProcessWithResult(JobStatus.Fault, new Exception());
+        return RunProcessWithResult(JobStatus.Fault, new UnreachableException("Exception by Test"));
     }
 
     private async Task RunProcessWithResult(JobStatus jobStatus, Exception exception)

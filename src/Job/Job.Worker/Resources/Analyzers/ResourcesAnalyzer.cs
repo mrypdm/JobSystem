@@ -43,7 +43,7 @@ public partial class ResourcesAnalyzer(
             cancellationToken);
         if (drive.UsagePercentage > resourceMonitorOptions.ThresholdDriveUsage)
         {
-            logger.LogCritical("Drive usage is [{DriveUsage}], cannot run new Job", drive);
+            logger.LogCritical("Drive usage is [{DriveUsage}], cannot run new Job", drive.UsagePercentage);
             return false;
         }
 
