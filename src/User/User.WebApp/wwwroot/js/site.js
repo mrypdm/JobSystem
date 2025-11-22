@@ -1,6 +1,6 @@
 // Requests
-async function send(url, method, body, headers = {}) {
-    if (body !== null) {
+async function send(url, method, body, headers = {}, formBody = false) {
+    if (body !== null && formBody != true) {
         body = JSON.stringify(body)
         headers["Content-Type"] = "application/json"
     }
@@ -52,6 +52,16 @@ async function getResults(jobId) {
     startedCell.innerHTML = response.startedAt == null ? "not started" : response.startedat;
     finishedCell.innerHTML = response.finishedAt == null ? "not finished" : response.finishedat;
     resultsCell.innerHTML = response.results == null ? "not found" : "saved to results.zip";
+}
+
+async function createJob(form) {
+    try {
+        await send(`/api/jobs/`, "POST", new FormData(form), getCsrfTokenHeader(), formBody = true);
+        location.replace("/");
+    } catch (error) {
+        let text = await error.text();
+        alert(text);
+    }
 }
 
 function saveBase64File(base64Data, filename, mimeType) {

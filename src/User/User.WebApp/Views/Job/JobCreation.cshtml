@@ -10,3 +10,10 @@
     <input asp-for="Timeout" placeholder="Timeout" />
     <input type="submit" value="Upload" />
 </form>
+
+<script>
+    document.getElementById('create-job-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await createJob(e.currentTarget);
+    });
+</script>
