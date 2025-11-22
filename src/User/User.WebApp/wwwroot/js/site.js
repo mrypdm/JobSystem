@@ -56,7 +56,7 @@ async function getResults(jobId) {
 
 async function createJob(form) {
     try {
-        await send(`/api/jobs/`, "POST", new FormData(form), getCsrfTokenHeader(), formBody = true);
+        await send("/api/jobs/", "POST", new FormData(form), getCsrfTokenHeader(), formBody = true);
         location.replace("/");
     } catch (error) {
         let text = await error.text();
@@ -77,6 +77,16 @@ function saveBase64File(base64Data, filename, mimeType) {
 }
 
 // Auth
+async function login(form, returnUrl) {
+    try {
+        await send("/api/auth", "POST", new FormData(form), getCsrfTokenHeader(), formBody = true);
+        location.replace(returnUrl);
+    } catch (error) {
+        let text = await error.text();
+        alert(text);
+    }
+}
+
 async function logout() {
     await send("/api/auth", "DELETE", null, getCsrfTokenHeader());
     location.replace("/auth/login");

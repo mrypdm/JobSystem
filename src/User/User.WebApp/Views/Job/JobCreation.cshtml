@@ -5,7 +5,9 @@
     ViewData["Title"] = $"Jobs - Create";
 }
 
-<form id="create-job-form" action="/api/jobs" method="post" enctype="multipart/form-data" asp-antiforgery="true">
+@Html.AntiForgeryToken()
+
+<form id="create-job-form" action="/api/jobs" method="post" enctype="multipart/form-data">
     <input asp-for="Script" accept=".sh"/>
     <input asp-for="Timeout" placeholder="Timeout" />
     <input type="submit" value="Upload" />
@@ -14,6 +16,6 @@
 <script>
     document.getElementById('create-job-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-        await createJob(e.currentTarget);
+        await login(e.currentTarget);
     });
 </script>

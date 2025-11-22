@@ -62,7 +62,7 @@ public class AuthenticationApiController(IUserDbContext userDbContext, ILogger<A
 
         logger.LogCritical("User [{Username}] signed in", request.Username);
         await HttpContext.SignInAsync(userModel);
-        return Redirect(request.ReturnUrl ?? "/");
+        return Ok();
     }
 
     /// <summary>

@@ -81,8 +81,7 @@ internal class AuthenticationApiControllerTests : TestBase
         var request = new LoginRequest
         {
             Username = "username",
-            Password = "password",
-            ReturnUrl = "/url"
+            Password = "password"
         };
         UserDbModel actualUser = null;
 
@@ -104,8 +103,7 @@ internal class AuthenticationApiControllerTests : TestBase
             iterationCount: 100000, numBytesRequested: 512 / 8);
 
         using var _ = Assert.EnterMultipleScope();
-        Assert.That(response, Is.TypeOf<RedirectResult>());
-        Assert.That(((RedirectResult)response).Url, Is.EqualTo(request.ReturnUrl));
+        Assert.That(response, Is.TypeOf<OkResult>());
         Assert.That(actualUser.Username, Is.EqualTo(request.Username));
         Assert.That(actualUser.PasswordHash, Is.EqualTo(Convert.ToBase64String(hash)));
     }
@@ -117,8 +115,7 @@ internal class AuthenticationApiControllerTests : TestBase
         var request = new LoginRequest
         {
             Username = "username",
-            Password = "password",
-            ReturnUrl = "/url"
+            Password = "password"
         };
 
         var salt = RandomNumberGenerator.GetBytes(128 / 8);
@@ -142,8 +139,7 @@ internal class AuthenticationApiControllerTests : TestBase
 
         // assert
         using var _ = Assert.EnterMultipleScope();
-        Assert.That(response, Is.TypeOf<RedirectResult>());
-        Assert.That(((RedirectResult)response).Url, Is.EqualTo(request.ReturnUrl));
+        Assert.That(response, Is.TypeOf<OkResult>());
         _authenticationService.Verify(
             m => m.SignInAsync(It.IsAny<HttpContext>(), CookieAuthenticationDefaults.AuthenticationScheme,
                 It.Is<ClaimsPrincipal>(m =>
@@ -163,8 +159,7 @@ internal class AuthenticationApiControllerTests : TestBase
         var request = new LoginRequest
         {
             Username = "username",
-            Password = "password",
-            ReturnUrl = "/url"
+            Password = "password"
         };
 
         var salt = RandomNumberGenerator.GetBytes(128 / 8);

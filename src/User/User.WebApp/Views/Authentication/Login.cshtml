@@ -4,9 +4,9 @@
     ViewData["Title"] = "Login";
 }
 
-<form action="/api/auth" method="post" enctype="multipart/form-data" asp-antiforgery="true">
-    <input asp-for="ReturnUrl" type="hidden" value="@(Model.ReturnUrl)" />
+@Html.AntiForgeryToken()
 
+<form id="login-form" action="/api/auth" method="post" enctype="multipart/form-data">
     <input asp-for="Username" type="text" /><br />
 
     <input id="password-box" asp-for="Password" type="password" placeholder="Password" />
@@ -14,3 +14,10 @@
 
     <input type="submit" value="Login" />
 </form>
+
+<script>
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await login(e.currentTarget, '@(Model.ReturnUrl)');
+    });
+</script>

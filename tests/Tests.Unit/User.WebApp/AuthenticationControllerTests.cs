@@ -34,6 +34,7 @@ internal class AuthenticationControllerTests : TestBase
         var model = ((ViewResult)result).Model as LoginRequest;
         Assert.That(model.ReturnUrl, Is.EqualTo(expectedUrl));
     }
+
     [Test]
     public void GetLogoutView_ShouldReturnCorrectView()
     {
