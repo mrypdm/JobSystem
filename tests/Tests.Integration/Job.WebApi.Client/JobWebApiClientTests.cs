@@ -1,6 +1,7 @@
 using System.Text;
 using Job.Contract;
 using Job.Database.Contexts;
+using Job.Database.Models;
 using Job.WebApi.Client.Clients;
 using Job.WebApi.Client.Factories;
 using Job.WebApi.Client.Options;
@@ -48,24 +49,33 @@ internal class JobWebApiClientTests : IntegrationTestBase
     public async Task GetJobResults_ShouldGetJobResults()
     {
         // arrange
-        var expectedTimeout = TimeSpan.FromSeconds(10);
-        var expectedScript = Convert.ToBase64String(Encoding.UTF8.GetBytes("echo 1"));
-        var client = Services.GetRequiredService<JobWebApiClient>();
-        var jobId = await client.CreateNewJobAsync(new CreateJobRequest
+        var expectedJob = new JobDbModel
         {
-            Timeout = expectedTimeout,
-            Script = expectedScript
-        }, default);
+            Id = Guid.NewGuid(),
+            Timeout = TimeSpan.FromSeconds(1),
+            Status = JobStatus.Fault,
+            CreatedAt = DateTime.UtcNow.AddHours(-2),
+            StartedAt = DateTime.UtcNow.AddHours(-1),
+            FinishedAt = DateTime.UtcNow,
+            Script = "script",
+            Results = [0x00, 0x11]
+        };
+
+        using var context = Services.GetRequiredService<JobDbContext>();
+        var actualJob = await context.Jobs.AddAsync(expectedJob, default);
+        await context.SaveChangesAsync();
+
+        var client = Services.GetRequiredService<JobWebApiClient>();
 
         // act
-        var actualJobResults = await client.GetJobResultsAsync(jobId, default);
+        var actualJobResults = await client.GetJobResultsAsync(expectedJob.Id, default);
 
         // assert
         using var _ = Assert.EnterMultipleScope();
-        Assert.That(actualJobResults.Status, Is.EqualTo(JobStatus.New));
-        Assert.That(actualJobResults.Results, Is.Null);
-        Assert.That(actualJobResults.StartedAt, Is.Null);
-        Assert.That(actualJobResults.FinishedAt, Is.Null);
+        Assert.That(actualJobResults.Status, Is.EqualTo(expectedJob.Status));
+        Assert.That(actualJobResults.Results, Is.EqualTo(expectedJob.Results).AsCollection);
+        Assert.That(actualJobResults.StartedAt, Is.EqualTo(expectedJob.StartedAt));
+        Assert.That(actualJobResults.FinishedAt, Is.EqualTo(expectedJob.FinishedAt));
     }
 
     /// <inheritdoc />
