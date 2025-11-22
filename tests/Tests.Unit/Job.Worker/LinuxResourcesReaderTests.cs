@@ -11,7 +11,7 @@ namespace Tests.Unit.Job.Worker;
 internal class LinuxResourcesReaderTests : TestBase
 {
     [Test]
-    public async Task ReadCpuStatistics()
+    public async Task GetCpuStatistics_ShouldReturnCorrectData()
     {
         // arrange
         var reader = Services.GetRequiredService<LinuxResourcesReader>();
@@ -26,7 +26,7 @@ internal class LinuxResourcesReaderTests : TestBase
     }
 
     [Test]
-    public async Task ReadRamStatistics()
+    public async Task GetRamStatistics_ShouldReturnCorrectData()
     {
         // arrange
         var reader = Services.GetRequiredService<LinuxResourcesReader>();
@@ -41,7 +41,7 @@ internal class LinuxResourcesReaderTests : TestBase
     }
 
     [Test]
-    public async Task ReadDriveStatistics()
+    public async Task GetDriveStatistics_ShouldReturnCorrectData()
     {
         // arrange
         var driveInfo = new DriveInfo(Environment.CurrentDirectory);
