@@ -52,6 +52,11 @@ public class JobController(IOwnedService<IJobDbContext> jobDbContextOwned, IBrok
             return BadRequest($"Maximum allowed timeout for Job is '{options.MaxTimeout}'");
         }
 
+        if (newJob.Timeout <= TimeSpan.Zero)
+        {
+            return BadRequest("Timeout must be positive");
+        }
+
         if (string.IsNullOrWhiteSpace(newJob.Script))
         {
             return BadRequest("Job script cannot be empty");

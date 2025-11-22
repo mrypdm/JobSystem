@@ -96,6 +96,20 @@ internal class JobControllerTests : TestBase
     }
 
     [Test]
+    public async Task AddNewJob_NotPositiveTimeout_ShouldReturnBadRequest()
+    {
+        // arrange
+        var request = new CreateJobRequest() { Timeout = TimeSpan.FromSeconds(-1) };
+        var controller = Services.GetRequiredService<JobController>();
+
+        // act
+        var result = await controller.AddNewJobAsync(request, default);
+
+        // assert
+        Assert.That(result.Result, Is.TypeOf<BadRequestObjectResult>());
+    }
+
+    [Test]
     public async Task AddNewJob_EmptyTimeout_EmptyId_ShouldUseDefaultTimeout_ShouldGenerateId()
     {
         // arrange
