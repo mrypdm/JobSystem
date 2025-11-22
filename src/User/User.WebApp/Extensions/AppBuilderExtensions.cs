@@ -106,15 +106,21 @@ public static class AppBuilderExtensions
 
                 opt.Events.OnValidatePrincipal = context =>
                 {
-                    var ip = context.HttpContext.GetUserIpAddress();
-                    if (context.Principal.Claims
-                            .SingleOrDefault(m => m.Type == HttpContextExtensions.IpAddressClaim)?.Value != ip)
+                    ArgumentNullException.ThrowIfNull(context);
+
+                    if (context.Principal is null
+                        || context.Principal.Claims is null
+                        || context.Principal.Claims.Any(m => m is null || m.Type is null))
                     {
                         context.RejectPrincipal();
+                        return Task.CompletedTask;
                     }
 
-                    if (string.IsNullOrWhiteSpace(
-                            context.Principal.Claims.SingleOrDefault(m => m.Type == ClaimTypes.Name)?.Value))
+                    var ip = context.HttpContext.GetUserIpAddress();
+                    var claims = context.Principal.Claims;
+
+                    if (claims.SingleOrDefault(m => m.Type == HttpContextExtensions.IpAddressClaim)?.Value != ip
+                        || string.IsNullOrWhiteSpace(claims.SingleOrDefault(m => m.Type == ClaimTypes.Name)?.Value))
                     {
                         context.RejectPrincipal();
                     }
@@ -122,6 +128,7 @@ public static class AppBuilderExtensions
                     return Task.CompletedTask;
                 };
             });
+
         return builder;
     }
 }
