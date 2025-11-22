@@ -11,7 +11,7 @@ namespace Shared.Database;
 /// <summary>
 /// Common context for PostgreSQL databases
 /// </summary>
-public abstract class PostgreDbContext(DbContextOptions options) : DbContext(options)
+public abstract class PostgreDbContext(DbContextOptions options, ILogger<PostgreDbContext> logger) : DbContext(options)
 {
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,6 +34,7 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
         {
             var migration = Activator.CreateInstance(migrationType) as IDatabaseMigration;
             await migration.ApplyAsync(this, cancellationToken);
+            logger.LogCritical("Migration [{MigrationName}] was applied", migration.GetType().Name);
         }
     }
 
@@ -51,10 +52,12 @@ public abstract class PostgreDbContext(DbContextOptions options) : DbContext(opt
         {
             var migration = Activator.CreateInstance(migrationType) as IDatabaseMigration;
             await migration.DiscardAsync(this, cancellationToken);
+            logger.LogCritical("Migration [{MigrationName}] was discarded", migration.GetType().Name);
         }
 
         await Database.EnsureDeletedAsync(cancellationToken);
         await Database.EnsureCreatedAsync(cancellationToken);
+        logger.LogCritical("Database [{DatabaseName}] was recreated", GetType().Name);
     }
 
     /// <summary>

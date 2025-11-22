@@ -7,9 +7,9 @@
       "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://*:4000",
+        "ASPNETCORE_URLS": "http://*:4001",
         "ASPNETCORE_HTTPS_PORT": "",
-        "Urls": "http://*:4000",
+        "Urls": "http://*:4001",
 
         "WebServerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp/svc_users_webapp.keystore.p12",
         "WebServerOptions:Password": "qwerty-123",
@@ -18,9 +18,9 @@
         "DatabaseOptions:Password": "qwerty-123",
         "DatabaseOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
 
-        "JobWebApiOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp@webapi/svc_users_webapp@webapi.keystore.p12",
-        "JobWebApiOptions:Password": "qwerty-123",
-        "JobWebApiOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
+        "JobWebApiClientOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp@webapi/svc_users_webapp@webapi.keystore.p12",
+        "JobWebApiClientOptions:Password": "qwerty-123",
+        "JobWebApiClientOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
       }
     },
     "Staging (HTTPS)": {
@@ -29,9 +29,9 @@
       "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Staging",
-        "ASPNETCORE_URLS": "https://*:5000;http://*:4000",
-        "ASPNETCORE_HTTPS_PORT": "5000",
-        "Urls": "https://*:5000;http://*:4000",
+        "ASPNETCORE_URLS": "https://*:5001;http://*:4001",
+        "ASPNETCORE_HTTPS_PORT": "5001",
+        "Urls": "https://*:5001;http://*:4001",
 
         "WebServerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp/svc_users_webapp.keystore.p12",
         "WebServerOptions:Password": "qwerty-123",
@@ -40,9 +40,9 @@
         "DatabaseOptions:Password": "qwerty-123",
         "DatabaseOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
 
-        "JobWebApiOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp@webapi/svc_users_webapp@webapi.keystore.p12",
-        "JobWebApiOptions:Password": "qwerty-123",
-        "JobWebApiOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
+        "JobWebApiClientOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp@webapi/svc_users_webapp@webapi.keystore.p12",
+        "JobWebApiClientOptions:Password": "qwerty-123",
+        "JobWebApiClientOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
       }
     }
   }

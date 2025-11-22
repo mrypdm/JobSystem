@@ -9,7 +9,7 @@ namespace Job.Database.Contexts;
 
 /// <inheritdoc />
 public class JobDbContext(DbContextOptions options, ILogger<JobDbContext> logger)
-    : PostgreDbContext(options), IJobDbContext
+    : PostgreDbContext(options, logger), IJobDbContext
 {
     /// <summary>
     /// Jobs table

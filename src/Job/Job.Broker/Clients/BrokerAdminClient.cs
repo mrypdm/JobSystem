@@ -108,6 +108,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         {
             var migration = Activator.CreateInstance(migrationType) as IBrokerMigration;
             await migration.ApplyAsync(this, cancellationToken);
+            logger.LogCritical("Migration [{MigrationName}] was applied", migration.GetType().Name);
         }
     }
 
@@ -123,6 +124,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         {
             var migration = Activator.CreateInstance(migrationType) as IBrokerMigration;
             await migration.DiscardAsync(this, cancellationToken);
+            logger.LogCritical("Migration [{MigrationName}] was discarded", migration.GetType().Name);
         }
     }
 }

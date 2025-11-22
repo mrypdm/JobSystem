@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.HttpOverrides;
 using User.WebApp.Extensions;
 using User.WebApp.Filters;
@@ -26,6 +27,11 @@ builder.Services.AddAntiforgery(opt =>
     opt.HeaderName = "X-CSRF-TOKEN";
 });
 
+if (!builder.Environment.IsProduction())
+{
+    StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
+}
+
 using var application = builder.Build();
 
 if (!application.Environment.IsDevelopment())
@@ -41,7 +47,7 @@ application
     .UseAuthentication()
     .UseAuthorization();
 
-if (application.Environment.IsDevelopment())
+if (!application.Environment.IsProduction())
 {
     application
         .UseSwagger()
@@ -50,6 +56,6 @@ if (application.Environment.IsDevelopment())
         .MapSwagger();
 }
 
-application.MapStaticAssets();
 application.MapControllers().WithStaticAssets();
+application.MapStaticAssets();
 application.Run();

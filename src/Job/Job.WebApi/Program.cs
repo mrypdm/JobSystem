@@ -26,7 +26,7 @@ if (!application.Environment.IsDevelopment())
         .UseAuthorization();
 }
 
-if (application.Environment.IsDevelopment())
+if (!application.Environment.IsProduction())
 {
     application
         .UseSwagger()

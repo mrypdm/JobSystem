@@ -7,7 +7,7 @@ namespace User.Database.Contexts;
 
 /// <inheritdoc />
 public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logger)
-    : PostgreDbContext(options), IUserDbContext
+    : PostgreDbContext(options, logger), IUserDbContext
 {
     /// <summary>
     /// Table of Users

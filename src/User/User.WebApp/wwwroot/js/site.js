@@ -33,7 +33,7 @@ async function getResults(jobId) {
         response = await send(`/api/jobs/${jobId}`, "GET", null, getCsrfTokenHeader())
         response = await response.json();
     } catch (error) {
-        let text = await response.text();
+        let text = await error.text();
         alert(text);
         return
     }
@@ -50,7 +50,7 @@ async function getResults(jobId) {
 
     statusCell.innerHTML = response.status;
     startedCell.innerHTML = response.startedAt == null ? "not started" : response.startedat;
-    finishedCell.innerHTML = response.finishedAt ? "not finished" : response.finishedat;
+    finishedCell.innerHTML = response.finishedAt == null ? "not finished" : response.finishedat;
     resultsCell.innerHTML = response.results == null ? "not found" : "saved to results.zip";
 }
 

@@ -31,7 +31,7 @@ public class JobApiController(IUserDbContext userDbContext, IJobWebApiClient job
         }, cancellationToken);
         await userDbContext.AddNewUserJobAsync(HttpContext.GetUserName(), jobId, cancellationToken);
 
-        return CreatedAtRoute("GetJobResult", routeValues: jobId, value: null);
+        return Redirect("/");
     }
 
     /// <summary>
