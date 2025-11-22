@@ -1,8 +1,9 @@
 using System.Security.Authentication;
 using Flurl.Http;
+using Job.WebApi.Client.Options;
 using Shared.Contract;
 
-namespace Job.WebApi.Client;
+namespace Job.WebApi.Client.Factories;
 
 /// <inheritdoc />
 public class FlurlClientFactory : IFlurlClientFactory

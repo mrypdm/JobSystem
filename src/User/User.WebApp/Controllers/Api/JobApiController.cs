@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using Job.Contract;
-using Job.WebApi.Client;
+using Job.WebApi.Client.Clients;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using User.Database.Contexts;

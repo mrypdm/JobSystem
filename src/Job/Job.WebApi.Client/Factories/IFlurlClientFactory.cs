@@ -1,6 +1,7 @@
 using Flurl.Http;
+using Job.WebApi.Client.Options;
 
-namespace Job.WebApi.Client;
+namespace Job.WebApi.Client.Factories;
 
 /// <summary>
 /// Factory for <see cref="IFlurlClient"/>

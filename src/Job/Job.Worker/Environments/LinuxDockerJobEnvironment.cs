@@ -77,10 +77,4 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
         Directory.Delete(jobModel.Directory, true);
         logger.LogInformation("Environment [{JobEnvironment}] cleared", jobModel.Directory);
     }
-
-    /// <inheritdoc />
-    public JobEnvironmentOptions GetEnvironmentOptions()
-    {
-        return options;
-    }
 }

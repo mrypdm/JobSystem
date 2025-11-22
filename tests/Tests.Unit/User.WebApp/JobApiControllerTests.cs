@@ -1,7 +1,7 @@
 using System.Net;
 using System.Security.Claims;
 using Job.Contract;
-using Job.WebApi.Client;
+using Job.WebApi.Client.Clients;
 using Job.WebApi.Client.Exceptions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;

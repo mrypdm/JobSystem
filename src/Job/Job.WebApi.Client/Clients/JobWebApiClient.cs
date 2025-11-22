@@ -1,9 +1,11 @@
 using Flurl.Http;
 using Job.Contract;
 using Job.WebApi.Client.Exceptions;
+using Job.WebApi.Client.Factories;
+using Job.WebApi.Client.Options;
 using Microsoft.Extensions.Logging;
 
-namespace Job.WebApi.Client;
+namespace Job.WebApi.Client.Clients;
 
 /// <inheritdoc />
 public sealed class JobWebApiClient(

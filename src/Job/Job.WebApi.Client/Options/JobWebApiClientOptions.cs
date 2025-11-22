@@ -1,6 +1,7 @@
+using Job.WebApi.Client.Clients;
 using Shared.Contract.SslOptions;
 
-namespace Job.WebApi.Client;
+namespace Job.WebApi.Client.Options;
 
 /// <summary>
 /// Options for <see cref="JobWebApiClient"/>

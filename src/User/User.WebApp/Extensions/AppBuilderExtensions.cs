@@ -1,6 +1,8 @@
 using System.Reflection;
 using System.Security.Claims;
-using Job.WebApi.Client;
+using Job.WebApi.Client.Clients;
+using Job.WebApi.Client.Factories;
+using Job.WebApi.Client.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;

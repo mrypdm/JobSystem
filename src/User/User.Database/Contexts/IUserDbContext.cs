@@ -5,7 +5,7 @@ namespace User.Database.Contexts;
 /// <summary>
 /// Context for jobs
 /// </summary>
-public interface IUserDbContext
+public interface IUserDbContext : IDisposable
 {
     /// <summary>
     /// Add new user

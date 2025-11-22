@@ -1,6 +1,6 @@
 using Job.Contract;
 
-namespace Job.WebApi.Client;
+namespace Job.WebApi.Client.Clients;
 
 /// <summary>
 /// Client for Job.WebApi

@@ -1,7 +1,9 @@
 using System.Text;
 using Job.Contract;
 using Job.Database.Contexts;
-using Job.WebApi.Client;
+using Job.WebApi.Client.Clients;
+using Job.WebApi.Client.Factories;
+using Job.WebApi.Client.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
