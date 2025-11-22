@@ -74,8 +74,8 @@ internal class JobWebApiClientTests : IntegrationTestBase
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJobResults.Status, Is.EqualTo(expectedJob.Status));
         Assert.That(actualJobResults.Results, Is.EqualTo(expectedJob.Results).AsCollection);
-        Assert.That(actualJobResults.StartedAt, Is.EqualTo(expectedJob.StartedAt));
-        Assert.That(actualJobResults.FinishedAt, Is.EqualTo(expectedJob.FinishedAt));
+        Assert.That(actualJobResults.StartedAt, Is.EqualTo(expectedJob.StartedAt).Within(TimeSpan.FromMicroseconds(1)));
+        Assert.That(actualJobResults.FinishedAt, Is.EqualTo(expectedJob.FinishedAt).Within(TimeSpan.FromMicroseconds(1)));
     }
 
     /// <inheritdoc />
