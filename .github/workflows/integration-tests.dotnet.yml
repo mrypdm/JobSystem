@@ -7,7 +7,7 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'infrastructure/Tools/**'
-      - '!tests/Tests/Tests.Unit/**'
+      - '!tests/Tests.Unit/**'
       - '.github/workflows/integration-tests.dotnet.yml'
   pull_request:
     branches: [ "master" ]
@@ -15,7 +15,7 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'infrastructure/Tools/**'
-      - '!tests/Tests/Tests.Unit/**'
+      - '!tests/Tests.Unit/**'
       - '.github/workflows/integration-tests.dotnet.yml'
 
 jobs:
