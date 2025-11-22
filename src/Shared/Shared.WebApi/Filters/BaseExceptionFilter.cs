@@ -15,7 +15,7 @@ public abstract class BaseExceptionFilter(ILogger<BaseExceptionFilter> logger) :
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        if (context.ExceptionHandled == true && !IsSupportedException(context.Exception))
+        if (context.ExceptionHandled == true || !IsSupportedException(context.Exception))
         {
             return;
         }

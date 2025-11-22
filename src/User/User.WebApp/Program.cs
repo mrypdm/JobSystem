@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.HttpOverrides;
+using Shared.WebApi.Filters;
 using User.WebApp.Extensions;
 using User.WebApp.Filters;
 
@@ -18,6 +19,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 builder.Services.AddControllersWithViews(opt =>
 {
+    opt.Filters.Add<UnhandledExceptionFilter>();
     opt.Filters.Add<PostgresExceptionsFilter>();
     opt.Filters.Add<JobWebApiExceptionsFilter>();
     opt.Filters.Add<JobWebApiTimeoutExceptionFilter>();
