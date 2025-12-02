@@ -56,6 +56,17 @@ CREATE TABLE IF NOT EXISTS pgdbo."UsersJobs"
 TABLESPACE pg_default;
 ALTER TABLE IF EXISTS pgdbo."UsersJobs" OWNER to pg_database_owner;
 
+ALTER TABLE IF EXISTS pgdbo."UsersJobs" ADD CONSTRAINT "FK_UserJobs_Jobs" FOREIGN KEY ("Username")
+                REFERENCES pgdbo."Users" ("Username") MATCH SIMPLE
+                ON UPDATE CASCADE
+                ON DELETE CASCADE;
+
+CREATE INDEX IF NOT EXISTS "FKI_FK_UserJobs_Users"
+    ON pgdbo."UsersJobs" USING btree
+    ("Username" COLLATE pg_catalog."default" ASC NULLS LAST)
+    WITH (fillfactor=100, deduplicate_items=True)
+    TABLESPACE pg_default;
+
 --
 -- Creating functions for svc_jobs_webapp
 --
