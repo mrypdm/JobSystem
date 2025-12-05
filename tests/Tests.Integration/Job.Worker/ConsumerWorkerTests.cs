@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Shared.Broker.Abstractions;
 using Shared.Broker.Helpers;
 using Shared.Broker.Options;
@@ -150,8 +151,11 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         builder.Services.AddSingleton<IResultsCollector, ZipResultsCollector>();
         builder.Services.AddSingleton<IResourcesReader, LinuxResourcesReader>();
 
-        builder.Services.AddSingleton(builder.Configuration.GetOptions<ResourcesAnalyzerOptions>());
-        builder.Services.AddSingleton<IResourcesAnalyzer, ResourcesAnalyzer>();
+        var resourceAnalyzer = new Mock<IResourcesAnalyzer>();
+        resourceAnalyzer
+            .Setup(m => m.CanRunNewJobAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        builder.Services.AddSingleton(resourceAnalyzer.Object);
 
         builder.Services.AddSingleton(builder.Configuration.GetOptions<JobEnvironmentOptions>());
         builder.Services.AddSingleton<IJobEnvironment, LinuxDockerJobEnvironment>();
