@@ -1,0 +1,195 @@
+@startuml Job.Worker classes
+hide empty members
+
+title Классы обработчика Задач
+
+interface ILogger << Built-In >>
+interface IHostedService << Built-In >>
+
+enum JobStatus << External >>
+class NewJobModel << External >>
+interface IJobDbContext << External >>
+IJobDbContext --> NewJobModel
+
+class JobMessage << External >>
+interface IBrokerConsumer<Guid, JobMessage> << External >>
+IBrokerConsumer --> JobMessage
+
+class RunJobModel
+{
+    +Guid Id
+    +TimeSpan Timeout
+    +string Directory
+    +JobStatus Status
+    +DateTimeOffset FinishedAt
+    +string Script
+    +byte[] Results
+}
+
+class ConsumerWorkerOptions
+{
+    +TimeSpan IterationDeplay
+}
+
+package Processes
+{
+    interface IProcessRunner
+    {
+        +Task RunProcessAsync(string[], string, CancellationToken)
+    }
+    class ProcessRunner
+    IProcessRunner <|.. ProcessRunner
+    ProcessRunner --> ILogger
+
+    interface IJobProcessRunner
+    {
+        +Task RunProcessAsync(RunJobModel)
+    }
+    class DockerJobProcessRunner
+    {
+        -Task ClearContainerAsync(RunJobModel)
+    }
+    IJobProcessRunner <|.. DockerJobProcessRunner
+    DockerJobProcessRunner --> IProcessRunner
+    DockerJobProcessRunner --> ILogger
+    DockerJobProcessRunner --> RunJobModel
+    DockerJobProcessRunner --> JobStatus
+}
+
+package Collectors
+{
+    interface IResultsCollector
+    {
+        +Task CollectResultsAsync(RunJobModel)
+    }
+    class ZipResultsCollector
+    IResultsCollector <|.. ZipResultsCollector
+    ZipResultsCollector --> IProcessRunner
+    ZipResultsCollector --> ILogger
+    ZipResultsCollector --> RunJobModel
+}
+
+package Environments
+{
+    class JobEnvironmentOptions
+    {
+        +string JobsDirectory
+        +double CpuUsage
+        +double MemoryUsage
+    }
+
+    interface IJobEnvironment
+    {
+        +void PrepareEnvironment(RunJobModel)
+        +void ClearEnvironment(RunJobModel)
+    }
+    class LinuxDockerJobEnvironment
+    IJobEnvironment <|.. LinuxDockerJobEnvironment
+    LinuxDockerJobEnvironment --> JobEnvironmentOptions
+    LinuxDockerJobEnvironment --> ILogger
+    LinuxDockerJobEnvironment --> RunJobModel
+}
+
+package Runners {
+    interface IJobRunner
+    {
+        {method}+long RunningJobsCount
+        +Task WaitForAllJobs()
+        +void RunJob(RunJobModel)
+    }
+    class JobRunner
+    {
+        -ConcurrentDictionary<Guid, Task> _jobs
+    }
+    IJobRunner <|.. JobRunner
+    JobRunner --> IJobEnvironment
+    JobRunner --> IJobDbContext
+    JobRunner --> IJobProcessRunner
+    JobRunner --> IResultsCollector
+    JobRunner --> ILogger
+    JobRunner --> RunJobModel
+    JobRunner --> JobStatus
+}
+
+package Resources
+{
+    class ResourcesAnalyzerOptions
+    {
+        +double ThresholdCpuUsage
+        +double ThresholdMemoryUsage
+        +double ThresholdDriveUsage
+        +int ThresholdRunningJobs
+    }
+    class CpuStat
+    {
+        +long Total
+        +long Idle
+    }
+    class MemStat
+    {
+        +long Total
+        +long Available
+        {method}+double UsagePercentage
+    }
+    class DriveStat
+    {
+        +long Total
+        +long Free
+        {method}+double UsagePercentage
+    }
+
+    interface IResourcesReader
+    {
+        +Task<CpuStat> GetCpuStatisticsAsync(CancellationToken)
+        +Task<MemStat> GetRamStatisticsAsync(CancellationToken)
+        +Task<DriveStat> GetDriveStatisticsAsync(string, CancellationToken)
+    }
+    class LinuxResourcesReader
+    {
+        ~string CpuStatFilePath
+        ~string RamStatFilePath
+        {static}-long ParseOrDefault(string)
+    }
+    IResourcesReader <|.. LinuxResourcesReader
+    LinuxResourcesReader --> CpuStat
+    LinuxResourcesReader --> MemStat
+    LinuxResourcesReader --> DriveStat
+
+    interface IResourcesAnalyzer
+    {
+        +Task<bool> CanRunNewJobAsync(CancellationToken)
+    }
+    class ResourcesAnalyzer
+    {
+        -Task<double> GetCpuLoadAsync(CancellationToken)
+    }
+    IResourcesAnalyzer <|.. ResourcesAnalyzer
+    ResourcesAnalyzer --> IResourcesReader
+    ResourcesAnalyzer --> IJobRunner
+    ResourcesAnalyzer --> JobEnvironmentOptions
+    ResourcesAnalyzer --> ResourcesAnalyzerOptions
+    ResourcesAnalyzer --> ILogger
+    ResourcesAnalyzer --> CpuStat
+    ResourcesAnalyzer --> MemStat
+    ResourcesAnalyzer --> DriveStat
+}
+
+class ConsumerWorker
+{
+    -CancellationTokenSource _consumingLoopCancellation
+    -Task _consumingLoopTask
+    -ConsumeResult<Guid, JobMessage> _lastConsumed
+    -Task ConsumingLooop(CancellationToken)
+    -Task ConsumeOnceAsync(CancellationToken)
+    -Task SetJobAsRunning(IJobDbContext, Guid, CancellationToken)
+}
+IHostedService <|.. ConsumerWorker
+ConsumerWorker --> IBrokerConsumer
+ConsumerWorker --> IJobRunner
+ConsumerWorker --> IResourcesAnalyzer
+ConsumerWorker --> IJobDbContext
+ConsumerWorker --> ConsumerWorkerOptions
+ConsumerWorker --> ILogger
+ConsumerWorker --> RunJobModel
+
+@enduml

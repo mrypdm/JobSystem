@@ -1,0 +1,53 @@
+@startuml Shared.Database classes
+hide empty members
+
+title Базовые классы для работы с базой данных
+
+class SslValidator << External >>
+class Pkcs12CertificateOptions << External >>
+
+interface ILogger << Built-In >>
+interface ILoggerFactory << Built-In >>
+ILoggerFactory --> ILogger
+
+class DatabaseFacade << EF Core >>
+abstract class DbContextOptions << EF Core >>
+
+class DbContext << EF Core >>
+{
+    +DatabaseFacade Database
+    #void OnModelCreating(ModelBuilder)
+}
+DbContext --> ILoggerFactory
+DbContext --> DatabaseFacade
+DbContext --> DbContextOptions
+
+class DbContextOptionsBuilder << EF Core >>
+{
+    +UseNpgsql
+    +UseLoggerFactory
+}
+DbContextOptionsBuilder --> ILoggerFactory
+
+class DatabaseOptions
+{
+    +string HostName
+    +int Port
+    +string DatabaseName
+    +int RetriesCount
+    +TimeSpan RetryDelay
+}
+Pkcs12CertificateOptions <|-- DatabaseOptions
+
+abstract class PostgreDbContext
+{
+    #void OnModelCreating(ModelBuilder)
+    {static}+ DbContextOptionsBuilder BuildOptions(DbContextOptionsBuilder,DatabaseOptions,SslValidator,ILoggerFactory,bool)
+}
+DbContext <|-- PostgreDbContext
+PostgreDbContext --> DbContextOptionsBuilder
+PostgreDbContext --> ILogger
+PostgreDbContext --> DatabaseOptions
+PostgreDbContext --> SslValidator
+
+@enduml

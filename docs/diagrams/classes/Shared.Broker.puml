@@ -1,0 +1,48 @@
+@startuml Shared.Broker classes
+hide empty members
+
+title Базовые классы для работы с Kafka
+
+interface IDisposable << Built-In >>
+class ConsumerConfig << Confluent >>
+class ProducerConfig << Confluent >>
+class ConsumeResult<TKey, TMessage> << Confluent >>
+class PemCertificateOptions << External >>
+
+abstract class BrokerOptions<TConfig>
+{
+    +string Servers
+    +string Topic
+    {method}+string ClientId
+    {abstract}+ TConfig ToConfig()
+}
+PemCertificateOptions <|-- BrokerOptions
+
+class ConsumerOptions <ConsumerConfig>
+{
+    +string GroupId
+}
+BrokerOptions<|-- ConsumerOptions
+ConsumerOptions --> ConsumerConfig
+
+class ProducerOptions <ProducerConfig>
+BrokerOptions<|-- ProducerOptions
+ProducerOptions --> ProducerConfig
+
+interface IBrokerConsumer<TKey, TMessage>
+{
+    +void Subscribe()
+    +ConsumeResult<TKey, TMessage> Consume(CancellationToken)
+    +void Commit(ConsumeResult<TKey, TMessage>)
+}
+IDisposable <|-- IBrokerConsumer
+IBrokerConsumer --> ConsumeResult
+
+interface IBrokerProducer<TKey, TMessage>
+{
+    +Task PublishAsync(TMessage message, CancellationToken cancellationToken)
+}
+IDisposable <|-- IBrokerProducer
+IBrokerProducer --> ConsumeResult
+
+@enduml

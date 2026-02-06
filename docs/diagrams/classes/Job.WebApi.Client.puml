@@ -1,0 +1,55 @@
+@startuml Job.WebApi.Client classes
+hide empty members
+
+title Классы клиента для веб-приложения Задач
+
+class Exception << Built-In >>
+interface IDisposable << Built-In >>
+interface ILogger << Built-In >>
+class Pkcs12CertificateOptions << External >>
+
+class JobWebApiClientOptions
+{
+    +string Url
+    +TimeSpan Timeout
+}
+Pkcs12CertificateOptions <|-- JobWebApiClientOptions
+
+interface IFlurlClientFactory
+{
+    +IFlurlClient Create(JobWebApiClientOptions)
+}
+
+class FlurlClientFactory
+IFlurlClientFactory <|.. FlurlClientFactory
+
+exception JobWebApiException
+{
+    {method}+HttpStatusCode? StatusCode
+}
+Exception <|-- JobWebApiException
+
+exception JobWebApiTimeoutException
+Exception <|-- JobWebApiTimeoutException
+
+interface IJobWebApiClient
+{
+    +Task<Guid> CreateNewJobAsync(CreateJobRequest, CancellationToken)
+    +Task<JobResultResponse> GetJobResultsAsync(Guid, CancellationToken)
+}
+IDisposable <|.. IJobWebApiClient
+
+class JobWebApiClient
+{
+    -IFlurlClient _httpClient
+    -void LogHttpRequest(string, string)
+    {static}-Task<TResult> DoHttpRequest<TResult>(Func<Task<TResult>>)
+}
+IJobWebApiClient <|.. JobWebApiClient
+JobWebApiClient --> IFlurlClientFactory
+JobWebApiClient --> JobWebApiClientOptions
+JobWebApiClient --> ILogger
+JobWebApiClient --> JobWebApiException
+JobWebApiClient --> JobWebApiTimeoutException
+
+@enduml

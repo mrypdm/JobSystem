@@ -1,0 +1,54 @@
+@startuml Job.Database classes
+hide empty members
+
+title Классы для работы с БД Задач
+
+interface IDisposable << Built-In >>
+interface ILogger << Built-In >>
+
+enum JobStatus << External >>
+class NewJobModel << External >>
+class JobResultResponse << External >>
+
+class DbContextOptions << EF Core >>
+class PostgreDbContext << External >>
+PostgreDbContext --> DbContextOptions
+PostgreDbContext --> ILogger
+
+class JobDbModel
+{
+    +Guid Id
+    +JobStatus Status
+    +TimeSpan Timeout
+    +DateTime CreatedAt
+    +DateTime? StartedAt
+    +DateTime? FinishedAt
+    +string Script
+    +byte[] Results
+}
+JobDbModel --> JobStatus
+
+interface IJobDbContext
+{
+    +Task AddNewJobAsync(NewJobModel, CancellationToken)
+    +Task<NewJobModel> GetNewJobAsync(Guid, CancellationToken)
+    +Task SetJobRunningAsync(Guid, CancellationToken)
+    +Task SetJobResultsAsync(Guid, JobStatus, byte[], CancellationToken)
+    +Task<JobResultResponse> GetJobResultsAsync(Guid, CancellationToken)
+    +Task MarkLostJobsAsync(TimeSpan, CancellationToken)
+}
+IDisposable <|-- IJobDbContext
+IJobDbContext --> NewJobModel
+IJobDbContext --> JobResultResponse
+IJobDbContext --> JobStatus
+
+class JobDbContext
+{
+    ~DbSet<JobDbModel> Jobs
+}
+IJobDbContext <|.. JobDbContext
+PostgreDbContext <|-- JobDbContext
+JobDbContext --> JobDbModel
+JobDbContext --> ILogger
+
+@enduml

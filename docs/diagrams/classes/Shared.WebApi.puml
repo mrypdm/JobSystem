@@ -1,0 +1,30 @@
+@startuml Shared.WebApi classes
+hide empty members
+
+title Базовые классы, используемые в веб-приложениях
+
+interface IExceptionFilter << ASP.NET Core >>
+{
+    +void OnException(ExceptionContext)
+}
+interface ILogger << Built-In >>
+
+exception PostgresException << EF Core >>
+
+abstract class BaseExceptionFilter
+{
+    {abstract}#bool IsSupportedException(Exception)
+    #HttpStatusCode GetStatusCode(Exception)
+    #string GetMessage(Exception)
+}
+IExceptionFilter <|.. BaseExceptionFilter
+BaseExceptionFilter --> ILogger
+
+class UnhandledExceptionFilter
+BaseExceptionFilter <|-- UnhandledExceptionFilter
+
+class PostgresExceptionsFilter
+BaseExceptionFilter <|-- PostgresExceptionsFilter
+PostgresExceptionsFilter --> PostgresException
+
+@enduml

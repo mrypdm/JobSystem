@@ -1,0 +1,53 @@
+@startuml Job.WebApi classes
+hide empty members
+
+title Классы веб-приложения Задач
+
+abstract class Controller << ASP.NET Core >>
+interface IHostedService << Built-In >>
+interface ILogger << Built-In >>
+interface IJobDbContext << External >>
+class JobMessage << External >>
+class NewJobModel << External >>
+interface IBrokerProducer<Guid, JobMessage> << External >>
+IBrokerProducer --> JobMessage
+
+class JobControllerOptions
+{
+    +TimeSpan DefaultTimeout
+    +TimeSpan MaxTimeout
+}
+
+class LostJobWorkerOptions
+{
+    +bool IsEnabled
+    +TimeSpan IterationDeplay
+    +TimeSpan LostTimeoutForJobs
+}
+
+class LostJobWorker
+{
+    -CancellationTokenSource _wokerCancellation
+    -Task _workerTask
+    -Task RunLoopAsync(CancellationToken)
+    -Task RunIterationAsync(CancellationToken)
+}
+IHostedService <|.. LostJobWorker
+LostJobWorker --> LostJobWorkerOptions
+LostJobWorker --> IJobDbContext
+LostJobWorker --> ILogger
+
+class JobController
+{
+    +Task<ActionResult<Guid>> AddNewJobAsync(CreateJobRequest, CancellationToken)
+    +Task<ActionResult<JobResultResponse>> GetJobResultsAsync(Guid, CancellationToken)
+}
+Controller <|-- JobController
+JobController --> IJobDbContext
+JobController --> IBrokerProducer
+JobController --> JobControllerOptions
+JobController --> ILogger
+JobController --> JobMessage
+JobController --> NewJobModel
+
+@enduml

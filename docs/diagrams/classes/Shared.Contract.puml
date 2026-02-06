@@ -1,0 +1,80 @@
+@startuml Shared.Contract classes
+hide empty members
+
+title Базовые классы, используемые по всему проекту
+
+interface IDisposable << Built-In >>
+{
+    +void Dispose()
+}
+
+interface ILogger << Built-In >>
+{
+    +void LogCritical
+    +void LogError
+    +void LogWarning
+    +void LogInformation
+    +void LogDebug
+}
+
+
+interface IHostedService << Built-In >>
+{
+    +Task StartAsync(CancellationToken)
+    +Task StopAsync(CancellationToken)
+}
+
+class X509Chain << Built-In >>
+class X509Certificate2 << Built-In >>
+class X509CertificateParser << BouncyCastle >>
+class X509CrlParser << BouncyCastle >>
+class MemoryCache << Built-In >>
+enum SslPolicyErrors << Built-In >>
+
+class CertificateOptions
+{
+    +string RevocationListFilePath
+    +string CertificateFilePath
+    +string Password
+}
+
+class PemCertificateOptions
+{
+    +string TruststoreFilePath
+    +string KeyFilePath
+    {method}+string UserName
+}
+CertificateOptions <|-- PemCertificateOptions
+
+class Pkcs12CertificateOptions
+{
+    -X509Certificate2Collection _certificateChain
+    {method}+X509Certificate2Collection CertificateChain
+    {method}+X509Certificate2 Certificate
+    {method}+string CommonName
+}
+CertificateOptions <|-- Pkcs12CertificateOptions
+
+class WebServerOptions
+Pkcs12CertificateOptions <|-- WebServerOptions
+
+class SslValidator
+{
+    -X509Chain _validationChain
+    -HashSet<string> _revokedCertificates
+    -MemoryCache _certificateCache
+    {method}+X509ChainPolicy ChainPolicy
+    +bool Validate(X509Certificate2, X509Chain, SslPolicyErrors)
+    +bool IsRevoked(X509Certificate2)
+    {static}-bool IsUntrustedRootError(SslPolicyErrors, X509Chain)
+    {static}-HashSet<string> GetRevokedCertificates(X509Chain, string)
+}
+SslValidator --> Pkcs12CertificateOptions
+SslValidator --> X509Chain
+SslValidator --> X509Certificate2
+SslValidator --> MemoryCache
+SslValidator --> SslPolicyErrors
+SslValidator --> X509CertificateParser
+SslValidator --> X509CrlParser
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml User.Database classes
+hide empty members
+
+title Классы для работы с БД Пользователей
+
+interface IDisposable << Built-In >>
+interface ILogger << Built-In >>
+
+class DbContextOptions << EF Core >>
+class PostgreDbContext << External >>
+PostgreDbContext --> DbContextOptions
+PostgreDbContext --> ILogger
+
+class UserDbModel
+{
+    +string Username
+    +string PasswordHas
+    +string PasswordSalt
+}
+
+class UserJobDbModel
+{
+    +string Username
+    +Guid JobId
+}
+
+interface IUserDbContext
+{
+    +Task AddNewUserAsync(UserDbModel, CancellationToken)
+    +Task<UserDbModel> GetUserAsync(string, CancellationToken)
+    +Task AddNewUserJobAsync(string, Guid, CancellationToken)
+    +Task<Guid[]> GetUserJobsAsync(string, CancellationToken)
+    +Task<bool> IsUserJobAsync(string, Guid, CancellationToken)
+}
+IDisposable <|-- IUserDbContext
+IUserDbContext --> UserDbModel
+IUserDbContext --> UserJobDbModel
+
+class UserDbContext
+{
+    ~DbSet<UserDbModel> Users
+    ~DbSet<UserJobDbModel> UsersJobs
+}
+IUserDbContext <|.. UserDbContext
+PostgreDbContext <|-- UserDbContext
+UserDbContext --> ILogger
+
+@enduml

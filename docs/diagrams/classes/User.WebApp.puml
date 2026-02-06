@@ -1,0 +1,74 @@
+@startuml User.WebApp classes
+hide empty members
+
+title Классы веб-приложения пользователей
+
+abstract class Controller << ASP.NET Core >>
+abstract class BaseExceptionFilter << External >>
+interface IUserDbContext << External >>
+interface IJobWebApiClient << External >>
+interface ILogger << Built-In >>
+interface IFormFile << ASP.NET Core >>
+
+class CreateUserJobRequest
+{
+    public TimeSpan Timeout { get; set; }
+    public IFormFile Script { get; set; }
+}
+
+class LoginRequest
+{
+    public string ReturnUrl { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+}
+
+class JobWebApiExceptionsFilter
+BaseExceptionFilter <|-- JobWebApiExceptionsFilter
+
+class JobWebApiTimeoutExceptionFilter
+BaseExceptionFilter <|-- JobWebApiTimeoutExceptionFilter
+
+class AuthenticationController
+{
+    +ActionResult GetLoginView(string)
+    +ActionResult GetLogoutView()
+}
+Controller <|-- AuthenticationController
+AuthenticationController --> LoginRequest
+
+class AuthenticationApiController
+{
+    +Task<ActionResult> SignInAsync(LoginRequest, CancellationToken)
+    +Task<ActionResult> SignOutAsync()
+}
+Controller <|-- AuthenticationApiController
+AuthenticationApiController --> IUserDbContext
+AuthenticationApiController --> ILogger
+AuthenticationApiController --> LoginRequest
+
+class JobController
+{
+    +Task<ActionResult> GetViewAsync(CancellationToken)
+    +ActionResult GetJobResultsView(Guid)
+    +ActionResult GetJobCreateView()
+}
+Controller <|-- JobController
+JobController --> IUserDbContext
+JobController --> CreateUserJobRequest
+
+class JobApiController
+{
+    +Task<ActionResult> CreateNewJobAsync([CreateUserJobRequest, CancellationToken)
+    +Task<ActionResult<JobResultResponse>> GetUserJobResultsAsync(Guid, CancellationToken)
+    -Task<string> ReadFileAsBase64(IFormFile, CancellationToken)
+}
+Controller <|-- JobApiController
+JobApiController --> IUserDbContext
+JobApiController --> IJobWebApiClient
+JobApiController --> CreateUserJobRequest
+JobApiController --> IFormFile
+JobApiController --> JobWebApiExceptionsFilter
+JobApiController --> JobWebApiTimeoutExceptionFilter
+
+@enduml

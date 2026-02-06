@@ -1,0 +1,61 @@
+@startuml Job.Broker classes
+hide empty members
+
+title Классы для работы с Kafka
+
+interface ILogger << Built-In >>
+class ConsumerOptions << External >>
+class ProducerOptions << External >>
+
+interface ISerializer<TType> << Confluent >>
+{
+    +byte[] Serialize(TType, SerializationContext)
+}
+interface IDeserializer<TType> << Confluent >>
+{
+    +TType Deserialize(ReadOnlySpan<byte>, bool, SerializationContext)
+}
+
+class JobMessage
+{
+    +Guid Id
+    {method}+byte[] ToByteArray()
+}
+
+interface IBrokerConsumer<Guid, JobMessage> << External >>
+IBrokerConsumer --> JobMessage
+interface IBrokerProducer<Guid, JobMessage> << External >>
+IBrokerProducer --> JobMessage
+
+class GuidConverter<Guid>
+ISerializer <|.. GuidConverter
+IDeserializer <|.. GuidConverter
+
+class JobMessageConverter<JobMessage>
+ISerializer <|.. JobMessageConverter
+IDeserializer <|.. JobMessageConverter
+JobMessageConverter --> JobMessage
+
+class JobConsumer
+{
+    -bool _disposed
+    -IConsumer<Guid, JobMessage> _consumer
+}
+IBrokerConsumer <|.. JobConsumer
+JobConsumer --> ConsumerOptions
+JobConsumer --> ILogger
+JobConsumer --> JobMessageConverter
+JobConsumer --> GuidConverter
+
+class JobProducer
+{
+    -bool _disposed
+    -IProducer<Guid, JobMessage> _producer
+}
+IBrokerProducer <|.. JobProducer
+JobProducer --> ProducerOptions
+JobProducer --> ILogger
+JobProducer --> JobMessageConverter
+JobProducer --> GuidConverter
+
+@enduml

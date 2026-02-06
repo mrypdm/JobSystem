@@ -1,0 +1,39 @@
+@startuml Job.Contract classes
+hide empty members
+
+title Контракт Задач
+
+enum JobStatus
+{
+    New
+    Running
+    Finished
+    Timeout
+    Fault
+    Lost
+}
+
+class CreateJobRequest
+{
+    +Guid? Id
+    +TimeSpan? Timeout
+    +strng Script
+}
+
+class JobResultResponse
+{
+    +JobStatus Status
+    +DateTime? StartedAt
+    +DateTime? FinishedAt
+    +byte[] Results
+}
+JobResultResponse --> JobStatus
+
+class NewJobModel
+{
+    +Guid Id
+    +TimeSpan Timeout
+    +strng Script
+}
+
+@enduml
