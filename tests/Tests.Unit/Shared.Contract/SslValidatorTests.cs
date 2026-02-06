@@ -16,8 +16,9 @@ public class SslValidatorTests : TestBase
 {
     private const string Password = "qwerty-123";
 
-    private const string WrongChainCrlPath = "TestData/ssl-validator/crl.wrong-chain.pem";
     private const string CrlPath = "TestData/ssl-validator/crl.pem";
+    private const string ExpiredCrlPath = "TestData/ssl-validator/crl.expired.pem";
+    private const string WrongChainCrlPath = "TestData/ssl-validator/crl.wrong-chain.pem";
 
     private const string DefaultCertificatePath = "TestData/ssl-validator/svc_testhost.keystore.p12";
     private const string RevokedCertificatePath = "TestData/ssl-validator/svc_testhost@revoked.keystore.p12";
@@ -29,6 +30,14 @@ public class SslValidatorTests : TestBase
         // arrange & act & assert
         var exception = Assert.Throws<InvalidKeyException>(() => CreateValidator(crlPath: WrongChainCrlPath));
         Assert.That(exception.Message, Does.Contain("CRL does not verify with supplied public key"));
+    }
+
+    [Test]
+    public void Init_ExiredCrl_Throw()
+    {
+        // arrange & act & assert
+        var exception = Assert.Throws<ArgumentException>(() => CreateValidator(crlPath: ExpiredCrlPath));
+        Assert.That(exception.Message, Does.Contain("CRL is expired. It was supposed to be updated on"));
     }
 
     [Test]

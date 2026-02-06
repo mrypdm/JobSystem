@@ -9,9 +9,9 @@
 
   <ItemGroup>
     <Content Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 
@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestData\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="TestData\**" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 </Project>

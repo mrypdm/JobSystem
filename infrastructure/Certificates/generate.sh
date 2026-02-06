@@ -163,7 +163,7 @@ create_pkcs12_keystore "superuser@postgres"
 # Kafka
 create_pem_truststore "svc_kafka"
 create_pkcs12_truststore "svc_kafka"
-generate_server_certificate "svc_kafka" "IP:127.0.0.1,DNS:localhost,DNS:kafka" "serverAuth, clientAuth" 
+generate_server_certificate "svc_kafka" "IP:127.0.0.1,DNS:localhost,DNS:kafka" "serverAuth, clientAuth"
 generate_client_certificate "svc_jobs_webapi@kafka"
 generate_client_certificate "svc_jobs_worker@kafka"
 generate_client_certificate "superuser@kafka"
@@ -193,4 +193,4 @@ openssl ca -config root.cnf -revoke certs/svc_testhost@revoked/svc_testhost@revo
 
 rm -rf $CERT_DIR/tmp
 
-openssl ca -config root.cnf -gencrl -out root/crl.pem -passin "pass:$DEFAULT_PASSWORD"
+openssl ca -config root.cnf -gencrl -crldays $DURATION_DAYS -out root/crl.pem -passin "pass:$DEFAULT_PASSWORD"

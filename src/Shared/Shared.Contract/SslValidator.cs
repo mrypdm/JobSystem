@@ -25,17 +25,7 @@ public class SslValidator
         _validationChain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
         _validationChain.ChainPolicy.CustomTrustStore.Clear();
         _validationChain.ChainPolicy.CustomTrustStore.AddRange(options.CertificateChain);
-
-        var rootPublicKey = new X509CertificateParser()
-            .ReadCertificate(_validationChain.ChainPolicy.CustomTrustStore.Last().GetRawCertData())
-            .GetPublicKey();
-        var crl = new X509CrlParser()
-            .ReadCrl(File.ReadAllBytes(options.RevocationListFilePath));
-        crl.Verify(rootPublicKey);
-
-        _revokedCertificates = crl.GetRevokedCertificates()
-            ?.Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray()))
-            ?.ToHashSet() ?? [];
+        _revokedCertificates = GetRevokedCertificates(_validationChain, options.RevocationListFilePath);
     }
 
     /// <summary>
@@ -100,4 +90,23 @@ public class SslValidator
 
         return false;
     }
+
+    private static HashSet<string> GetRevokedCertificates(X509Chain chain, string crlPath)
+    {
+        var rootPublicKey = new X509CertificateParser()
+            .ReadCertificate(chain.ChainPolicy.CustomTrustStore.Last().GetRawCertData())
+            .GetPublicKey();
+
+        var crl = new X509CrlParser().ReadCrl(File.ReadAllBytes(crlPath));
+        crl.Verify(rootPublicKey);
+        if (crl.NextUpdate < DateTime.Now)
+        {
+            throw new ArgumentException($"CRL is expired. It was supposed to be updated on {crl.NextUpdate}");
+        }
+
+        return crl.GetRevokedCertificates()
+            ?.Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray()))
+            ?.ToHashSet() ?? [];
+    }
+
 }
