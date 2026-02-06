@@ -10,5 +10,5 @@ public record MemStat(long Total, long Available)
     /// <summary>
     /// Percentage of used RAM
     /// </summary>
-    public double UsagePercetage => 1 - (double)Available / Total;
+    public double UsagePercentage => 1 - (double)Available / Total;
 }
