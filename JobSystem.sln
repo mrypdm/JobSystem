@@ -106,6 +106,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Unit", "tests\Tests.U
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Integration", "tests\Tests.Integration\Tests.Integration.csproj", "{50CD6731-E849-2313-F512-47AB883C1673}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{208BA388-4CEE-2CBF-559C-5607C099C1F8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "diagrams", "diagrams", "{3D1517F3-F756-8532-C927-7FD1F48ABE6F}"
+	ProjectSection(SolutionItems) = preProject
+		docs\diagrams\User.WebApp.puml = docs\diagrams\User.WebApp.puml
+		docs\diagrams\Jobs.Worker.puml = docs\diagrams\Jobs.Worker.puml
+		docs\diagrams\Jobs.WebApi.puml = docs\diagrams\Jobs.WebApi.puml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -206,6 +215,7 @@ Global
 		{7D691932-52C0-AB77-4078-DDA751C4288C} = {D9205183-7E2C-4610-8A85-F99471BA21D8}
 		{44C835EB-9518-81FE-AEDB-312B2931CAB7} = {D9205183-7E2C-4610-8A85-F99471BA21D8}
 		{50CD6731-E849-2313-F512-47AB883C1673} = {D9205183-7E2C-4610-8A85-F99471BA21D8}
+		{3D1517F3-F756-8532-C927-7FD1F48ABE6F} = {208BA388-4CEE-2CBF-559C-5607C099C1F8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A09298-C745-4041-A133-65E3AF4E8E3E}
