@@ -12,12 +12,12 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
     /// <summary>
     /// Table of Users
     /// </summary>
-    public DbSet<UserDbModel> Users { get; set; }
+    internal DbSet<UserDbModel> Users { get; set; }
 
     /// <summary>
     /// Table of Users Jobs
     /// </summary>
-    public DbSet<UserJobDbModel> UsersJobs { get; set; }
+    internal DbSet<UserJobDbModel> UsersJobs { get; set; }
 
     /// <inheritdoc />
     public async Task AddNewUserAsync(UserDbModel user, CancellationToken cancellationToken)
