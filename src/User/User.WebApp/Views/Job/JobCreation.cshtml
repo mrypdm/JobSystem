@@ -8,13 +8,13 @@
 @Html.AntiForgeryToken()
 
 <form id="create-job-form" action="/api/jobs" method="post" enctype="multipart/form-data">
-    <input asp-for="Script" accept=".sh"/>
+    <input asp-for="Script" accept=".sh" />
     <input asp-for="Timeout" placeholder="Timeout" />
-    <input type="submit" value="Upload" />
+    <input type="submit" value="Create" />
 </form>
 
 <script>
-    document.getElementById('create-job-form').addEventListener('submit', async function(e) {
+    document.getElementById('create-job-form').addEventListener('submit', async function (e) {
         e.preventDefault();
         await createJob(e.currentTarget);
     });
