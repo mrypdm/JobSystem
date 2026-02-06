@@ -59,6 +59,7 @@ jobs:
             cd ${{ github.workspace }}/src/Shared/Shared.SimpleInitializer
             dotnet run --no-build
             cd ${{ github.workspace }}
+        timeout-minutes: 1
 
       - name: Start Job.WebApi container
         run: |
@@ -69,10 +70,17 @@ jobs:
 
       - name: Test
         run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
+        timeout-minutes: 2
 
       - name: Get Job.WebApi container logs
         if: always()
         run: docker compose -f ${{ github.workspace }}/src/Job/Job.WebApi/docker-compose.github.yaml logs
+      - name: Get Apache Kafka container logs
+        if: always()
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml logs
+      - name: Get PostgreSQL container logs
+        if: always()
+        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml logs
 
       - name: Stop Job.WebApi container
         if: always()
