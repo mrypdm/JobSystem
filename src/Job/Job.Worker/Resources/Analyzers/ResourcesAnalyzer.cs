@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Job.Worker.Resources.Analyzers;
 
 /// <inheritdoc />
-public partial class ResourcesAnalyzer(
+public class ResourcesAnalyzer(
     IJobRunner jobRunner,
     IResourcesReader resourcesReader,
     JobEnvironmentOptions jobEnvironmentOptions,
