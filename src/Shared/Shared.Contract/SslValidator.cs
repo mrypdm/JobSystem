@@ -108,5 +108,4 @@ public class SslValidator
             ?.Select(m => Convert.ToHexString(m.SerialNumber.ToByteArray()))
             ?.ToHashSet() ?? [];
     }
-
 }

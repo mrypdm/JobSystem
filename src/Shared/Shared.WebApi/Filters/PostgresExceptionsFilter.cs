@@ -1,7 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Npgsql;
-using Shared.WebApi.Filters;
 
-namespace User.WebApp.Filters;
+namespace Shared.WebApi.Filters;
 
 /// <summary>
 /// Filter for <see cref="PostgresException"/>

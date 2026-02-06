@@ -4,7 +4,6 @@ using System.Security.Cryptography.X509Certificates;
 using Job.Broker;
 using Job.Broker.Clients;
 using Job.Database.Contexts;
-using Job.WebApi.Filters;
 using Job.WebApi.Options;
 using Job.WebApi.Workers;
 using Microsoft.AspNetCore.Authentication.Certificate;
@@ -18,6 +17,7 @@ using Shared.Contract.Logging;
 using Shared.Contract.Options;
 using Shared.Contract.Owned;
 using Shared.Database;
+using Shared.WebApi.Filters;
 
 namespace Job.WebApi.Extensions;
 
