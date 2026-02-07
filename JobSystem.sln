@@ -109,10 +109,28 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{208BA388-4CEE-2CBF-559C-5607C099C1F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "diagrams", "diagrams", "{3D1517F3-F756-8532-C927-7FD1F48ABE6F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "classes", "classes", "{DFDED388-31A0-698C-4D65-EDE77229842C}"
 	ProjectSection(SolutionItems) = preProject
-		docs\diagrams\User.WebApp.puml = docs\diagrams\User.WebApp.puml
-		docs\diagrams\Jobs.Worker.puml = docs\diagrams\Jobs.Worker.puml
-		docs\diagrams\Jobs.WebApi.puml = docs\diagrams\Jobs.WebApi.puml
+		docs\diagrams\classes\Job.Broker.puml = docs\diagrams\classes\Job.Broker.puml
+		docs\diagrams\classes\Job.Contract.puml = docs\diagrams\classes\Job.Contract.puml
+		docs\diagrams\classes\Job.Database.puml = docs\diagrams\classes\Job.Database.puml
+		docs\diagrams\classes\Job.WebApi.Client.puml = docs\diagrams\classes\Job.WebApi.Client.puml
+		docs\diagrams\classes\Job.WebApi.puml = docs\diagrams\classes\Job.WebApi.puml
+		docs\diagrams\classes\Job.Worker.puml = docs\diagrams\classes\Job.Worker.puml
+		docs\diagrams\classes\Shared.Broker.puml = docs\diagrams\classes\JoSharedb.Broker.puml
+		docs\diagrams\classes\Shared.Contract.puml = docs\diagrams\classes\Shared.Contract.puml
+		docs\diagrams\classes\Shared.Database.puml = docs\diagrams\classes\Shared.Database.puml
+		docs\diagrams\classes\Shared.WebApi.puml = docs\diagrams\classes\Shared.WebApi.puml
+		docs\diagrams\classes\User.Database.puml = docs\diagrams\classes\User.Database.puml
+		docs\diagrams\classes\User.WebApp.puml = docs\diagrams\classes\User.WebApp.puml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sequence", "sequence", "{57E40C08-C460-A04B-2F4B-B507C3C6260E}"
+	ProjectSection(SolutionItems) = preProject
+		docs\diagrams\sequence\User.WebApp.puml = docs\diagrams\sequence\User.WebApp.puml
+		docs\diagrams\sequence\Job.WebApi.puml = docs\diagrams\sequence\Job.WebApi.puml
+		docs\diagrams\sequence\Job.Worker.puml = docs\diagrams\sequence\Job.Worker.puml
 	EndProjectSection
 EndProject
 Global
@@ -216,6 +234,8 @@ Global
 		{44C835EB-9518-81FE-AEDB-312B2931CAB7} = {D9205183-7E2C-4610-8A85-F99471BA21D8}
 		{50CD6731-E849-2313-F512-47AB883C1673} = {D9205183-7E2C-4610-8A85-F99471BA21D8}
 		{3D1517F3-F756-8532-C927-7FD1F48ABE6F} = {208BA388-4CEE-2CBF-559C-5607C099C1F8}
+		{DFDED388-31A0-698C-4D65-EDE77229842C} = {3D1517F3-F756-8532-C927-7FD1F48ABE6F}
+		{57E40C08-C460-A04B-2F4B-B507C3C6260E} = {3D1517F3-F756-8532-C927-7FD1F48ABE6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A09298-C745-4041-A133-65E3AF4E8E3E}

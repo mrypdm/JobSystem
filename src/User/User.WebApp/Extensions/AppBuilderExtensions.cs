@@ -96,6 +96,12 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddCookieAuthentication(this WebApplicationBuilder builder)
     {
+        builder.Services.AddMemoryCache(options =>
+        {
+            options.SizeLimit = 100 * 1024 * 1024; // 100 MB;
+            options.ExpirationScanFrequency = TimeSpan.FromHours(1);
+        });
+
         var webServerOptions = builder.Configuration.GetOptions<WebServerOptions>();
         builder.Services
             .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -190,6 +191,45 @@ internal class AuthenticationApiControllerTests : TestBase
     }
 
     [Test]
+    public async Task SignIn_UserExists_AndWrongPassword_ShouldBlockAfter5Tries()
+    {
+        // arrange
+        var request = new LoginRequest
+        {
+            Username = "username",
+            Password = "password"
+        };
+
+        var salt = RandomNumberGenerator.GetBytes(128 / 8);
+        var hash = KeyDerivation.Pbkdf2("anotherPassword", salt, KeyDerivationPrf.HMACSHA512,
+            iterationCount: 100000, numBytesRequested: 512 / 8);
+        var userModel = new UserDbModel
+        {
+            Username = request.Username,
+            PasswordHash = Convert.ToBase64String(hash),
+            PasswordSalt = Convert.ToBase64String(salt)
+        };
+
+        _userDbContext
+            .Setup(m => m.GetUserAsync(request.Username, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(userModel);
+
+        using var controller = Services.GetRequiredService<AuthenticationApiController>();
+
+        // act
+        for (var i = 0; i < 5; ++i)
+        {
+            _ = await controller.SignInAsync(request, default);
+        }
+
+        var response = await controller.SignInAsync(request, default);
+
+        // assert
+        Assert.That(response, Is.TypeOf<StatusCodeResult>());
+        Assert.That((response as StatusCodeResult).StatusCode, Is.EqualTo((int)HttpStatusCode.TooManyRequests));
+    }
+
+    [Test]
     public async Task SignOut_ShouldSignOut()
     {
         // arrange
@@ -210,11 +250,13 @@ internal class AuthenticationApiControllerTests : TestBase
     protected override void ConfigureServices(HostApplicationBuilder builder)
     {
         base.ConfigureServices(builder);
+        builder.Services.AddMemoryCache();
         builder.Services.AddTransient(context =>
         {
             var controller = new AuthenticationApiController(
                 _userDbContext.Object,
-                context.GetRequiredService<ILogger<AuthenticationApiController>>());
+                context.GetRequiredService<ILogger<AuthenticationApiController>>(),
+                context.GetRequiredService<IMemoryCache>());
 
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.ControllerContext.HttpContext.Connection.RemoteIpAddress = IPAddress.Loopback;

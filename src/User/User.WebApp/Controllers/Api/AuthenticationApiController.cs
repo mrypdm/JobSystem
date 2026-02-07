@@ -1,9 +1,11 @@
+using System.Net;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using User.Database.Contexts;
 using User.Database.Models;
 using User.WebApp.Extensions;
@@ -17,7 +19,10 @@ namespace User.WebApp.Controllers.Api;
 [AllowAnonymous]
 [Route("api/auth")]
 [ValidateAntiForgeryToken]
-public class AuthenticationApiController(IUserDbContext userDbContext, ILogger<AuthenticationApiController> logger)
+public class AuthenticationApiController(
+    IUserDbContext userDbContext,
+    ILogger<AuthenticationApiController> logger,
+    IMemoryCache blockedUsersCache)
     : Controller
 {
     /// <summary>
@@ -34,6 +39,12 @@ public class AuthenticationApiController(IUserDbContext userDbContext, ILogger<A
         if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
         {
             return BadRequest("Both Username and Password should be provided");
+        }
+
+        var attempt = blockedUsersCache.Get<int>(request.Username);
+        if (attempt++ >= 5)
+        {
+            return StatusCode((int)HttpStatusCode.TooManyRequests);
         }
 
         var user = await userDbContext.GetUserAsync(request.Username, cancellationToken);
@@ -57,11 +68,14 @@ public class AuthenticationApiController(IUserDbContext userDbContext, ILogger<A
         }
         else if (userModel.PasswordHash != user.PasswordHash)
         {
+            blockedUsersCache.Set(request.Username, attempt, absoluteExpirationRelativeToNow: TimeSpan.FromHours(1));
             return Unauthorized("Wrong username and/or password");
         }
 
+        blockedUsersCache.Remove(request.Username);
+        await HttpContext.SignInAsync(request.Username);
         logger.LogCritical("User [{Username}] signed in", request.Username);
-        await HttpContext.SignInAsync(userModel);
+
         return Ok();
     }
 

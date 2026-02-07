@@ -3,8 +3,8 @@
 title Регистрация пользователя
 
 actor Пользователь as USER
-boundary "Web UI Пользвателя" as UI
-control "Web API Пользвателя" as API
+boundary "Web UI Пользователя" as UI
+control "Web API Пользователя" as API
 database "БД Пользователей" as DB
 
 USER -> UI++: Запрос страницы авторизации
@@ -23,29 +23,50 @@ UI --> USER: Главная страница веб-приложения
 
 @startuml User sign in
 
-title Авторизация пользвателя
+title Авторизация пользователя
 
 actor Пользователь as USER
-boundary "Web UI Пользвателя" as UI
-control "Web API Пользвателя" as API
+boundary "Web UI Пользователя" as UI
+control "Web API Пользователя" as API
 database "БД Пользователей" as DB
+database "Список заблокированных пользователей" as BLOCKED
 
 USER -> UI++: Запрос страницы авторизации
 UI --> USER: Возврат страницы авторизации
 USER -> UI: Ввод авторизационных данных
 USER -> UI: Нажатие кнопки "Login"
 UI -> API++: Запрос входа
+API -> BLOCKED++: Запрос количества неудачных попыток авторизации пользователя
+BLOCKED --> API--: Возврат числа неудачных попыток авторизации пользователя
+
+alt #Pink Число неудачных попыток авторизации пользователя больше или равно 5
+    API --> UI: Отказ доступа
+    UI --> USER: Отображение ошибки
+end
+
 API -> DB++: Запрос пользователя
 DB --> API--: Ответ пользователя
 API -> API: Проверка авторизационных данных
 
 alt #LightGreen Авторизационных данные корректны
 
+    API -> BLOCKED++: Сброс числа неудачных попыток авторизации пользователя
+    BLOCKED --> API--: Возврат
     API --> UI: Возврат авторизационной куки
     UI --> USER: Главная страница веб-приложения
 
 else #Pink Авторизационных данные некорректны
 
+    API -> BLOCKED++: Инкремент числа неудачных попыток авторизации пользователя
+    note over BLOCKED
+        Список хранит информацию в течение часа
+        после последнего обращения.
+        Таким образом, заблокированные пользователи
+        автоматически разблокируются спустя час после блокировки.
+        Автоматический сброс счетчика неудачных попыток также
+        произойдет спустя час после последнего инкремента.
+    end note
+    BLOCKED --> API--: Возврат
     API --> UI--: Отказ доступа
     UI --> USER: Отображение ошибки
 
@@ -60,8 +81,8 @@ title Создание задачи
 actor Пользователь as USER
 note over USER: Считаем, что пользователь успешно авторизован
 
-boundary "Web UI Пользвателя" as UI
-control "Web API Пользвателя" as API
+boundary "Web UI Пользователя" as UI
+control "Web API Пользователя" as API
 database "БД Пользователей" as DB
 boundary "Jobs.WebApi" as JOBS
 
@@ -108,8 +129,8 @@ title Запрос списка задач
 actor Пользователь as USER
 note over USER: Считаем, что пользователь успешно авторизован
 
-boundary "Web UI Пользвателя" as UI
-control "Web API Пользвателя" as API
+boundary "Web UI Пользователя" as UI
+control "Web API Пользователя" as API
 database "БД Пользователей" as DB
 
 USER -> UI++: Запрос главной страницы
@@ -128,8 +149,8 @@ title Запрос результатов задачи
 actor Пользователь as USER
 note over USER: Считаем, что пользователь успешно авторизован
 
-boundary "Web UI Пользвателя" as UI
-control "Web API Пользвателя" as API
+boundary "Web UI Пользователя" as UI
+control "Web API Пользователя" as API
 database "БД Пользователей" as DB
 boundary "Web API Задач" as JOBS
 

@@ -16,13 +16,13 @@ public static class HttpContextExtensions
     /// <summary>
     /// Sign in user with cookie
     /// </summary>
-    public static async Task SignInAsync(this HttpContext context, UserDbModel user)
+    public static async Task SignInAsync(this HttpContext context, string username)
     {
         var principal = new ClaimsPrincipal(
             new ClaimsIdentity(
             [
                 new(IpAddressClaim, context.GetUserIpAddress()),
-                new(ClaimTypes.Name, user.Username)
+                new(ClaimTypes.Name, username)
             ],
             CookieAuthenticationDefaults.AuthenticationScheme));
         await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
