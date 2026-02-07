@@ -1,6 +1,6 @@
+using System.IO.Compression;
 using Job.Worker.Environments;
 using Job.Worker.Models;
-using Job.Worker.Processes;
 using Microsoft.Extensions.Logging;
 
 namespace Job.Worker.Collectors;
@@ -8,7 +8,7 @@ namespace Job.Worker.Collectors;
 /// <summary>
 /// Collects artifacts to ZIP archive
 /// </summary>
-public class ZipResultsCollector(IProcessRunner processRunner, ILogger<ZipResultsCollector> logger)
+public class ZipResultsCollector(ILogger<ZipResultsCollector> logger)
     : IResultsCollector
 {
     /// <inheritdoc />
@@ -22,15 +22,23 @@ public class ZipResultsCollector(IProcessRunner processRunner, ILogger<ZipResult
         }
 
         logger.LogInformation("Collecting Job [{JobId}] results", jobModel.Id);
-
-        await processRunner.RunProcessAsync(
-            ["zip", Constants.JobResultsFileName, Constants.StdOutFileName, Constants.StdErrFileName],
-            jobModel.Directory,
-            default);
-
-        jobModel.Results = await File.ReadAllBytesAsync(Path.Combine(jobModel.Directory, Constants.JobResultsFileName));
-
+        jobModel.Results = CreateZip(jobModel);
         logger.LogInformation("Job [{JobId}] results collected [{ResultsSize} MB]",
             jobModel.Id, jobModel.Results.LongLength / 1024.0 / 1024.0);
+    }
+
+    private static byte[] CreateZip(RunJobModel jobModel)
+    {
+        using var bytes = new MemoryStream();
+
+        using (var zip = new ZipArchive(bytes, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            zip.CreateEntryFromFile(Path.Combine(jobModel.Directory, Constants.StdOutFileName),
+                Constants.StdOutFileName, CompressionLevel.Optimal);
+            zip.CreateEntryFromFile(Path.Combine(jobModel.Directory, Constants.StdErrFileName),
+                Constants.StdErrFileName, CompressionLevel.Optimal);
+        }
+
+        return bytes.ToArray();
     }
 }

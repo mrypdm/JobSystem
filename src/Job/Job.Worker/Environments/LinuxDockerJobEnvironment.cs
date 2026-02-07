@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Job.Worker.Models;
@@ -29,27 +28,18 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
 
         jobModel.Directory = Path.Combine(Path.GetFullPath(options.JobsDirectory), jobModel.Id.ToString())
             .Replace("\\", "/");
+
         if (Directory.Exists(jobModel.Directory))
         {
             Directory.Delete(jobModel.Directory, recursive: true);
         }
 
-        var dockerFile = File.ReadAllText(Constants.DockerTemplateFileName)
-            .Replace(Constants.JobIdTemplate, jobModel.Id.ToString())
-            .Replace(Constants.JobCpuLimitTemplate, options.CpuUsage.ToString(CultureInfo.InvariantCulture))
-            .Replace(Constants.JobRamLimitTemplate, options.MemoryUsage.ToString(CultureInfo.InvariantCulture))
-            .Replace(Constants.JobDirectoryTemplate, jobModel.Directory);
-
         Directory.CreateDirectory(jobModel.Directory);
-        File.WriteAllText(Path.Combine(jobModel.Directory, Constants.DockerFileName), dockerFile);
         File.Create(Path.Combine(jobModel.Directory, Constants.StdOutFileName)).Close();
         File.Create(Path.Combine(jobModel.Directory, Constants.StdErrFileName)).Close();
 
         var scriptFile = Path.Combine(jobModel.Directory, Constants.ScriptFileName);
-        using var file = File.OpenWrite(scriptFile);
-        using var base64Stream = new CryptoStream(file, new FromBase64Transform(), CryptoStreamMode.Write);
-        using var streamWriter = new StreamWriter(base64Stream);
-        streamWriter.Write(jobModel.Script);
+        WriteScript(scriptFile, jobModel.Script);
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
@@ -76,5 +66,13 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
 
         Directory.Delete(jobModel.Directory, true);
         logger.LogInformation("Environment [{JobEnvironment}] cleared", jobModel.Directory);
+    }
+
+    private static void WriteScript(string path, string content)
+    {
+        using var file = File.OpenWrite(path);
+        using var base64Stream = new CryptoStream(file, new FromBase64Transform(), CryptoStreamMode.Write);
+        using var streamWriter = new StreamWriter(base64Stream);
+        streamWriter.Write(content);
     }
 }

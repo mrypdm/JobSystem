@@ -1,3 +1,4 @@
+using Docker.DotNet;
 using Job.Broker;
 using Job.Broker.Clients;
 using Job.Database.Contexts;
@@ -5,7 +6,6 @@ using Job.Worker.Collectors;
 using Job.Worker.Environments;
 using Job.Worker.JobProcesses;
 using Job.Worker.Options;
-using Job.Worker.Processes;
 using Job.Worker.Resources.Analyzers;
 using Job.Worker.Resources.Readers;
 using Job.Worker.Runners;
@@ -31,6 +31,13 @@ builder.Services.AddLogging(logBuilder =>
     logBuilder.AddConsole(options => options.FormatterName = nameof(SimpleConsoleFormatter));
 });
 
+var dockerOptions = builder.Configuration.GetOptions<DockerOptions>();
+builder.Services.AddTransient<IDockerClient, DockerClient>(_ =>
+{
+    return new DockerClientConfiguration(new Uri(dockerOptions.Url)).CreateClient();
+});
+builder.Services.AddSingleton<IOwnedService<IDockerClient>, OwnedService<IDockerClient>>();
+
 var dbOptions = builder.Configuration.GetOptions<DatabaseOptions>();
 var sslValidator = new SslValidator(dbOptions);
 builder.Services.AddDbContext<IJobDbContext, JobDbContext>(
@@ -49,7 +56,6 @@ builder.Services.AddSingleton(builder.Configuration.GetOptions<ResourcesAnalyzer
 builder.Services.AddSingleton<IResourcesAnalyzer, ResourcesAnalyzer>();
 
 builder.Services.AddSingleton<IResourcesReader, LinuxResourcesReader>();
-builder.Services.AddSingleton<IProcessRunner, ProcessRunner>();
 builder.Services.AddSingleton<IResultsCollector, ZipResultsCollector>();
 builder.Services.AddSingleton<IJobProcessRunner, DockerJobProcessRunner>();
 

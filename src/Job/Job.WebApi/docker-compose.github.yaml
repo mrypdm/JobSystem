@@ -1,6 +1,5 @@
 services:
     job_webapi:
-      container_name: job_webapi
       build:
         context: ../../..
         dockerfile: src/Job/Job.WebApi/Dockerfile

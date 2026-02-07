@@ -31,7 +31,7 @@ public class ResourcesAnalyzer(
         }
 
         var memory = await resourcesReader.GetRamStatisticsAsync(cancellationToken);
-        var memoryUsageOfOneJob = jobEnvironmentOptions.MemoryUsage / memory.Total;
+        var memoryUsageOfOneJob = (double)jobEnvironmentOptions.MemoryUsage / memory.Total;
         if (memory.UsagePercentage + memoryUsageOfOneJob > resourceMonitorOptions.ThresholdMemoryUsage)
         {
             logger.LogCritical("Memory usage is [{MemoryUsage}, {EnrichedMemoryUsage}], cannot run new Job",

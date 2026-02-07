@@ -1,6 +1,5 @@
 services:
     postgres:
-      container_name: postgres
       image: postgres:alpine
       entrypoint: /bin/sh
       command: /etc/github-actions/start-for-github.sh

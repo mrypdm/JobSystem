@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text;
+using Docker.DotNet;
 using Job.Broker;
 using Job.Broker.Clients;
 using Job.Contract;
@@ -9,7 +10,6 @@ using Job.Worker.Collectors;
 using Job.Worker.Environments;
 using Job.Worker.JobProcesses;
 using Job.Worker.Options;
-using Job.Worker.Processes;
 using Job.Worker.Resources.Analyzers;
 using Job.Worker.Resources.Readers;
 using Job.Worker.Runners;
@@ -146,7 +146,13 @@ internal class ConsumerWorkerTests : IntegrationTestBase
         builder.Services.AddTransient<IInitializer>(
             context => new BrokerInitializer(context.GetRequiredService<IBrokerAdminClient>()));
 
-        builder.Services.AddSingleton<IProcessRunner, ProcessRunner>();
+        var dockerOptions = builder.Configuration.GetOptions<DockerOptions>();
+        builder.Services.AddTransient<IDockerClient, DockerClient>(_ =>
+        {
+            return new DockerClientConfiguration(new Uri(dockerOptions.Url)).CreateClient();
+        });
+        builder.Services.AddSingleton<IOwnedService<IDockerClient>, OwnedService<IDockerClient>>();
+
         builder.Services.AddSingleton<IJobProcessRunner, DockerJobProcessRunner>();
         builder.Services.AddSingleton<IResultsCollector, ZipResultsCollector>();
         builder.Services.AddSingleton<IResourcesReader, LinuxResourcesReader>();

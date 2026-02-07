@@ -20,5 +20,5 @@ public class JobEnvironmentOptions
     /// <summary>
     /// Memory usage of one Job in MB
     /// </summary>
-    public double MemoryUsage { get; set; }
+    public long MemoryUsage { get; set; }
 }

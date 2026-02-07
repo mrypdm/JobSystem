@@ -19,7 +19,7 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
     {
         CpuUsage = 0.5,
         MemoryUsage = 500,
-        JobsDirectory = Path.GetFullPath("TestData/worker").Replace("\\", "/")
+        JobsDirectory = Path.GetFullPath("TestData/linux-docker-env").Replace("\\", "/")
     };
 
     [Test]
@@ -79,16 +79,10 @@ internal class LinuxDockerJobEnvironmentTests : TestBase
         Assert.That(jobModel.Directory, Is.EqualTo(expectedDir));
         Assert.That(Path.Combine(jobModel.Directory, "stdout.txt"), Does.Exist);
         Assert.That(Path.Combine(jobModel.Directory, "stderr.txt"), Does.Exist);
-        Assert.That(Path.Combine(jobModel.Directory, "docker-compose.yaml"), Does.Exist);
         Assert.That(Path.Combine(jobModel.Directory, "run.sh"), Does.Exist);
 
         var actualScript = File.ReadAllText(Path.Combine(jobModel.Directory, "run.sh"));
         Assert.That(actualScript, Is.EqualTo(expectedScript));
-
-        var actualDocker = File.ReadAllText(Path.Combine(jobModel.Directory, "docker-compose.yaml"));
-        var expectedDocker = File.ReadAllText(Path.Combine("TestData/worker", "docker-compose.yaml.expected"))
-            .Replace("<JOB-DIR>", _jobEnvironmentOptions.JobsDirectory);
-        Assert.That(actualDocker, Is.EqualTo(expectedDocker));
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {

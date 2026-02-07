@@ -1,6 +1,5 @@
 services:
     kafka:
-      container_name: kafka
       image: apache/kafka
       entrypoint: /bin/sh
       command: /etc/github-actions/start-for-github.sh

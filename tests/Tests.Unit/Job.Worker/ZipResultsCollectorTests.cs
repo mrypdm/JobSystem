@@ -1,9 +1,8 @@
+using System.IO.Compression;
 using Job.Worker.Collectors;
 using Job.Worker.Models;
-using Job.Worker.Processes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Moq;
 using Tests.Common;
 
 namespace Tests.Unit.Job.Worker;
@@ -14,14 +13,6 @@ namespace Tests.Unit.Job.Worker;
 [TestFixture]
 internal class ZipResultsCollectorTests : TestBase
 {
-    private readonly Mock<IProcessRunner> _runner = new();
-
-    [SetUp]
-    public void SetUp()
-    {
-        _runner.Reset();
-    }
-
     [Test]
     public void CollectResults_NullJob_Throw()
     {
@@ -43,19 +34,14 @@ internal class ZipResultsCollectorTests : TestBase
     }
 
     [Test]
-    public async Task CollectResults_ShouldCallZip_AndSaveToModel()
+    public async Task CollectResults_ShouldCreateZipArchive()
     {
         // arrange
-        var expectedCommand = new string[] { "zip", "results.zip", "stdout.txt", "stderr.txt" };
-        var expectedResults = new byte[] { 0x00, 0x11 };
-
         var jobModel = new RunJobModel
         {
             Id = Guid.NewGuid(),
-            Directory = "TestData"
+            Directory = "TestData/results-collector"
         };
-
-        File.WriteAllBytes(Path.Combine("TestData", "results.zip"), expectedResults);
 
         var collector = Services.GetRequiredService<ZipResultsCollector>();
 
@@ -63,19 +49,29 @@ internal class ZipResultsCollectorTests : TestBase
         await collector.CollectResultsAsync(jobModel);
 
         // assert
-        Assert.That(jobModel.Results, Is.EqualTo(expectedResults).AsCollection);
+        using var bytes = new MemoryStream(jobModel.Results);
+        using var zip = new ZipArchive(bytes, ZipArchiveMode.Read, leaveOpen: true);
 
-        _runner.Verify(
-            m => m.RunProcessAsync(It.Is<string[]>(m => m.SequenceEqual(expectedCommand)), jobModel.Directory,
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        Assert.That(zip.Entries, Has.Count.EqualTo(2));
+
+        using var _ = Assert.EnterMultipleScope();
+        Assert.That(zip.Entries.ElementAt(0).Name, Is.EqualTo("stdout.txt"));
+        Assert.That(ReadZipEntry(zip.Entries.ElementAt(0)), Is.EqualTo("stdout"));
+        Assert.That(zip.Entries.ElementAt(1).Name, Is.EqualTo("stderr.txt"));
+        Assert.That(ReadZipEntry(zip.Entries.ElementAt(1)), Is.EqualTo("stderr"));
     }
 
     /// <inheritdoc />
     protected override void ConfigureServices(HostApplicationBuilder builder)
     {
         base.ConfigureServices(builder);
-        builder.Services.AddSingleton(_runner.Object);
         builder.Services.AddTransient<ZipResultsCollector>();
+    }
+
+    private static string ReadZipEntry(ZipArchiveEntry entry)
+    {
+        using var entryStream = entry.Open();
+        using var reader = new StreamReader(entryStream);
+        return reader.ReadToEnd().Trim();
     }
 }

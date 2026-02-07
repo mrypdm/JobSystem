@@ -40,6 +40,9 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
+      - name: Pull alpine image
+        run: docker pull alpine:latest
+
       - name: Start PostgreSQL container
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Database
