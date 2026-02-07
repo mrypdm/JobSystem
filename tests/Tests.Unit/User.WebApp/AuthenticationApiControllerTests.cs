@@ -69,7 +69,7 @@ internal class AuthenticationApiControllerTests : TestBase
         using var controller = Services.GetRequiredService<AuthenticationApiController>();
 
         // act
-        var response = await controller.SignInAsync(new LoginRequest { Username = "not_empty" }, default);
+        var response = await controller.SignInAsync(new LoginRequest { Username = Guid.NewGuid().ToString() }, default);
 
         // assert
         Assert.That(response, Is.TypeOf<BadRequestObjectResult>());
@@ -81,7 +81,7 @@ internal class AuthenticationApiControllerTests : TestBase
         // arrange
         var request = new LoginRequest
         {
-            Username = "username",
+            Username = Guid.NewGuid().ToString(),
             Password = "password"
         };
         UserDbModel actualUser = null;
@@ -115,7 +115,7 @@ internal class AuthenticationApiControllerTests : TestBase
         // arrange
         var request = new LoginRequest
         {
-            Username = "username",
+            Username = Guid.NewGuid().ToString(),
             Password = "password"
         };
 
@@ -159,7 +159,7 @@ internal class AuthenticationApiControllerTests : TestBase
         // arrange
         var request = new LoginRequest
         {
-            Username = "username",
+            Username = Guid.NewGuid().ToString(),
             Password = "password"
         };
 
@@ -196,7 +196,7 @@ internal class AuthenticationApiControllerTests : TestBase
         // arrange
         var request = new LoginRequest
         {
-            Username = "username",
+            Username = Guid.NewGuid().ToString(),
             Password = "password"
         };
 
