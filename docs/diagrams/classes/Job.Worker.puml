@@ -3,6 +3,26 @@ hide empty members
 
 title Классы обработчика Задач
 
+class CreateContainerParameters << Docket.DotNet >>
+class ContainerStartParameters << Docket.DotNet >>
+class ContainerStopParameters << Docket.DotNet >>
+class ContainerRemoveParameters << Docket.DotNet >>
+
+interface IContainerOperations << Docket.DotNet >>
+{
+    +CreateContainerAsync(CreateContainerParameters, CancellationToken)
+    +StartContainerAsync(string, ContainerStartParameters, CancellationToken)
+    +StopContainerAsync(string, ContainerStopParameters, CancellationToken)
+    +RemoveContainerAsync(string, ContainerRemoveParameters, CancellationToken)
+}
+IContainerOperations --> CreateContainerParameters
+IContainerOperations --> ContainerStartParameters
+IContainerOperations --> ContainerStopParameters
+IContainerOperations --> ContainerRemoveParameters
+
+interface IDockerClient << Docket.DotNet >>
+IDockerClient --> IContainerOperations
+
 interface ILogger << Built-In >>
 interface IHostedService << Built-In >>
 
@@ -31,44 +51,6 @@ class ConsumerWorkerOptions
     +TimeSpan IterationDeplay
 }
 
-package Processes
-{
-    interface IProcessRunner
-    {
-        +Task RunProcessAsync(string[], string, CancellationToken)
-    }
-    class ProcessRunner
-    IProcessRunner <|.. ProcessRunner
-    ProcessRunner --> ILogger
-
-    interface IJobProcessRunner
-    {
-        +Task RunProcessAsync(RunJobModel)
-    }
-    class DockerJobProcessRunner
-    {
-        -Task ClearContainerAsync(RunJobModel)
-    }
-    IJobProcessRunner <|.. DockerJobProcessRunner
-    DockerJobProcessRunner --> IProcessRunner
-    DockerJobProcessRunner --> ILogger
-    DockerJobProcessRunner --> RunJobModel
-    DockerJobProcessRunner --> JobStatus
-}
-
-package Collectors
-{
-    interface IResultsCollector
-    {
-        +Task CollectResultsAsync(RunJobModel)
-    }
-    class ZipResultsCollector
-    IResultsCollector <|.. ZipResultsCollector
-    ZipResultsCollector --> IProcessRunner
-    ZipResultsCollector --> ILogger
-    ZipResultsCollector --> RunJobModel
-}
-
 package Environments
 {
     class JobEnvironmentOptions
@@ -88,6 +70,36 @@ package Environments
     LinuxDockerJobEnvironment --> JobEnvironmentOptions
     LinuxDockerJobEnvironment --> ILogger
     LinuxDockerJobEnvironment --> RunJobModel
+}
+
+package JobProcess
+{
+    interface IJobProcessRunner
+    {
+        +Task RunProcessAsync(RunJobModel)
+    }
+    class DockerJobProcessRunner
+    {
+        -Task ClearContainerAsync(RunJobModel)
+    }
+    IJobProcessRunner <|.. DockerJobProcessRunner
+    DockerJobProcessRunner --> IDockerClient
+    DockerJobProcessRunner --> JobEnvironmentOptions
+    DockerJobProcessRunner --> ILogger
+    DockerJobProcessRunner --> RunJobModel
+    DockerJobProcessRunner --> JobStatus
+}
+
+package Collectors
+{
+    interface IResultsCollector
+    {
+        +Task CollectResultsAsync(RunJobModel)
+    }
+    class ZipResultsCollector
+    IResultsCollector <|.. ZipResultsCollector
+    ZipResultsCollector --> ILogger
+    ZipResultsCollector --> RunJobModel
 }
 
 package Runners {
