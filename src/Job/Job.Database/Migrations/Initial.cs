@@ -154,6 +154,10 @@ internal sealed class Initial : BaseMigration
             BEGIN
                 SELECT "Status" into current_status FROM pgdbo."Jobs" WHERE "Id" = job_id;
 
+                IF current_status IS NULL THEN
+                    RAISE EXCEPTION 'Job % not exists', job_id;
+                END IF;
+
                 IF current_status = 1 THEN
                     RAISE WARNING 'Job % is already running', job_id;
                     RETURN;
@@ -187,6 +191,10 @@ internal sealed class Initial : BaseMigration
                 END IF;
 
                 SELECT "Status" into current_status FROM pgdbo."Jobs" WHERE "Id" = job_id;
+
+                IF current_status IS NULL THEN
+                    RAISE EXCEPTION 'Job % not exists', job_id;
+                END IF;
 
                 IF current_status < 1 THEN
                     RAISE WARNING 'Job % is not running, but results are provided', job_id;

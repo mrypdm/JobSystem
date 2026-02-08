@@ -161,6 +161,24 @@ internal class JobDbContextTests : IntegrationTestBase
     }
 
     [Test]
+    public async Task SetJobRunning_NotExists_ShouldThrow()
+    {
+        // arrange
+        var expectedJobId = Guid.NewGuid();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+
+        // act
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
+        var exception = Assert.ThrowsAsync<PostgresException>(
+            () => workerContext.SetJobRunningAsync(expectedJobId, default));
+
+        // assert
+        Assert.That(
+            exception.Message,
+            Does.Contain($"Job {expectedJobId} not exists"));
+    }
+
+    [Test]
     public async Task SetJobRunning_AlreadyRunning_ShouldBeIndempotent()
     {
         // arrange
@@ -200,10 +218,12 @@ internal class JobDbContextTests : IntegrationTestBase
     }
 
     [Test]
-    public async Task SetJobResults_ShouldSetResults()
+    [TestCase(JobStatus.New)]
+    [TestCase(JobStatus.Running)]
+    public async Task SetJobResults_ShouldSetResults(JobStatus status)
     {
         // arrange
-        var expectedJob = CreateTestJob(JobStatus.Running);
+        var expectedJob = CreateTestJob(status);
         var expectedResults = new byte[] { 0x00, 0x11 };
 
         using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
@@ -220,6 +240,24 @@ internal class JobDbContextTests : IntegrationTestBase
         using var _ = Assert.EnterMultipleScope();
         Assert.That(actualJob.Status, Is.EqualTo(JobStatus.Finished));
         Assert.That(actualJob.Results, Is.EqualTo(expectedResults).AsCollection);
+    }
+
+    [Test]
+    public async Task SetJobResults_NotExists_ShouldThrow()
+    {
+        // arrange
+        var expectedJobId = Guid.NewGuid();
+        using var adminContext = Services.GetRequiredKeyedService<JobDbContext>(Admin);
+
+        // act
+        using var workerContext = Services.GetRequiredKeyedService<JobDbContext>(Worker);
+        var exception = Assert.ThrowsAsync<PostgresException>(
+            () => workerContext.SetJobResultsAsync(expectedJobId, JobStatus.Finished, [], default));
+
+        // assert
+        Assert.That(
+            exception.Message,
+            Does.Contain($"Job {expectedJobId} not exists"));
     }
 
     [Test]
