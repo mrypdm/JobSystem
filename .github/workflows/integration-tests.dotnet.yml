@@ -8,6 +8,7 @@ on:
       - 'tests/**'
       - 'infrastructure/Tools/**'
       - '!tests/Tests.Unit/**'
+      - '!tests/MathTask/**'
       - '.github/workflows/integration-tests.dotnet.yml'
   pull_request:
     branches: [ "master" ]
@@ -16,6 +17,7 @@ on:
       - 'tests/**'
       - 'infrastructure/Tools/**'
       - '!tests/Tests.Unit/**'
+      - '!tests/MathTask/**'
       - '.github/workflows/integration-tests.dotnet.yml'
 
 jobs:
