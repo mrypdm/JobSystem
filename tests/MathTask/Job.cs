@@ -7,14 +7,18 @@ public record Job(long Id, TimeSpan CreatedAt, TimeSpan Timeout, long CpuUsage, 
 {
     public override string ToString()
     {
-        return $"{Id};{CreatedAt};{Timeout};{CpuUsage};{RamUsage}";
+        return $"{Id};{CreatedAt.TotalMilliseconds};{Timeout.TotalMilliseconds};{CpuUsage};{RamUsage}";
     }
 
     public static Job Parse(string str)
     {
         var parts = str.Split(';');
-        return new Job(long.Parse(parts[0]), TimeSpan.Parse(parts[1]), TimeSpan.Parse(parts[2]),
-            long.Parse(parts[3]), long.Parse(parts[4]));
+        return new Job(
+            Id: long.Parse(parts[0]),
+            CreatedAt: TimeSpan.FromMilliseconds(double.Parse(parts[1])),
+            Timeout: TimeSpan.FromMilliseconds(double.Parse(parts[2])),
+            CpuUsage: long.Parse(parts[3]),
+            RamUsage: long.Parse(parts[4]));
     }
 }
 

@@ -15,7 +15,7 @@ public static class Helpers
         writer.WriteLine("time;cpu;ram;run;total");
         foreach (var metric in metrics)
         {
-            writer.WriteLine($"{metric.Time};{metric.CpuUsage};{metric.RamUsage};{metric.RunningJobs};{metric.TotalJobs}");
+            writer.WriteLine($"{metric.Time.TotalMilliseconds};{metric.CpuUsage};{metric.RamUsage};{metric.RunningJobs};{metric.TotalJobs}");
         }
     }
 
@@ -30,7 +30,7 @@ public static class Helpers
         writer.WriteLine("time;type;job_id");
         foreach (var (jobEvent, job) in jobEvents)
         {
-            writer.WriteLine($"{jobEvent.Time};{jobEvent.Type};{job.Id}");
+            writer.WriteLine($"{jobEvent.Time.TotalMilliseconds};{jobEvent.Type};{job.Id}");
         }
     }
 

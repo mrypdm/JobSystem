@@ -3,6 +3,10 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Python Venv
+
+.venv/
+
 # dotenv files
 .env
 
