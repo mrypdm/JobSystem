@@ -7,6 +7,12 @@
 
 .venv/
 
+
+# MathTask big-results
+
+*.metrics.csv
+*.timeline.csv
+
 # dotenv files
 .env
 

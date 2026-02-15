@@ -1,31 +1,15 @@
 using MathTask;
 
+if (Environment.CurrentDirectory.Replace("\\", "/").Contains("bin/Debug/net"))
+{
+    Environment.CurrentDirectory = Path.GetFullPath($"{Environment.CurrentDirectory}/../../..");
+}
+
 const string SamplesDir = "samples";
 const string ResultsDir = "results";
-
-const int SamplesCount = 30;
-
-Directory.CreateDirectory(SamplesDir);
-Directory.CreateDirectory(ResultsDir);
-
-long[] CpuContraints = [ // Cores
-    128,
-    192,
-    288,
-    256,
-    384,
-    576,
-    864,
-    1024,
-];
-
-long[] RamContraints = [ // GB
-    128,
-    192,
-    256,
-    512,
-    1024,
-];
+const int SamplesCount = 10;
+const double TargetWaitTime = 0.2;
+const double TargetQueueSize = 0.35;
 
 IEnumerable<(int Id, Job[] Jobs)> samples = null;
 if (Directory.GetFiles(SamplesDir).Length == SamplesCount)
@@ -38,14 +22,14 @@ else
     Console.WriteLine("Generating samples...");
     samples = Helpers.GenerateSamples(
         samplesCount: SamplesCount,
-        minJobsPerSample: 30_000,
-        maxJobsPerSample: 50_000,
-        meanHotspotTime: 14 * 3600,
-        deltaHotspotTime: 4 * 3600,
+        meanJobsPerSample: 40_000,
+        deltaJobsPerSample: 5_000,
         minJobTimeout: 60,
         maxJobTimeout: 3600,
-        meanJobUsage: 0.5,
-        deltaJobUsage: 0.7);
+        meanJobCpuUsage: 1.5,
+        deltaJobCpuUsage: 0.5,
+        meanJobRamUsage: 2,
+        deltaJobRamUsage: 1);
 
     foreach (var sample in samples)
     {
@@ -53,25 +37,27 @@ else
     }
 }
 
-var allTests = from Cpu in CpuContraints
-               from Ram in RamContraints
-               from Sample in samples
-               select (Cpu, Ram, Sample);
-
-Parallel.ForEach(allTests, testData =>
+Parallel.ForEach(samples, sample =>
 {
-    Console.WriteLine(
-        $"Running test for sample {testData.Sample.Id} with {testData.Sample.Jobs.Length} jobs "
-        + $"and {testData.Cpu} CPU Cores and {testData.Ram} GB RAM");
+    using var logger = new SimpleLogger(ResultsDir, sample.Id);
+    var solver = new Solver(logger, sample.Jobs);
 
-    var estimator = new Estimator(testData.Cpu * 100L, testData.Ram * 1024 * 1024 * 1024L);
-    var solver = new Solver(estimator, testData.Sample.Jobs);
-    var result = solver.CreateTimeline();
+    logger.WriteLine($"Running optimization by wait time [target is {TargetWaitTime}] with {sample.Jobs.Length} jobs");
+    var resourcesForWaitTime = solver.Optimize(OptimizingMetric.WaitTime, TargetWaitTime);
+    resourcesForWaitTime.Results.CreateCsv($"{logger.BasePath}/wait-time-results.csv");
+    logger.WriteLine($"Optimization by wait time is CPU={resourcesForWaitTime.CpuCores} and RAM={resourcesForWaitTime.RamGb}");
 
-    result.Events.CreateCsv($"{ResultsDir}/{testData.Sample.Id}/{testData.Cpu}_{testData.Ram}.timeline.csv");
-    result.Metrics.CreateCsv($"{ResultsDir}/{testData.Sample.Id}/{testData.Cpu}_{testData.Ram}.metrics.csv");
+    logger.WriteLine($"Running optimization by queue size [target is {TargetQueueSize}] with {sample.Jobs.Length} jobs");
+    var resourcesForQueueSize = solver.Optimize(OptimizingMetric.Queue, TargetQueueSize);
+    resourcesForWaitTime.Results.CreateCsv($"{logger.BasePath}/queue-size-results.csv");
+    logger.WriteLine($"Optimization by queue size is CPU={resourcesForQueueSize.CpuCores} and RAM={resourcesForQueueSize.RamGb}");
 
-    Console.WriteLine(
-        $"Ending test for sample {testData.Sample.Id} with {testData.Sample.Jobs.Length} jobs "
-        + $"and {testData.Cpu} CPU Cores and {testData.Ram} GB RAM");
+    var finalCpuCores = Math.Max(resourcesForWaitTime.CpuCores, resourcesForQueueSize.CpuCores);
+    var finalRamGb = Math.Max(resourcesForWaitTime.RamGb, resourcesForQueueSize.RamGb);
+    var finalWaitTimeResult = solver.DoExperiment(OptimizingMetric.WaitTime, finalCpuCores, finalRamGb);
+    var finalQueueResult = solver.DoExperiment(OptimizingMetric.Queue, finalCpuCores, finalRamGb);
+
+    logger.WriteLine(
+        $"Optimization by all metrics is CPU={finalCpuCores} and RAM={finalRamGb} "
+        + $"with results wait time {finalWaitTimeResult.Metric} and queue size {finalQueueResult.Metric}");
 });

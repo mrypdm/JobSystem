@@ -8,12 +8,25 @@ public record Metric(TimeSpan Time, long CpuUsage, long RamUsage, long RunningJo
 /// <summary>
 /// Estimator of resources
 /// </summary>
-public class Estimator(long cpu, long ram)
+public class Estimator(long cpuCores, long ramGb)
 {
     private long _currentRamUsage = 0;
     private long _currentCpuUsage = 0;
     private long _runningJobs = 0;
     private long _totalJobs = 0;
+
+    private readonly long _cpuTime = cpuCores * 100;
+    private readonly long _ramBytes = ramGb << 30;
+
+    /// <summary>
+    /// Estimator max CPU cores
+    /// </summary>
+    public long CpuCores => cpuCores;
+
+    /// <summary>
+    /// Estimator max RAM GB
+    /// </summary>
+    public long RamGb => ramGb;
 
     /// <summary>
     /// Add new Job to queue
@@ -28,7 +41,7 @@ public class Estimator(long cpu, long ram)
     /// </summary>
     public bool CanRunJob(Job job)
     {
-        return _currentRamUsage + job.RamUsage <= ram && _currentCpuUsage + job.CpuUsage <= cpu;
+        return _currentCpuUsage + job.CpuUsage <= _cpuTime && _currentRamUsage + job.RamUsage <= _ramBytes;
     }
 
     /// <summary>
@@ -37,8 +50,8 @@ public class Estimator(long cpu, long ram)
     public void StartJob(Job job)
     {
         _runningJobs++;
-        _currentRamUsage += job.RamUsage;
         _currentCpuUsage += job.CpuUsage;
+        _currentRamUsage += job.RamUsage;
     }
 
     /// <summary>
@@ -48,8 +61,8 @@ public class Estimator(long cpu, long ram)
     {
         _runningJobs--;
         _totalJobs--;
-        _currentRamUsage -= job.RamUsage;
         _currentCpuUsage -= job.CpuUsage;
+        _currentRamUsage -= job.RamUsage;
     }
 
     /// <summary>
@@ -58,5 +71,11 @@ public class Estimator(long cpu, long ram)
     public Metric GetStat(TimeSpan time)
     {
         return new Metric(time, _currentCpuUsage, _currentRamUsage, _runningJobs, _totalJobs);
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"CPU={CpuCores} RAM={RamGb}";
     }
 }

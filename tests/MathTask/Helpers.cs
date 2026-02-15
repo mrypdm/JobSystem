@@ -2,8 +2,26 @@ using MathNet.Numerics.Distributions;
 
 namespace MathTask;
 
+/// <summary>
+/// Functions for doing something helpful
+/// </summary>
 public static class Helpers
 {
+    /// <summary>
+    /// Saves <paramref name="results"/> to CSV file at <paramref name="path"/>
+    /// </summary>
+    public static void CreateCsv(this IEnumerable<ExperimentResult> results, string path)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+        using var writer = new StreamWriter(path);
+        writer.WriteLine("cpu;ram;metric");
+        foreach (var result in results)
+        {
+            writer.WriteLine($"{result.CpuCores};{result.RamGb};{result.Metric}");
+        }
+    }
+
     /// <summary>
     /// Saves <paramref name="metrics"/> to CSV file at <paramref name="path"/>
     /// </summary>
@@ -20,6 +38,24 @@ public static class Helpers
     }
 
     /// <summary>
+    /// Loads metrics events from CSV file at <paramref name="path"/>
+    /// </summary>
+    public static IEnumerable<Metric> ReadMetrics(string path)
+    {
+        return File.ReadAllLines(path).Skip(1).Select(line =>
+        {
+            var parts = line.Split(';');
+            return new Metric(
+                TimeSpan.FromMilliseconds(double.Parse(parts[0])),
+                long.Parse(parts[1]),
+                long.Parse(parts[2]),
+                long.Parse(parts[3]),
+                long.Parse(parts[4])
+            );
+        });
+    }
+
+    /// <summary>
     /// Saves <paramref name="jobEvents"/> to CSV file at <paramref name="path"/>
     /// </summary>
     public static void CreateCsv(this IEnumerable<KeyValuePair<JobEvent, Job>> jobEvents, string path)
@@ -32,6 +68,21 @@ public static class Helpers
         {
             writer.WriteLine($"{jobEvent.Time.TotalMilliseconds};{jobEvent.Type};{job.Id}");
         }
+    }
+
+    /// <summary>
+    /// Loads jobs events from CSV file at <paramref name="path"/>
+    /// </summary>
+    public static IEnumerable<KeyValuePair<JobEvent, Job>> ReadEvents(string path)
+    {
+        return File.ReadAllLines(path).Skip(1).Select(line =>
+        {
+            var parts = line.Split(';');
+            return new KeyValuePair<JobEvent, Job>(
+                new JobEvent(Enum.Parse<JobEventType>(parts[1]), TimeSpan.FromMilliseconds(double.Parse(parts[0]))),
+                new Job(long.Parse(parts[2]), default, default, default, default)
+            );
+        });
     }
 
     /// <summary>
@@ -84,15 +135,16 @@ public static class Helpers
     /// </summary>
     public static IEnumerable<(int Id, Job[] Jobs)> GenerateSamples(
         int samplesCount,
-        int minJobsPerSample, int maxJobsPerSample,
-        int meanHotspotTime, int deltaHotspotTime,
+        int meanJobsPerSample, int deltaJobsPerSample,
         int minJobTimeout, int maxJobTimeout,
-        double meanJobUsage, double deltaJobUsage)
+        double meanJobCpuUsage, double deltaJobCpuUsage,
+        double meanJobRamUsage, double deltaJobRamUsage)
     {
-        var jobsCreationGenerator = new Normal(meanHotspotTime, deltaHotspotTime);
-        var jobsCountGenerator = new ContinuousUniform(minJobsPerSample, maxJobsPerSample);
+        var jobsCreationGenerator = new ContinuousUniform(0, 24 * 60 * 60);
+        var jobsCountGenerator = new Normal(meanJobsPerSample, deltaJobsPerSample);
         var jobTimeoutGenerator = new ContinuousUniform(minJobTimeout, maxJobTimeout);
-        var jobUsageGenerator = new Normal(meanJobUsage, deltaJobUsage);
+        var jobCpuGenerator = new Normal(meanJobCpuUsage, deltaJobCpuUsage);
+        var jobRamGenerator = new Normal(meanJobRamUsage, deltaJobRamUsage);
 
         while (samplesCount-- != 0)
         {
@@ -101,14 +153,31 @@ public static class Helpers
             var jobs = jobsCreationGenerator.Samples()
                 .Take(jobsCount)
                 .OrderBy(c => c)
-                .Select((c, i) => new Job(
+                .Select((jobCreationTime, i) => new Job(
                     Id: i,
-                    CreatedAt: TimeSpan.FromSeconds(Normalize(c, 0, 23 * 3600 - 1)),
+                    CreatedAt: TimeSpan.FromSeconds(jobCreationTime),
                     Timeout: TimeSpan.FromSeconds(jobTimeoutGenerator.Sample()),
-                    CpuUsage: (long)(jobUsageGenerator.Sample().Normalize(0.1) * 100),
-                    RamUsage: (long)(jobUsageGenerator.Sample().Normalize(0.1) * 1024 * 1024 * 1024)));
+                    CpuUsage: (long)(jobCpuGenerator.Sample().Normalize(0) * 100),
+                    RamUsage: (long)(jobRamGenerator.Sample().Normalize(0) * 1024 * 1024 * 1024)));
 
             yield return (samplesCount, jobs.ToArray());
         }
+    }
+
+    /// <summary>
+    /// Converts enumerable to sorted list
+    /// </summary>
+    public static SortedList<TKey, TValue> ToSortedList<TData, TKey, TValue>(
+        this IEnumerable<TData> source,
+        Func<TData, TKey> keySelector,
+        Func<TData, TValue> valueSelector)
+    {
+        var sortedList = new SortedList<TKey, TValue>();
+        foreach (var elem in source)
+        {
+            sortedList.Add(keySelector(elem), valueSelector(elem));
+        }
+
+        return sortedList;
     }
 }
