@@ -1,55 +1,55 @@
 Running optimization by wait time [target is 0.2] with 44058 jobs
 	Search started
-	Running experiment for [CPU=2048 RAM=2048]
+	Experiment results for [CPU=2048 RAM=2048] found on disk
 	Metric result for [CPU=2048 RAM=2048] is 0
-	Running experiment for [CPU=1024 RAM=2048]
+	Experiment results for [CPU=1024 RAM=2048] found on disk
 	Metric result for [CPU=1024 RAM=2048] is 36.95917667728465
-	Running experiment for [CPU=1536 RAM=2048]
+	Experiment results for [CPU=1536 RAM=2048] found on disk
 	Metric result for [CPU=1536 RAM=2048] is 0
-	Running experiment for [CPU=1280 RAM=2048]
+	Experiment results for [CPU=1280 RAM=2048] found on disk
 	Metric result for [CPU=1280 RAM=2048] is 9.056433375839791
-	Running experiment for [CPU=1408 RAM=2048]
+	Experiment results for [CPU=1408 RAM=2048] found on disk
 	Metric result for [CPU=1408 RAM=2048] is 0.15388437370817282
-	Running experiment for [CPU=1344 RAM=2048]
+	Experiment results for [CPU=1344 RAM=2048] found on disk
 	Metric result for [CPU=1344 RAM=2048] is 3.794989862541742
-	Running experiment for [CPU=1376 RAM=2048]
+	Experiment results for [CPU=1376 RAM=2048] found on disk
 	Metric result for [CPU=1376 RAM=2048] is 1.3949488647789658
-	Running experiment for [CPU=1392 RAM=2048]
+	Experiment results for [CPU=1392 RAM=2048] found on disk
 	Metric result for [CPU=1392 RAM=2048] is 0.4301389232051936
-	Running experiment for [CPU=1400 RAM=2048]
+	Experiment results for [CPU=1400 RAM=2048] found on disk
 	Metric result for [CPU=1400 RAM=2048] is 0.267314935043707
-	Running experiment for [CPU=1404 RAM=2048]
+	Experiment results for [CPU=1404 RAM=2048] found on disk
 	Metric result for [CPU=1404 RAM=2048] is 0.20542936609366047
-	Running experiment for [CPU=1406 RAM=2048]
+	Experiment results for [CPU=1406 RAM=2048] found on disk
 	Metric result for [CPU=1406 RAM=2048] is 0.1781820025408968
-	Running experiment for [CPU=1405 RAM=2048]
+	Experiment results for [CPU=1405 RAM=2048] found on disk
 	Metric result for [CPU=1405 RAM=2048] is 0.19163933387682905
 	Search stopped
 	Search started
 	Experiment results for [CPU=1405 RAM=2048] found on disk
 	Metric result for [CPU=1405 RAM=2048] is 0.19163933387682905
-	Running experiment for [CPU=1405 RAM=1024]
+	Experiment results for [CPU=1405 RAM=1024] found on disk
 	Metric result for [CPU=1405 RAM=1024] is 84.62101672958957
-	Running experiment for [CPU=1405 RAM=1536]
+	Experiment results for [CPU=1405 RAM=1536] found on disk
 	Metric result for [CPU=1405 RAM=1536] is 21.855239783665628
-	Running experiment for [CPU=1405 RAM=1792]
+	Experiment results for [CPU=1405 RAM=1792] found on disk
 	Metric result for [CPU=1405 RAM=1792] is 4.207942858187511
-	Running experiment for [CPU=1405 RAM=1920]
+	Experiment results for [CPU=1405 RAM=1920] found on disk
 	Metric result for [CPU=1405 RAM=1920] is 0.2218401236693239
-	Running experiment for [CPU=1405 RAM=1984]
+	Experiment results for [CPU=1405 RAM=1984] found on disk
 	Metric result for [CPU=1405 RAM=1984] is 0.19163933387682905
-	Running experiment for [CPU=1405 RAM=1952]
+	Experiment results for [CPU=1405 RAM=1952] found on disk
 	Metric result for [CPU=1405 RAM=1952] is 0.19254524114212238
-	Running experiment for [CPU=1405 RAM=1936]
+	Experiment results for [CPU=1405 RAM=1936] found on disk
 	Metric result for [CPU=1405 RAM=1936] is 0.19924613317975626
-	Running experiment for [CPU=1405 RAM=1928]
+	Experiment results for [CPU=1405 RAM=1928] found on disk
 	Metric result for [CPU=1405 RAM=1928] is 0.2072833602217155
-	Running experiment for [CPU=1405 RAM=1932]
+	Experiment results for [CPU=1405 RAM=1932] found on disk
 	Metric result for [CPU=1405 RAM=1932] is 0.2029915005687444
-	Running experiment for [CPU=1405 RAM=1934]
+	Experiment results for [CPU=1405 RAM=1934] found on disk
 	Metric result for [CPU=1405 RAM=1934] is 0.20099955068524533
-	Running experiment for [CPU=1405 RAM=1935]
-	Metric result for [CPU=1405 RAM=1935] is 0.2001033343335764
+	Experiment results for [CPU=1405 RAM=1935] found on disk
+	Metric result for [CPU=1405 RAM=1935] is 0.2001033343459193
 	Search stopped
 Optimization by wait time is CPU=1405 and RAM=1936
 Running optimization by queue size [target is 0.35] with 44058 jobs
@@ -70,39 +70,39 @@ Running optimization by queue size [target is 0.35] with 44058 jobs
 	Metric result for [CPU=1376 RAM=2048] is 0.36371432277175014
 	Experiment results for [CPU=1392 RAM=2048] found on disk
 	Metric result for [CPU=1392 RAM=2048] is 0.16920322291853174
-	Running experiment for [CPU=1384 RAM=2048]
+	Experiment results for [CPU=1384 RAM=2048] found on disk
 	Metric result for [CPU=1384 RAM=2048] is 0.25773195876288657
-	Running experiment for [CPU=1380 RAM=2048]
+	Experiment results for [CPU=1380 RAM=2048] found on disk
 	Metric result for [CPU=1380 RAM=2048] is 0.31375464684014875
-	Running experiment for [CPU=1378 RAM=2048]
+	Experiment results for [CPU=1378 RAM=2048] found on disk
 	Metric result for [CPU=1378 RAM=2048] is 0.3392603129445235
-	Running experiment for [CPU=1377 RAM=2048]
+	Experiment results for [CPU=1377 RAM=2048] found on disk
 	Metric result for [CPU=1377 RAM=2048] is 0.35141314553990616
 	Search stopped
 	Search started
 	Experiment results for [CPU=1378 RAM=2048] found on disk
 	Metric result for [CPU=1378 RAM=2048] is 0.3392603129445235
-	Running experiment for [CPU=1378 RAM=1024]
+	Experiment results for [CPU=1378 RAM=1024] found on disk
 	Metric result for [CPU=1378 RAM=1024] is 0.9721703188167035
-	Running experiment for [CPU=1378 RAM=1536]
+	Experiment results for [CPU=1378 RAM=1536] found on disk
 	Metric result for [CPU=1378 RAM=1536] is 0.9008813239786724
-	Running experiment for [CPU=1378 RAM=1792]
+	Experiment results for [CPU=1378 RAM=1792] found on disk
 	Metric result for [CPU=1378 RAM=1792] is 0.6487025948103793
-	Running experiment for [CPU=1378 RAM=1920]
+	Experiment results for [CPU=1378 RAM=1920] found on disk
 	Metric result for [CPU=1378 RAM=1920] is 0.33927298645759085
-	Running experiment for [CPU=1378 RAM=1856]
+	Experiment results for [CPU=1378 RAM=1856] found on disk
 	Metric result for [CPU=1378 RAM=1856] is 0.425891181988743
-	Running experiment for [CPU=1378 RAM=1888]
+	Experiment results for [CPU=1378 RAM=1888] found on disk
 	Metric result for [CPU=1378 RAM=1888] is 0.3535988819007687
-	Running experiment for [CPU=1378 RAM=1904]
+	Experiment results for [CPU=1378 RAM=1904] found on disk
 	Metric result for [CPU=1378 RAM=1904] is 0.341862117981521
-	Running experiment for [CPU=1378 RAM=1896]
+	Experiment results for [CPU=1378 RAM=1896] found on disk
 	Metric result for [CPU=1378 RAM=1896] is 0.3459915611814346
-	Running experiment for [CPU=1378 RAM=1892]
+	Experiment results for [CPU=1378 RAM=1892] found on disk
 	Metric result for [CPU=1378 RAM=1892] is 0.3493295695130557
-	Running experiment for [CPU=1378 RAM=1890]
+	Experiment results for [CPU=1378 RAM=1890] found on disk
 	Metric result for [CPU=1378 RAM=1890] is 0.35137490239016994
-	Running experiment for [CPU=1378 RAM=1891]
+	Experiment results for [CPU=1378 RAM=1891] found on disk
 	Metric result for [CPU=1378 RAM=1891] is 0.35035460992907796
 	Search stopped
 Optimization by queue size is CPU=1378 and RAM=1892

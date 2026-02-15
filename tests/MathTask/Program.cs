@@ -49,7 +49,7 @@ Parallel.ForEach(samples, sample =>
 
     logger.WriteLine($"Running optimization by queue size [target is {TargetQueueSize}] with {sample.Jobs.Length} jobs");
     var resourcesForQueueSize = solver.Optimize(OptimizingMetric.Queue, TargetQueueSize);
-    resourcesForWaitTime.Results.CreateCsv($"{logger.BasePath}/queue-size-results.csv");
+    resourcesForQueueSize.Results.CreateCsv($"{logger.BasePath}/queue-size-results.csv");
     logger.WriteLine($"Optimization by queue size is CPU={resourcesForQueueSize.CpuCores} and RAM={resourcesForQueueSize.RamGb}");
 
     var finalCpuCores = Math.Max(resourcesForWaitTime.CpuCores, resourcesForQueueSize.CpuCores);
