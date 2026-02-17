@@ -1,4 +1,4 @@
-Wait time results
+WaitTime results
 	Sample 0 best result is 0.199439065325522 with CPU=1077 and RAM=1496
 	Sample 1 best result is 0.1995172898477912 with CPU=1229 and RAM=1689
 	Sample 2 best result is 0.19955241362345033 with CPU=1192 and RAM=1633
@@ -10,7 +10,7 @@ Wait time results
 	Sample 8 best result is 0.19938957891036604 with CPU=1202 and RAM=1668
 	Sample 9 best result is 0.19959963190068047 with CPU=1164 and RAM=1632
 	Best result (90%) is CPU=1386 and RAM=1917
-Queue size results
+QueueSize results
 	Sample 0 best result is 0.35 with CPU=1058 and RAM=1506
 	Sample 1 best result is 0.3499597747385358 with CPU=1201 and RAM=1686
 	Sample 2 best result is 0.34966216216216217 with CPU=1167 and RAM=1610
@@ -22,4 +22,16 @@ Queue size results
 	Sample 8 best result is 0.3499591169255928 with CPU=1175 and RAM=1665
 	Sample 9 best result is 0.34982638888888884 with CPU=1141 and RAM=1617
 	Best result (90%) is CPU=1362 and RAM=1878
+
 Final optimization results is CPU=1386 and RAM=1917
+
+Final results for sample 0 are WaitTime=0 (True) and QueueSize=0 (True)
+Final results for sample 1 are WaitTime=0 (True) and QueueSize=0 (True)
+Final results for sample 2 are WaitTime=0 (True) and QueueSize=0(True)
+Final results for sample 3 are WaitTime=0 (True) and QueueSize=0 (True)
+Final results for sample 4 are WaitTime=0 (True) and QueueSize=0 (True)
+Final results for sample 5 are WaitTime=0.02569242875504731 (True) and QueueSize=0.022364217252396124 (True)
+Final results for sample 6 are WaitTime=0 (True) and QueueSize=0 (True)
+Final results for sample 7 are WaitTime=0.7364102249046459 (False) and QueueSize=0.23203963666391414 (True)
+Final results for sample 8 are WaitTime=0 (True) and QueueSize=0 (True)
+Final results for sample 9 are WaitTime=0 (True) and QueueSize=0 (True)

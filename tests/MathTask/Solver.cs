@@ -9,7 +9,7 @@ public enum OptimizingMetric
 {
     WaitTime = 1,
 
-    Queue = 2
+    QueueSize = 2
 }
 
 /// <summary>
@@ -210,6 +210,9 @@ public class Solver(SimpleLogger logger, Job[] jobs)
         return (jobEvents, metrics);
     }
 
+    /// <summary>
+    /// Get metric function for optimization based on <paramref name="mectricToOptimize"/>
+    /// </summary>
     private Func<SortedList<JobEvent, Job>, List<Metric>, double> GetMetricFunction(OptimizingMetric mectricToOptimize)
     {
         return mectricToOptimize == OptimizingMetric.WaitTime

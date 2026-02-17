@@ -8,22 +8,13 @@ public sealed class SimpleLogger : IDisposable
     private readonly StreamWriter _writer;
     private readonly string _header;
 
-    public SimpleLogger(string dumpsPath)
+    public SimpleLogger(string filePath, string header = "", bool append = false)
     {
-        _header = string.Empty;
-        BasePath = dumpsPath;
-        Directory.CreateDirectory(BasePath);
-
-        _writer = new($"{BasePath}/log.txt");
-    }
-
-    public SimpleLogger(string dumpsPath, int sampleId)
-    {
-        _header = $"[Sample {sampleId}] ";
-        BasePath = $"{dumpsPath}/{sampleId}";
+        _header = header;
+        BasePath = Path.GetDirectoryName(filePath);
 
         Directory.CreateDirectory(BasePath);
-        _writer = new($"{BasePath}/log.txt");
+        _writer = new(filePath, append);
     }
 
     /// <summary>

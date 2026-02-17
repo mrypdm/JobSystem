@@ -66,7 +66,7 @@ public static class Graphs
                     ramHistogram.Select(j => j.Count).ToArray()
                 ));
 
-            mulitplot.SavePng($"{basePath}/{id}/jobs.png", Width, Height);
+            mulitplot.SavePng($"{basePath}/{id}/Jobs.png", Width, Height);
         }
     }
 
@@ -115,7 +115,7 @@ public static class Graphs
                 samples.Select(m => m.Jobs.Length).ToArray()
             )
         );
-        multiplot.SavePng($"{basePath}/mean-values-by-samples.png", Width, Height);
+        multiplot.SavePng($"{basePath}/Mean samples values.png", Width, Height);
     }
 
     /// <summary>

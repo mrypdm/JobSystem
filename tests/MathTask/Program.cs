@@ -41,42 +41,28 @@ else
     samples.PlotMeanValuesBySamples(ResultsDir);
 }
 
-ConcurrentDictionary<long, SolverResult> waitTimeResults = new();
-ConcurrentDictionary<long, SolverResult> queueSizeResults = new();
+var waitTimeResults = await samples.Optimize(OptimizingMetric.WaitTime, TargetWaitTime, ResultsDir);
+var queueSizeResults = await samples.Optimize(OptimizingMetric.QueueSize, TargetQueueSize, ResultsDir);
 
-Parallel.ForEach(samples, sample =>
-{
-    using var logger = new SimpleLogger(ResultsDir, sample.Id);
-    var solver = new Solver(logger, sample.Jobs);
+using var logger = new SimpleLogger($"{ResultsDir}/common.log");
 
-    logger.WriteLine($"Running optimization by wait time [target is {TargetWaitTime}] with {sample.Jobs.Length} jobs");
-    var resourcesForWaitTime = solver.Optimize(OptimizingMetric.WaitTime, TargetWaitTime);
-    resourcesForWaitTime.Results.CreateCsv($"{logger.BasePath}/wait-time-results.csv");
-    logger.WriteLine($"Optimization by wait time is CPU={resourcesForWaitTime.CpuCores} and RAM={resourcesForWaitTime.RamGb}");
-
-    logger.WriteLine($"Running optimization by queue size [target is {TargetQueueSize}] with {sample.Jobs.Length} jobs");
-    var resourcesForQueueSize = solver.Optimize(OptimizingMetric.Queue, TargetQueueSize);
-    resourcesForQueueSize.Results.CreateCsv($"{logger.BasePath}/queue-size-results.csv");
-    logger.WriteLine($"Optimization by queue size is CPU={resourcesForQueueSize.CpuCores} and RAM={resourcesForQueueSize.RamGb}");
-
-    var finalCpuCores = Math.Max(resourcesForWaitTime.CpuCores, resourcesForQueueSize.CpuCores);
-    var finalRamGb = Math.Max(resourcesForWaitTime.RamGb, resourcesForQueueSize.RamGb);
-    var finalWaitTimeResult = solver.DoExperiment(OptimizingMetric.WaitTime, finalCpuCores, finalRamGb);
-    var finalQueueResult = solver.DoExperiment(OptimizingMetric.Queue, finalCpuCores, finalRamGb);
-
-    logger.WriteLine(
-        $"Optimization by all metrics is CPU={finalCpuCores} and RAM={finalRamGb} "
-        + $"with results wait time {finalWaitTimeResult.Metric} and queue size {finalQueueResult.Metric}");
-
-    waitTimeResults.TryAdd(sample.Id, resourcesForWaitTime);
-    queueSizeResults.TryAdd(sample.Id, resourcesForQueueSize);
-});
-
-using var logger = new SimpleLogger(ResultsDir);
-
-var (waitTimeMeanBestCpu, waitTimeMeanBestRam) = waitTimeResults.DumpTotalResults("Wait time", TargetWaitTime, logger);
-var (queueSizeMeanBestCpu, queueSizeMeanBestRam) = queueSizeResults.DumpTotalResults("Queue size", TargetQueueSize, logger);
+var (waitTimeMeanBestCpu, waitTimeMeanBestRam) = waitTimeResults
+    .DumpTotalResults(OptimizingMetric.WaitTime.ToString(), TargetWaitTime, logger);
+var (queueSizeMeanBestCpu, queueSizeMeanBestRam) = queueSizeResults
+    .DumpTotalResults(OptimizingMetric.QueueSize.ToString(), TargetQueueSize, logger);
 
 var bestCpu = Math.Max(waitTimeMeanBestCpu, queueSizeMeanBestCpu);
 var bestRam = Math.Max(waitTimeMeanBestRam, queueSizeMeanBestRam);
-logger.WriteLine($"Final optimization results is CPU={bestCpu} and RAM={bestRam}");
+logger.WriteLine($"\nFinal optimization results is CPU={bestCpu} and RAM={bestRam}\n");
+
+var finalWaitTimeResults = await samples.CheckResources(bestCpu, bestRam, OptimizingMetric.WaitTime, ResultsDir);
+var finalQueueSizeResults = await samples.CheckResources(bestCpu, bestRam, OptimizingMetric.QueueSize, ResultsDir);
+
+for (var i = 0; i < SamplesCount; ++i)
+{
+    var finalWaitTimeResult = finalWaitTimeResults[i];
+    var finalQueueResult = finalQueueSizeResults[i];
+    logger.WriteLine($"Final results for sample {i} are "
+        + $"{OptimizingMetric.WaitTime}={finalWaitTimeResult.Metric} ({finalWaitTimeResult.Metric <= TargetWaitTime})"
+        + $" and {OptimizingMetric.QueueSize}={finalQueueResult.Metric} ({finalQueueResult.Metric <= TargetQueueSize})");
+}

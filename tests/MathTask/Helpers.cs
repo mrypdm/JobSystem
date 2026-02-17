@@ -184,6 +184,60 @@ public static class Helpers
     }
 
     /// <summary>
+    /// Optimize <paramref name="samples"/> resources by <paramref name="metricToOptimize"/> and <paramref name="targetMetric"/>.
+    /// Saves results to <paramref name="dumpsPath"/>
+    /// </summary>
+    public static async Task<ConcurrentDictionary<long, SolverResult>> Optimize(
+        this IEnumerable<(int Id, Job[] Jobs)> samples,
+        OptimizingMetric metricToOptimize,
+        double targetMetric,
+        string dumpsPath)
+    {
+        var results = new ConcurrentDictionary<long, SolverResult>();
+
+        await Parallel.ForEachAsync(samples, async (sample, _) =>
+        {
+            using var logger = new SimpleLogger($"{dumpsPath}/{sample.Id}/{metricToOptimize}.log", $"[Sample {sample.Id}] ");
+            var solver = new Solver(logger, sample.Jobs);
+
+            logger.WriteLine($"Running optimization by {metricToOptimize} [target is {targetMetric}] with {sample.Jobs.Length} jobs");
+            var solverResult = solver.Optimize(metricToOptimize, targetMetric);
+            solverResult.Results.CreateCsv($"{logger.BasePath}/{metricToOptimize}.csv");
+            logger.WriteLine($"Optimization by {metricToOptimize} is CPU={solverResult.CpuCores} and RAM={solverResult.RamGb}");
+
+            results.TryAdd(sample.Id, solverResult);
+        });
+
+        return results;
+    }
+
+    /// <summary>
+    /// Check <paramref name="metricToOptimize"/> by <paramref name="cpuCores"/> and <paramref name="ramGb"/> over all <paramref name="samples"/>
+    /// Saves results to <paramref name="dumpsPath"/>
+    /// </summary>
+    public static async Task<ConcurrentDictionary<long, ExperimentResult>> CheckResources(
+        this IEnumerable<(int Id, Job[] Jobs)> samples,
+        long cpuCores, long ramGb,
+        OptimizingMetric metricToOptimize,
+        string dumpsPath)
+    {
+        var results = new ConcurrentDictionary<long, ExperimentResult>();
+
+        await Parallel.ForEachAsync(samples, async (sample, _) =>
+        {
+            using var logger = new SimpleLogger($"{dumpsPath}/{sample.Id}/{metricToOptimize}.log", $"[Sample {sample.Id}] ", append: true);
+            var solver = new Solver(logger, sample.Jobs);
+
+            logger.WriteLine($"Checking CPU and RAM values for {metricToOptimize}");
+            var checkResult = solver.DoExperiment(metricToOptimize, cpuCores, ramGb);
+
+            results.TryAdd(sample.Id, checkResult);
+        });
+
+        return results;
+    }
+
+    /// <summary>
     /// Writes total results to log
     /// </summary>
     public static (long MeanBestCpuCores, long MeanBestRamGb) DumpTotalResults(
