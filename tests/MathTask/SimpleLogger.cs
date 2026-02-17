@@ -6,14 +6,23 @@ namespace MathTask;
 public sealed class SimpleLogger : IDisposable
 {
     private readonly StreamWriter _writer;
-    private readonly int _sampleId;
+    private readonly string _header;
+
+    public SimpleLogger(string dumpsPath)
+    {
+        _header = string.Empty;
+        BasePath = dumpsPath;
+        Directory.CreateDirectory(BasePath);
+
+        _writer = new($"{BasePath}/log.txt");
+    }
 
     public SimpleLogger(string dumpsPath, int sampleId)
     {
+        _header = $"[Sample {sampleId}] ";
         BasePath = $"{dumpsPath}/{sampleId}";
-        Directory.CreateDirectory(BasePath);
 
-        _sampleId = sampleId;
+        Directory.CreateDirectory(BasePath);
         _writer = new($"{BasePath}/log.txt");
     }
 
@@ -34,7 +43,7 @@ public sealed class SimpleLogger : IDisposable
     /// <param name="line"></param>
     public void WriteLine(string line)
     {
-        Console.WriteLine($"[Sample {_sampleId}] {line}");
+        Console.WriteLine($"{_header}{line}");
         _writer.WriteLine(line);
     }
 }

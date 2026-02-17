@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using MathTask;
 
 if (Environment.CurrentDirectory.Replace("\\", "/").Contains("bin/Debug/net"))
@@ -11,16 +12,16 @@ const int SamplesCount = 10;
 const double TargetWaitTime = 0.2;
 const double TargetQueueSize = 0.35;
 
-IEnumerable<(int Id, Job[] Jobs)> samples = null;
+(int Id, Job[] Jobs)[] samples = null;
 if (Directory.GetFiles(SamplesDir).Length == SamplesCount)
 {
     Console.WriteLine("Rading samples from disk...");
-    samples = Helpers.ReadSamples(SamplesDir);
+    samples = [.. Helpers.ReadSamples(SamplesDir).OrderBy(m => m.Id)];
 }
 else
 {
     Console.WriteLine("Generating samples...");
-    samples = Helpers.GenerateSamples(
+    samples = [.. Helpers.GenerateSamples(
         samplesCount: SamplesCount,
         meanJobsPerSample: 40_000,
         deltaJobsPerSample: 5_000,
@@ -29,13 +30,19 @@ else
         meanJobCpuUsage: 1.5,
         deltaJobCpuUsage: 0.5,
         meanJobRamUsage: 2,
-        deltaJobRamUsage: 1);
+        deltaJobRamUsage: 1)];
 
     foreach (var sample in samples)
     {
         sample.Jobs.CreateCsv($"{SamplesDir}/{sample.Id}.csv");
     }
+
+    samples.PlotSamples(ResultsDir);
+    samples.PlotMeanValuesBySamples(ResultsDir);
 }
+
+ConcurrentDictionary<long, SolverResult> waitTimeResults = new();
+ConcurrentDictionary<long, SolverResult> queueSizeResults = new();
 
 Parallel.ForEach(samples, sample =>
 {
@@ -60,4 +67,16 @@ Parallel.ForEach(samples, sample =>
     logger.WriteLine(
         $"Optimization by all metrics is CPU={finalCpuCores} and RAM={finalRamGb} "
         + $"with results wait time {finalWaitTimeResult.Metric} and queue size {finalQueueResult.Metric}");
+
+    waitTimeResults.TryAdd(sample.Id, resourcesForWaitTime);
+    queueSizeResults.TryAdd(sample.Id, resourcesForQueueSize);
 });
+
+using var logger = new SimpleLogger(ResultsDir);
+
+var (waitTimeMeanBestCpu, waitTimeMeanBestRam) = waitTimeResults.DumpTotalResults("Wait time", TargetWaitTime, logger);
+var (queueSizeMeanBestCpu, queueSizeMeanBestRam) = queueSizeResults.DumpTotalResults("Queue size", TargetQueueSize, logger);
+
+var bestCpu = Math.Max(waitTimeMeanBestCpu, queueSizeMeanBestCpu);
+var bestRam = Math.Max(waitTimeMeanBestRam, queueSizeMeanBestRam);
+logger.WriteLine($"Final optimization results is CPU={bestCpu} and RAM={bestRam}");

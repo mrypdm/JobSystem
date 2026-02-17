@@ -1,4 +1,6 @@
+using System.Collections.Concurrent;
 using MathNet.Numerics.Distributions;
+using MathNet.Numerics.Statistics;
 
 namespace MathTask;
 
@@ -146,7 +148,7 @@ public static class Helpers
         var jobCpuGenerator = new Normal(meanJobCpuUsage, deltaJobCpuUsage);
         var jobRamGenerator = new Normal(meanJobRamUsage, deltaJobRamUsage);
 
-        while (samplesCount-- != 0)
+        for (var sampleNumber = 0; sampleNumber < samplesCount; ++sampleNumber)
         {
             var jobsCount = (int)jobsCountGenerator.Sample();
 
@@ -160,7 +162,7 @@ public static class Helpers
                     CpuUsage: (long)(jobCpuGenerator.Sample().Normalize(0) * 100),
                     RamUsage: (long)(jobRamGenerator.Sample().Normalize(0) * 1024 * 1024 * 1024)));
 
-            yield return (samplesCount, jobs.ToArray());
+            yield return (sampleNumber, jobs.ToArray());
         }
     }
 
@@ -179,5 +181,32 @@ public static class Helpers
         }
 
         return sortedList;
+    }
+
+    /// <summary>
+    /// Writes total results to log
+    /// </summary>
+    public static (long MeanBestCpuCores, long MeanBestRamGb) DumpTotalResults(
+        this ConcurrentDictionary<long, SolverResult> results,
+        string experimentName,
+        double targetMetric,
+        SimpleLogger logger)
+    {
+        logger.WriteLine($"{experimentName} results");
+        foreach (var (sampleId, solverResult) in results)
+        {
+            var metric = solverResult.Results
+                .Single(m => m.CpuCores == solverResult.CpuCores && m.RamGb == solverResult.RamGb)
+                .Metric;
+            logger.WriteLine($"\tSample {sampleId} best result is {metric} with CPU={solverResult.CpuCores} and RAM={solverResult.RamGb}");
+        }
+
+        var percBestCpu = (long)Math.Ceiling(results.Select(m => (double)m.Value.CpuCores).Percentile(90));
+        var percBestRam = (long)Math.Ceiling(results.Select(m => (double)m.Value.RamGb).Percentile(90));
+        logger.WriteLine($"\tBest result (90%) is CPU={percBestCpu} and RAM={percBestRam}");
+
+        results.PlotExperimentsResults(experimentName, targetMetric, percBestCpu, percBestRam, logger.BasePath);
+
+        return (percBestCpu, percBestRam);
     }
 }
