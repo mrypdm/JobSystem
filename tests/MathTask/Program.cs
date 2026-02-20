@@ -23,6 +23,7 @@ else
     Console.WriteLine("Generating samples...");
     samples = [.. Helpers.GenerateSamples(
         samplesCount: SamplesCount,
+        samplesLength: 24 * 60 * 60,
         meanJobsPerSample: 40_000,
         deltaJobsPerSample: 5_000,
         minJobTimeout: 60,
@@ -58,7 +59,7 @@ logger.WriteLine($"\nFinal optimization results is CPU={bestCpu} and RAM={bestRa
 var finalWaitTimeResults = await samples.CheckResources(bestCpu, bestRam, OptimizingMetric.WaitTime, ResultsDir);
 var finalQueueSizeResults = await samples.CheckResources(bestCpu, bestRam, OptimizingMetric.QueueSize, ResultsDir);
 
-for (var i = 0; i < SamplesCount; ++i)
+for (var i = 0; i < samples.Length; ++i)
 {
     var finalWaitTimeResult = finalWaitTimeResults[i];
     var finalQueueResult = finalQueueSizeResults[i];

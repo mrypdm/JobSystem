@@ -136,13 +136,13 @@ public static class Helpers
     /// Generate samples
     /// </summary>
     public static IEnumerable<(int Id, Job[] Jobs)> GenerateSamples(
-        int samplesCount,
+        int samplesCount, long samplesLength,
         int meanJobsPerSample, int deltaJobsPerSample,
         int minJobTimeout, int maxJobTimeout,
         double meanJobCpuUsage, double deltaJobCpuUsage,
         double meanJobRamUsage, double deltaJobRamUsage)
     {
-        var jobsCreationGenerator = new ContinuousUniform(0, 24 * 60 * 60);
+        var jobsCreationGenerator = new ContinuousUniform(0, samplesLength);
         var jobsCountGenerator = new Normal(meanJobsPerSample, deltaJobsPerSample);
         var jobTimeoutGenerator = new ContinuousUniform(minJobTimeout, maxJobTimeout);
         var jobCpuGenerator = new Normal(meanJobCpuUsage, deltaJobCpuUsage);
