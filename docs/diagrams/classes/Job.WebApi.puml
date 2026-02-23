@@ -9,6 +9,8 @@ interface ILogger << Built-In >>
 interface IJobDbContext << External >>
 class JobMessage << External >>
 class NewJobModel << External >>
+class CreateJobRequest << External >>
+class JobResultResponse << External >>
 interface IBrokerProducer<Guid, JobMessage> << External >>
 IBrokerProducer --> JobMessage
 
@@ -49,5 +51,7 @@ JobController --> JobControllerOptions
 JobController --> ILogger
 JobController --> JobMessage
 JobController --> NewJobModel
+JobController --> CreateJobRequest
+JobController --> JobResultResponse
 
 @enduml

@@ -3,12 +3,20 @@ hide empty members
 
 title Классы веб-приложения пользователей
 
+abstract class HttpContext << ASP.NET Core >>
+{
+    +Task SignInAsync(string, ClaimsPrincipal)
+    +Task SignOutAsync(string)
+}
 abstract class Controller << ASP.NET Core >>
+Controller --> HttpContext
+
 abstract class BaseExceptionFilter << External >>
 interface IUserDbContext << External >>
 interface IJobWebApiClient << External >>
 interface ILogger << Built-In >>
 interface IFormFile << ASP.NET Core >>
+interface IMemoryCache << ASP.NET Core >>
 
 class CreateUserJobRequest
 {
@@ -46,6 +54,7 @@ Controller <|-- AuthenticationApiController
 AuthenticationApiController --> IUserDbContext
 AuthenticationApiController --> ILogger
 AuthenticationApiController --> LoginRequest
+AuthenticationApiController --> IMemoryCache
 
 class JobController
 {

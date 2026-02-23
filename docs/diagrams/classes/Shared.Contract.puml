@@ -66,8 +66,6 @@ class SslValidator
     {method}+X509ChainPolicy ChainPolicy
     +bool Validate(X509Certificate2, X509Chain, SslPolicyErrors)
     +bool IsRevoked(X509Certificate2)
-    {static}-bool IsUntrustedRootError(SslPolicyErrors, X509Chain)
-    {static}-HashSet<string> GetRevokedCertificates(X509Chain, string)
 }
 SslValidator --> Pkcs12CertificateOptions
 SslValidator --> X509Chain

@@ -13,7 +13,7 @@ public class SslValidator
 {
     private readonly X509Chain _validationChain;
     private readonly HashSet<string> _revokedCertificates;
-    private readonly MemoryCache CertificateCache = new(new MemoryCacheOptions()
+    private readonly MemoryCache _certificateCache = new(new MemoryCacheOptions()
     {
         ExpirationScanFrequency = TimeSpan.FromMinutes(15)
     });
@@ -43,7 +43,7 @@ public class SslValidator
             return false;
         }
 
-        return CertificateCache.GetOrCreate(certificate.Thumbprint, entry =>
+        return _certificateCache.GetOrCreate(certificate.Thumbprint, entry =>
         {
             // allow untrusted root because we have our custom root loaded to application
             var externalValidation = errors == SslPolicyErrors.None || IsUntrustedRootError(errors, chain);

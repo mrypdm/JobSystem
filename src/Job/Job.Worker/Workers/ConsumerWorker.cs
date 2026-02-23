@@ -19,7 +19,7 @@ namespace Job.Worker.Workers;
 public class ConsumerWorker(
     IBrokerConsumer<Guid, JobMessage> consumer,
     IJobRunner runner,
-    IResourcesAnalyzer resourceMonitor,
+    IResourcesAnalyzer resourceAnalyzer,
     IOwnedService<IJobDbContext> jobDbContextOwned,
     ConsumerWorkerOptions consumerWorkerOptions,
     ILogger<ConsumerWorker> logger)
@@ -63,7 +63,7 @@ public class ConsumerWorker(
         {
             logger.LogDebug("Consume iteration started");
 
-            if (await resourceMonitor.CanRunNewJobAsync(cancellationToken))
+            if (await resourceAnalyzer.CanRunNewJobAsync(cancellationToken))
             {
                 await ConsumeOnceAsync(cancellationToken);
             }
@@ -109,7 +109,7 @@ public class ConsumerWorker(
                     Timeout = job.Timeout,
                     Script = job.Script
                 });
-                await SetJobAsRunning(jobDbContext, job.Id, cancellationToken);
+                await SetJobAsRunningAsync(jobDbContext, job.Id, cancellationToken);
             }
 
             consumer.Commit(_lastConsumed);
@@ -125,7 +125,7 @@ public class ConsumerWorker(
         }
     }
 
-    private async Task SetJobAsRunning(IJobDbContext jobDbContext, Guid jobId, CancellationToken cancellationToken)
+    private async Task SetJobAsRunningAsync(IJobDbContext jobDbContext, Guid jobId, CancellationToken cancellationToken)
     {
         try
         {

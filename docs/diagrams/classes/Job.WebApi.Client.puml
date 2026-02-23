@@ -6,7 +6,10 @@ title Классы клиента для веб-приложения Задач
 class Exception << Built-In >>
 interface IDisposable << Built-In >>
 interface ILogger << Built-In >>
+interface IFlurlClient << Flurl >>
 class Pkcs12CertificateOptions << External >>
+class JobResultResponse << External >>
+class CreateJobRequest << External >>
 
 class JobWebApiClientOptions
 {
@@ -19,6 +22,7 @@ interface IFlurlClientFactory
 {
     +IFlurlClient Create(JobWebApiClientOptions)
 }
+IFlurlClientFactory --> IFlurlClient
 
 class FlurlClientFactory
 IFlurlClientFactory <|.. FlurlClientFactory
@@ -38,12 +42,12 @@ interface IJobWebApiClient
     +Task<JobResultResponse> GetJobResultsAsync(Guid, CancellationToken)
 }
 IDisposable <|.. IJobWebApiClient
+IJobWebApiClient --> CreateJobRequest
+IJobWebApiClient --> JobResultResponse
 
 class JobWebApiClient
 {
     -IFlurlClient _httpClient
-    -void LogHttpRequest(string, string)
-    {static}-Task<TResult> DoHttpRequest<TResult>(Func<Task<TResult>>)
 }
 IJobWebApiClient <|.. JobWebApiClient
 JobWebApiClient --> IFlurlClientFactory
@@ -51,5 +55,6 @@ JobWebApiClient --> JobWebApiClientOptions
 JobWebApiClient --> ILogger
 JobWebApiClient --> JobWebApiException
 JobWebApiClient --> JobWebApiTimeoutException
+JobWebApiClient --> IFlurlClient
 
 @enduml

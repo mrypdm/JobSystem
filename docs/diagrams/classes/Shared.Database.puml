@@ -12,6 +12,7 @@ ILoggerFactory --> ILogger
 
 class DatabaseFacade << EF Core >>
 abstract class DbContextOptions << EF Core >>
+class NpgsqlConnectionStringBuilder << EF Core >>
 
 class DbContext << EF Core >>
 {
@@ -46,6 +47,7 @@ abstract class PostgreDbContext
 }
 DbContext <|-- PostgreDbContext
 PostgreDbContext --> DbContextOptionsBuilder
+PostgreDbContext --> NpgsqlConnectionStringBuilder
 PostgreDbContext --> ILogger
 PostgreDbContext --> DatabaseOptions
 PostgreDbContext --> SslValidator
