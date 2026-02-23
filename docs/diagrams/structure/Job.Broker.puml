@@ -1,0 +1,81 @@
+@startuml JobConsumer
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title JobConsumer
+
+() Kafka
+
+component JobConsumer {
+    [ConsumerOptions] << Injected >>
+    [ConsumeResult<Guid, JobMessage>] << Confluent, Argument >> as consumerResultIn
+
+    component "IConsumer<Guid, JobMessage>" << Confluent >> as consumer {
+        portin Dispose as consumer_Dispose
+        portin Subscribe as consumer_Subscribe
+        portin Consume as consumer_Consume
+        portin Commit as consumer_Commit
+    }
+    consumer ..> Kafka
+
+    component ConsumerBuilder << Confluent >> {
+        portin Build as builder_Build
+        [JobMessageConverter]
+        [GuidConverter]
+    }
+    ConsumerOptions --> builder_Build
+    consumer <- ConsumerBuilder
+
+    portin Dispose
+    Dispose --> consumer_Dispose
+
+    portin Subscribe
+    Subscribe --> consumer_Subscribe
+
+    portin Commit
+    Commit --> consumerResultIn
+    consumerResultIn --> consumer_Commit
+
+    portin Consume
+    Consume --> consumer_Consume
+}
+
+@enduml
+
+@startuml JobProducer
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title JobProducer
+
+() Kafka
+
+component JobProducer {
+    [ProducerOptions] << Injected >>
+    [JobMessage] << Argument >>
+    [Message<Guid, JobMessage>] << Confluent >> as kafkaMessage
+
+    component "_producer : IProducer<Guid, JobMessage>" << Confluent >> as _producer {
+        portin Dispose as producer_Dispose
+        portin ProduceAsync as producer_ProduceAsync
+    }
+    _producer ..> Kafka
+
+    component ProducerBuilder << Confluent >> {
+        portin Build as builder_Build
+        [JobMessageConverter]
+        [GuidConverter]
+    }
+    ProducerOptions --> builder_Build
+    _producer <- ProducerBuilder
+
+    portin Dispose
+    Dispose --> producer_Dispose
+
+    portin PublishAsync
+    PublishAsync --> JobMessage
+    JobMessage --> kafkaMessage
+    kafkaMessage --> producer_ProduceAsync
+}
+
+@enduml

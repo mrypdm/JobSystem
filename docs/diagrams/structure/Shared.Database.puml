@@ -1,0 +1,36 @@
+@startuml PostgreDbContext
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title PostgreDbContext
+
+component PostgreDbContext {
+    portin BuildOptions
+
+    component SslValidator << Argument >> {
+        portin Validate
+    }
+
+    [DatabaseOptions] << Argument >>
+    [ILoggerFactory] << Argument >>
+
+    [DbContextOptionsBuilder]
+
+    [NpgsqlConnectionStringBuilder]
+
+    [RemoteCertificateValidationCallback]
+
+    BuildOptions --> SslValidator
+    BuildOptions --> DatabaseOptions
+    BuildOptions --> ILoggerFactory
+
+    ILoggerFactory --> DbContextOptionsBuilder
+    DatabaseOptions -> NpgsqlConnectionStringBuilder
+    DatabaseOptions -> DbContextOptionsBuilder
+    NpgsqlConnectionStringBuilder --> DbContextOptionsBuilder
+
+    DbContextOptionsBuilder ..> RemoteCertificateValidationCallback
+    RemoteCertificateValidationCallback --> Validate
+}
+
+@enduml

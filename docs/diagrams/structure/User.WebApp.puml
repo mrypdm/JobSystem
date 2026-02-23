@@ -1,0 +1,88 @@
+@startuml AuthenticationApiController
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title AuthenticationApiController
+
+component AuthenticationApiController {
+    component IUserDbContext << Injected >> {
+        portin GetUserAsync
+        portin AddNewUserAsync
+    }
+
+    component IMemoryCache << ASP.NET Core, Injected >> {
+        portin Get
+        portin Set
+        portin Remove
+    }
+
+    component HttpContext << ASP.NET Core, Injected >> {
+        portin SignInAsync as context_SignInAsync
+        portin SignOutAsync as context_SignOutAsync
+    }
+
+    portin "DELETE /api/auth" as SignOutAsync
+    SignOutAsync --> context_SignOutAsync
+
+    portin "POST /api/auth" as SignInAsync
+    [LoginRequest] << Argument >>
+    [Проверка валидности входных данных] as validateInput
+    [Проверка авторизационных данных] as validateCreds
+    [Добавление пользователя] as signUp
+    [Выписывание авторизационной куки] as cookie
+    [Отказ в доступе] as fail
+
+    SignInAsync --> LoginRequest
+    LoginRequest --> validateInput
+    validateInput --> validateCreds
+
+    validateCreds .> signUp : Если пользователя не существует
+    signUp --> AddNewUserAsync
+
+    validateCreds --> Get
+    validateCreds --> Set
+    validateCreds --> Remove
+    validateCreds --> GetUserAsync
+    validateCreds --> cookie
+    cookie --> context_SignInAsync
+
+    validateCreds ..> fail : Если ошибка авторизации
+}
+
+@enduml
+
+@startuml JobApiController
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title JobApiController
+
+component JobApiController {
+    component IUserDbContext << Injected >> {
+        portin AddNewUserJobAsync
+        portin IsUserJobAsync
+    }
+
+    component IJobWebApiClient << Injected >> {
+        portin CreateNewJobAsync as back_CreateNewJobAsync
+        portin GetJobResultsAsync as back_GetJobResultsAsync
+    }
+
+    component HttpContext << ASP.NET Core, Injected >> {
+        portin GetUserName
+    }
+
+    portin "GET /api/jobs/{jobId}" as GetUserJobResultsAsync
+    GetUserJobResultsAsync --> GetUserName
+    GetUserJobResultsAsync --> IsUserJobAsync
+    GetUserJobResultsAsync --> back_GetJobResultsAsync
+
+    portin "POST /api/jobs" as CreateNewJobAsync
+    [CreateUserJobRequest] << Argument >>
+    CreateNewJobAsync --> CreateUserJobRequest
+    CreateUserJobRequest --> back_CreateNewJobAsync
+    CreateUserJobRequest --> AddNewUserJobAsync
+    CreateUserJobRequest --> GetUserName
+}
+
+@enduml

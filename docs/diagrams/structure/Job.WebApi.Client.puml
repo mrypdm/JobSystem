@@ -1,0 +1,40 @@
+@startuml JobWebApiClient
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title JobWebApiClient
+
+() JobController
+
+component JobWebApiClient {
+    [CreateJobRequest] << Argument >>
+
+    [JobWebApiClientOptions] << Injected >>
+
+    component IFlurlClient << Fluent >> as flurlClient {
+        portin Dispose as client_Dispose
+        portin "POST /api/jobs" as client_POST
+        portin "GET  /api/jobs/{jobId}" as client_GET
+    }
+    flurlClient ...> JobController
+
+    component IFlurlClientFactory as factory << Injected >> {
+        portin Create as factory_Create
+    }
+
+    JobWebApiClientOptions --> factory_Create
+
+    flurlClient <-- factory
+
+    portin Dispose
+    Dispose --> client_Dispose
+
+    portin CreateNewJobAsync
+    CreateNewJobAsync --> CreateJobRequest
+    CreateJobRequest --> client_POST
+
+    portin GetJobResultsAsync
+    GetJobResultsAsync --> client_GET
+}
+
+@enduml

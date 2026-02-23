@@ -1,0 +1,78 @@
+@startuml JobController
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title JobController
+
+component JobController {
+    component JobControllerOptions << Injected >> {
+        [MaxTimeout]
+        [DefaultTimeout]
+    }
+
+    component IJobDbContext as jobDbContext << Injected >> {
+        portin AddNewJobAsync as db_AddNewJobAsync
+        portin GetJobResultsAsync AS db_GetJobResultsAsync
+    }
+
+    component "IBrokerProducer<Guid, JobMessage>" << Injected >> {
+        portin PublishAsync as broker_PublishAsync
+    }
+
+    [CreateJobRequest] << Argument >>
+    [NewJobModel]
+    [JobMessage]
+
+    DefaultTimeout ..> NewJobModel
+
+    portin "GET /api/jobs/{jobId}" as api_getJob
+    api_getJob --> db_GetJobResultsAsync
+
+    portin "POST /api/jobs" as api_createJob
+    [Проверка корректности] as validate
+    api_createJob --> CreateJobRequest
+    CreateJobRequest --> validate
+    CreateJobRequest --> NewJobModel
+    CreateJobRequest --> JobMessage
+    MaxTimeout ..> validate
+    NewJobModel --> db_AddNewJobAsync
+    JobMessage ----> broker_PublishAsync
+}
+
+@enduml
+
+@startuml LostJobWorker
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title LostJobWorker
+
+component LostJobWorker {
+    component LostJobWorkerOptions << Injected >> {
+        [IsEnabled]
+        [IterationDeplay]
+        [LostTimeoutForJobs]
+    }
+
+    [RunLoopAsync]
+    [RunIterationAsync]
+
+    component "jobDbContext : IJobDbContext" << Injected >> as jobDbContext {
+        portin "MarkLostJobsAsync" as db_markLost
+    }
+
+    portin "StartAsync"
+    portin "StopAsync"
+
+    StartAsync --> RunLoopAsync : Запускает
+    StopAsync --> RunLoopAsync : Останавливает
+
+    RunLoopAsync --> RunIterationAsync : Запускает в цикле
+    IterationDeplay .> RunLoopAsync
+    IsEnabled .> RunLoopAsync
+
+    RunIterationAsync --> db_markLost
+    LostTimeoutForJobs .> db_markLost
+}
+
+@enduml

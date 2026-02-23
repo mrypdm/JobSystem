@@ -1,0 +1,308 @@
+@startuml ConsumerWorker
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title ConsumerWorker
+
+component ConsumerWorker {
+    component "IBrokerConsumer<Guid, JobMessage>" << Injected >> as consumer {
+        portin Subscribe
+        portin Dispose
+        portin Commit
+        portin Consume
+    }
+
+    component IJobRunner << Injected >> as runner {
+        portin RunJob
+        portin WaitForAllJobs
+    }
+
+    component IResourcesAnalyzer << Injected >> as resourceAnalyzer {
+        portin CanRunNewJobAsync
+    }
+
+    component IJobDbContext << Injected >> as jobDbContext {
+        portin GetNewJobAsync
+        portin SetJobRunningAsync
+    }
+
+    component ConsumerWorkerOptions  << Injected >> {
+        [IterationDeplay]
+    }
+
+    [ConsumeResult<Guid, JobMessage>] as lastConsumed
+
+    portin StartAsync
+    [Запуск обработки] as startLoop
+
+    portin StopAsync
+    [Остановка обработки] as stopLoop
+
+    [ConsumingLoop]
+
+    [ConsumeOnceAsync]
+
+    [SetJobAsRunningAsync]
+
+    StartAsync --> startLoop
+    startLoop --> ConsumingLoop : Запускает
+    startLoop --> Subscribe
+
+    StopAsync --> stopLoop
+    stopLoop --> ConsumingLoop : Останавливает
+    stopLoop --> Dispose
+    stopLoop --> WaitForAllJobs
+
+    ConsumingLoop --> ConsumeOnceAsync : Запускает в цикле
+    ConsumingLoop --> CanRunNewJobAsync
+    resourceAnalyzer ..> ConsumeOnceAsync : Позволяет запуск
+    IterationDeplay .> ConsumingLoop
+
+
+    ConsumeOnceAsync --> Consume
+    ConsumeOnceAsync ..> lastConsumed : Cохраняет на случай ошибок
+    ConsumeOnceAsync --> GetNewJobAsync
+    ConsumeOnceAsync --> Commit
+    ConsumeOnceAsync --> RunJob
+    ConsumeOnceAsync --> SetJobAsRunningAsync
+    SetJobAsRunningAsync --> SetJobRunningAsync
+
+}
+
+@enduml
+
+@startuml JobRunner
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title JobRunner
+
+component JobRunner {
+    component IJobDbContext << Injected >> as jobDbContext {
+        portin SetJobResultsAsync
+    }
+
+    component IJobEnvironment << Injected >> as jobEnvironment {
+        portin PrepareEnvironment
+        portin ClearEnvironment
+    }
+
+    component IJobProcessRunner << Injected >> as jobProcessRunner {
+        portin RunProcessAsync
+    }
+
+    component IResultsCollector << Injected >> as jobResultsCollector {
+        portin CollectResultsAsync
+    }
+
+    component "ConcurrentDictionary<Guid, Task>" as jobs {
+        portin Count
+        portin Values
+        portin TryAdd
+    }
+
+    [RunJobAsync]
+
+    portin RunningJobsCount
+    RunningJobsCount --> Count
+
+    portin WaitForAllJobs
+    WaitForAllJobs --> Values
+
+    portin RunJob
+    [RunJobModel] << Argument >>
+    RunJob --> RunJobModel
+    RunJobModel --> TryAdd
+    RunJobModel --> RunJobAsync
+    jobs ..> RunJobAsync : Позволяет запуск
+
+    RunJobAsync --> PrepareEnvironment
+    RunJobAsync --> ClearEnvironment
+    RunJobAsync ----> RunProcessAsync
+    RunJobAsync ----> CollectResultsAsync
+    RunJobAsync --> SetJobResultsAsync
+    [JobStatus] ..> SetJobResultsAsync
+}
+
+@enduml
+
+@startuml ResourceAnalyzer
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title ResourceAnalyzer
+
+component ResourceAnalyzer {
+    component IJobRunner << Injected >> as jobRunner {
+        portin RunningJobsCount
+    }
+
+    component IResourcesReader << Injected >> as resourceReader {
+        portin GetCpuStatisticsAsync
+        portin GetRamStatisticsAsync
+        portin GetDriveStatisticsAsync
+    }
+
+    component JobEnvironmentOptions << Injected >> as environmentOptions {
+        [MemoryUsage]
+        [JobsDirectory]
+
+        MemoryUsage -[hidden]- JobsDirectory
+    }
+
+    component ResourcesAnalyzerOptions << Injected >> as analayzerOptions {
+        [ThresholdRunningJobs]
+        [ThresholdCpuUsage]
+        [ThresholdMemoryUsage]
+        [ThresholdDriveUsage]
+
+        ThresholdRunningJobs -[hidden]- ThresholdCpuUsage
+        ThresholdCpuUsage -[hidden]- ThresholdMemoryUsage
+        ThresholdMemoryUsage -[hidden]- ThresholdDriveUsage
+    }
+
+    component CanRunNewJobAsync as analyzeResource {
+        [Анализ числа запущеных задач] as analyzeJobsCount
+        [Анализ занятости ЦП] as analyzeCpu
+        [Анализ занятости ОЗУ] as analyzeRam
+        [Анализ занятости диска] as analyzeDrive
+        analyzeJobsCount -- analyzeCpu
+        analyzeCpu -- analyzeRam
+        analyzeRam -- analyzeDrive
+
+        analyzeJobsCount --> RunningJobsCount
+        analyzeRam --> GetRamStatisticsAsync
+        analyzeDrive --> GetDriveStatisticsAsync
+        analyzeCpu --> GetCpuStatisticsAsync
+
+        analyzeJobsCount <.. ThresholdRunningJobs
+        analyzeCpu <.. ThresholdCpuUsage
+        analyzeRam <.. MemoryUsage
+        analyzeRam <.. ThresholdMemoryUsage
+        analyzeDrive <.. ThresholdDriveUsage
+        analyzeDrive <.. JobsDirectory
+    }
+
+    environmentOptions -[hidden]- analyzeResource
+    analayzerOptions -[hidden]- analyzeResource
+
+    portin CanRunNewJobAsync
+    CanRunNewJobAsync --> analyzeResource
+}
+
+@enduml
+
+@startuml LinuxResourcesReader
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+component LinuxResourcesReader {
+    [ParseOrDefault]
+
+    portin GetCpuStatisticsAsync
+    GetCpuStatisticsAsync -> [/proc/stat]
+    [/proc/stat] <.. ParseOrDefault
+
+    portin GetRamStatisticsAsync
+    GetRamStatisticsAsync -> [/proc/meminfo]
+    [/proc/meminfo] <.. ParseOrDefault
+
+    portin GetDriveStatisticsAsync
+    GetDriveStatisticsAsync -> [DriveInfo]
+}
+
+@enduml
+
+@startuml DockerJobProcessRunner
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+component DockerJobProcessRunner {
+    component IDockerClient << Docker.DotNet, Injected >> as dockerClient {
+        portin "Containers.CreateContainerAsync" as CreateContainerAsync
+        portin "Containers.StartContainerAsync" as StartContainerAsync
+        portin "Containers.WaitContainerAsync" as WaitContainerAsync
+        portin "Containers.StopContainerAsync" as StopContainerAsync
+        portin "Containers.RemoveContainerAsync" as RemoveContainerAsync
+    }
+
+    component JobEnvironmentOptions << Injected >> as environmentOptions {
+        [CpuUsage]
+        [MemoryUsage]
+    }
+
+    component RunProcessAsync as container {
+        [Создание контейнера] as createContainer
+        [Запуск контейнера] as startContainer
+        [Очистка контейнера] as clearContainer
+
+        createContainer -- startContainer
+        startContainer -- clearContainer
+
+        createContainer --> CreateContainerAsync
+        startContainer --> StartContainerAsync
+        startContainer --> WaitContainerAsync
+        clearContainer --> StopContainerAsync
+        clearContainer --> RemoveContainerAsync
+    }
+
+    portin RunProcessAsync
+    [RunJobModel] << Argument >>
+    RunProcessAsync --> RunJobModel
+    RunJobModel --> container
+    CpuUsage .> createContainer
+    MemoryUsage .> createContainer
+}
+
+@enduml
+
+@startuml LinuxDockerJobEnvironment
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+component LinuxDockerJobEnvironment {
+    component JobEnvironmentOptions << Injected >> as environmentOptions {
+        [JobsDirectory]
+    }
+
+    portin ClearEnvironment
+    component RunJobModel << Argument >> as modelForClear {
+        [Directory] as directoryForClear
+    }
+    ClearEnvironment --> modelForClear
+    directoryForClear --> [Удаление]
+
+    portin PrepareEnvironment
+    component RunJobModel << Argument >> as modelForCreate {
+        [Directory] as directoryForCreate
+    }
+    JobsDirectory .> directoryForCreate
+    [stdout.txt] as createStdout
+    [stderr.txt] as createStderr
+    PrepareEnvironment --> modelForCreate
+    modelForCreate --> createStdout
+    modelForCreate --> createStderr
+    modelForCreate --> [run.sh]
+}
+
+@enduml
+
+@startuml ZipResultsCollector
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+component ZipResultsCollector {
+    portin CollectResultsAsync
+    component RunJobModel << Argument >> {
+        [Directory]
+    }
+    CollectResultsAsync --> RunJobModel
+    RunJobModel --> [stdout]
+    RunJobModel --> [stderr]
+
+    [ZIP] as createZip
+    stdout --> createZip
+    stderr --> createZip
+}
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml JobDbContext
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title JobDbContext
+
+component PostgreSQL {
+    portin p_jobs_add_new
+    portin f_jobs_get_new
+    portin p_jobs_set_running
+    portin p_jobs_set_results
+    portin f_jobs_set_lost
+    portin f_jobs_get_results
+}
+
+component JobDbContext {
+    portin AddNewJobAsync
+    [SQL запрос создания Задачи] as addNewJobSql
+    [NewJobModel] << Argument >> as NewJobModelIn
+    AddNewJobAsync --> NewJobModelIn
+    NewJobModelIn --> addNewJobSql
+
+    portin GetNewJobAsync
+    [SQL запрос новой Задачи] as getNewJobSql
+    GetNewJobAsync --> getNewJobSql
+
+    portin SetJobRunningAsync
+    [SQL запрос запуска Задачи] as setRunningSql
+    SetJobRunningAsync --> setRunningSql
+
+    portin SetJobResultsAsync
+    [SQL запрос устанвоки результатов Задачи] as setResultsSql
+    SetJobResultsAsync --> setResultsSql
+
+    portin MarkLostJobsAsync
+    [SQL запрос маркировки потеряных Задач] as setLostSql
+    MarkLostJobsAsync --> setLostSql
+
+    portin GetJobResultsAsync
+    [SQL запрос результатов задачи] as getResultsSQL
+    GetJobResultsAsync --> getResultsSQL
+}
+
+addNewJobSql --> p_jobs_add_new
+getNewJobSql --> f_jobs_get_new
+setRunningSql --> p_jobs_set_running
+setResultsSql --> p_jobs_set_results
+setLostSql --> f_jobs_set_lost
+getResultsSQL --> f_jobs_get_results
+
+@enduml

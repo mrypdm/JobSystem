@@ -1,0 +1,45 @@
+@startuml UserDbContext
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title UserDbContext
+
+component PostgreSQL {
+    portin p_users_add_new_user
+    portin f_users_get_user
+    portin p_users_add_new_job
+    portin f_users_get_user_jobs
+    portin f_users_check_user_job
+}
+
+component UserDbContext {
+    portin AddNewUserAsync
+    [SQL запрос создания Пользователя]
+    [UserDbModel] << Argument >>
+    AddNewUserAsync --> UserDbModel
+    UserDbModel --> addNewUserSql
+
+    portin GetUserAsync
+    [SQL запрос Пользователя] as getUserSql
+    GetUserAsync --> getUserSql
+
+    portin AddNewUserJobAsync
+    [SQL запрос создания Задачи Пользователя] as addNewJobSql
+    AddNewUserJobAsync --> addNewJobSql
+
+    portin GetUserJobsAsync
+    [SQL запрос Задач Пользователя] as getJobsSql
+    GetUserJobsAsync --> getJobsSql
+
+    portin IsUserJobAsync
+    [SQL запрос принадлежности Задачи Пользователя] as checkJobSql
+    IsUserJobAsync --> checkJobSql
+}
+
+addNewUserSql --> p_users_add_new_user
+getUserSql --> f_users_get_user
+addNewJobSql --> p_users_add_new_job
+getJobsSql --> f_users_get_user_jobs
+checkJobSql --> f_users_check_user_job
+
+@enduml

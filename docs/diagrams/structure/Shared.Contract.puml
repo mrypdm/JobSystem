@@ -1,0 +1,52 @@
+@startuml SslValidator
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+title SslValidator
+
+component SslValidator {
+    component X509Chain  as _validationChain {
+        portin ChainPolicy as ChainPolicy_port
+        [X509ChainPolicy] as chain_Policy
+        ChainPolicy_port --> chain_Policy
+
+        portin Build as chain_Build_port
+    }
+
+    [RevokedCertificates]
+    [CertificateCache]
+
+    [Pkcs12CertificateOptions] << Injected >>
+
+    [Проверка внешних ошибок] as checkExternalErrors
+    [IsRevoked] as IsRevoked_method
+
+    _validationChain <-- Pkcs12CertificateOptions : Создает
+    Pkcs12CertificateOptions --> RevokedCertificates : Создает
+    chain_Policy --> RevokedCertificates : Создает
+
+    portin ChainPolicy
+    ChainPolicy --> ChainPolicy_port
+
+    portin Validate
+    [X509Certificate2] << Argument >> as certForValidate
+    [X509Chain] << Argument >> as chainForValidate
+    [SslPolicyErrors] << Argument >> as externalErrors
+    Validate ..> CertificateCache
+    Validate --> certForValidate
+    Validate --> chainForValidate
+    Validate --> externalErrors
+    certForValidate --> IsRevoked_method
+    certForValidate --> chain_Build_port
+    externalErrors -> checkExternalErrors
+    chainForValidate -> checkExternalErrors
+
+    portin IsRevoked
+    [X509Certificate2] << Argument >> as certForRevoked
+    IsRevoked --> certForRevoked
+    certForRevoked --> IsRevoked_method
+    IsRevoked_method --> RevokedCertificates
+
+}
+
+@enduml
