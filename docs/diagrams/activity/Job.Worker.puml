@@ -84,6 +84,8 @@ end
 
 @startuml Job runner
 
+start
+
 :Данные новой Задачи<
 if (Задача уже запущена?) then (да)
     end
@@ -115,6 +117,8 @@ end
 
 @startuml Create environment
 
+start
+
 :Данные Задачи<
 
 if (Данные Задачи корректны?) then (да)
@@ -133,6 +137,8 @@ end
 
 @startuml Clean environment
 
+start
+
 :Данные Задачи<
 
 if (Данные Задачи корректны?) then (да)
@@ -146,6 +152,8 @@ end
 @enduml
 
 @startuml Docker
+
+start
 
 :Данные Задачи<
 
@@ -165,6 +173,8 @@ end
 @enduml
 
 @startuml Results collector
+
+start
 
 :Данные Задачи<
 

@@ -3,12 +3,12 @@ skinparam componentStyle rectangle
 skinparam linetype polyline
 
 component PostgreSQL {
-    portin p_jobs_add_new
-    portin f_jobs_get_new
-    portin p_jobs_set_running
-    portin p_jobs_set_results
-    portin f_jobs_set_lost
-    portin f_jobs_get_results
+    portin "Добавление задачи" as p_jobs_add_new
+    portin "Запрос задачи" as f_jobs_get_new
+    portin "Пометка задачи, как запущенной" as p_jobs_set_running
+    portin "Сохранение результатов задачи" as p_jobs_set_results
+    portin "Аварийное завершение задач" as f_jobs_set_lost
+    portin "Запрос результатов задачи" as f_jobs_get_results
 }
 
 component JobDbContext {

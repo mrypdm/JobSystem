@@ -3,16 +3,16 @@ skinparam componentStyle rectangle
 skinparam linetype polyline
 
 component PostgreSQL {
-    portin p_users_add_new_user
-    portin f_users_get_user
-    portin p_users_add_new_job
-    portin f_users_get_user_jobs
-    portin f_users_check_user_job
+    portin "Добавление пользователя" as p_users_add_new_user
+    portin "Запрос пользователя" as f_users_get_user
+    portin "Добавление задачи" as p_users_add_new_job
+    portin "Запрос списка задач" as f_users_get_user_jobs
+    portin "Проверка принадлежности задачи пользователю" as f_users_check_user_job
 }
 
 component UserDbContext {
     portin AddNewUserAsync
-    [SQL запрос создания Пользователя]
+    [SQL запрос создания Пользователя] as addNewUserSql
     [UserDbModel] << Argument >>
     AddNewUserAsync --> UserDbModel
     UserDbModel --> addNewUserSql

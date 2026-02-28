@@ -21,8 +21,6 @@ end
 
 @startuml f_jobs_get_results
 
-title Запрос результатов Задачи
-
 start
 
 :Номер Задачи<
