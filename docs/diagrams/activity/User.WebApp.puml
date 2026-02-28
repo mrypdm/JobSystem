@@ -1,4 +1,4 @@
-@startuml WEBAPI User sign up-in
+@startuml User sign up-in
 
 start
 
@@ -44,7 +44,7 @@ end
 
 @enduml
 
-@startuml WEBAPI Create Job
+@startuml Create Job
 
 start
 
@@ -63,7 +63,7 @@ end
 
 @enduml
 
-@startuml WEBAPI Get Jobs list
+@startuml Get Jobs list
 
 start
 
@@ -74,7 +74,7 @@ end
 
 @enduml
 
-@startuml WEBAPI Get Job results
+@startuml Get Job results
 
 start
 

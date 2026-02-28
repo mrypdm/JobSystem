@@ -1,4 +1,4 @@
-@startuml WEBAPI Create Job
+@startuml Create Job
 
 start
 
@@ -17,7 +17,7 @@ end
 
 @enduml
 
-@startuml WEBAPI Get Job result
+@startuml Get Job result
 
 start
 
@@ -33,7 +33,7 @@ end
 
 @enduml
 
-@startuml WEBAPI Lost Jobs worker
+@startuml Lost Jobs worker
 
 start
 
