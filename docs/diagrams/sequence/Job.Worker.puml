@@ -1,7 +1,5 @@
 @startuml Worker loop
 
-title Обработка задач
-
 control "Обработчик задач" as WORKER
 control "Анализатор окружения" as ENV_AN
 boundary "Окружение" as ENV
@@ -69,8 +67,6 @@ RUNNER --> WORKER--: Возврат
 @enduml
 
 @startuml Job runner
-
-title Исполнение задач
 
 control "Запуск задач" as STARTER
 control "Исполнение задач" as RUNNER

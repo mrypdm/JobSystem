@@ -1,8 +1,6 @@
 @startuml Shared.WebApi classes
 hide empty members
 
-title Базовые классы, используемые в веб-приложениях
-
 interface IExceptionFilter << ASP.NET Core >>
 {
     +void OnException(ExceptionContext)

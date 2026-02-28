@@ -1,6 +1,4 @@
-@startuml Create Job
-
-title Создание задачи
+@startuml WEBAPI Create Job
 
 start
 
@@ -19,9 +17,7 @@ end
 
 @enduml
 
-@startuml Get Job result
-
-title Запрос результатов задачи
+@startuml WEBAPI Get Job result
 
 start
 
@@ -37,9 +33,7 @@ end
 
 @enduml
 
-@startuml Lost Jobs worker
-
-title Обработка "потерянных" задач
+@startuml WEBAPI Lost Jobs worker
 
 start
 

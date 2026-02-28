@@ -1,8 +1,6 @@
 @startuml Job.Worker classes
 hide empty members
 
-title Классы обработчика Задач
-
 class CreateContainerParameters << Docket.DotNet >>
 class ContainerStartParameters << Docket.DotNet >>
 class ContainerStopParameters << Docket.DotNet >>

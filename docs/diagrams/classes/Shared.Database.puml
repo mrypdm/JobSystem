@@ -1,8 +1,6 @@
 @startuml Shared.Database classes
 hide empty members
 
-title Базовые классы для работы с базой данных
-
 class SslValidator << External >>
 class Pkcs12CertificateOptions << External >>
 

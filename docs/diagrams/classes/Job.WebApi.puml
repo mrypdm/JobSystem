@@ -1,8 +1,6 @@
 @startuml Job.WebApi classes
 hide empty members
 
-title Классы веб-приложения Задач
-
 abstract class Controller << ASP.NET Core >>
 interface IHostedService << Built-In >>
 interface ILogger << Built-In >>

@@ -1,8 +1,6 @@
 @startuml User.Database classes
 hide empty members
 
-title Классы для работы с БД Пользователей
-
 interface IDisposable << Built-In >>
 interface ILogger << Built-In >>
 

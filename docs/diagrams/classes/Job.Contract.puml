@@ -1,8 +1,6 @@
 @startuml Job.Contract classes
 hide empty members
 
-title Контракт Задач
-
 enum JobStatus
 {
     New

@@ -1,7 +1,5 @@
 @startuml User sign up
 
-title Регистрация пользователя
-
 actor Пользователь as USER
 boundary "Web UI Пользователя" as UI
 control "Web API Пользователя" as API
@@ -33,8 +31,6 @@ end
 @enduml
 
 @startuml User sign in
-
-title Авторизация пользователя
 
 actor Пользователь as USER
 boundary "Web UI Пользователя" as UI
@@ -101,8 +97,6 @@ end
 
 @startuml User job creation
 
-title Создание задачи
-
 actor Пользователь as USER
 note over USER: Считаем, что пользователь успешно авторизован
 
@@ -149,8 +143,6 @@ end
 
 @startuml User jobs list
 
-title Запрос списка задач
-
 actor Пользователь as USER
 note over USER: Считаем, что пользователь успешно авторизован
 
@@ -168,8 +160,6 @@ UI --> USER: Главная страница со списком задач по
 @enduml
 
 @startuml User job
-
-title Запрос результатов задачи
 
 actor Пользователь as USER
 note over USER: Считаем, что пользователь успешно авторизован

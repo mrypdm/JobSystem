@@ -1,8 +1,6 @@
 @startuml Job.WebApi.Client classes
 hide empty members
 
-title Классы клиента для веб-приложения Задач
-
 class Exception << Built-In >>
 interface IDisposable << Built-In >>
 interface ILogger << Built-In >>

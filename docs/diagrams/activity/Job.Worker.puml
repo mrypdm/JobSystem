@@ -1,7 +1,5 @@
 @startuml Worker loop
 
-title Обработка задач
-
 start
 
 :Подпись на Очередь Задач]
@@ -38,8 +36,6 @@ end
 @enduml
 
 @startuml Resource analyzer
-
-title Анализ возможности запуска задач
 
 start
 
@@ -88,8 +84,6 @@ end
 
 @startuml Job runner
 
-title Исполнение Задачи
-
 :Данные новой Задачи<
 if (Задача уже запущена?) then (да)
     end
@@ -121,8 +115,6 @@ end
 
 @startuml Create environment
 
-title Подготовка окружения Задачи
-
 :Данные Задачи<
 
 if (Данные Задачи корректны?) then (да)
@@ -141,8 +133,6 @@ end
 
 @startuml Clean environment
 
-title Очистка окружения задачи
-
 :Данные Задачи<
 
 if (Данные Задачи корректны?) then (да)
@@ -156,8 +146,6 @@ end
 @enduml
 
 @startuml Docker
-
-title Запуск исполнения Задачи в контейнере
 
 :Данные Задачи<
 
@@ -177,8 +165,6 @@ end
 @enduml
 
 @startuml Results collector
-
-title Сбор артефактов Задачи
 
 :Данные Задачи<
 

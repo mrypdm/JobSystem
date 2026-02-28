@@ -1,7 +1,5 @@
 @startuml p_jobs_add_new
 
-title Добавление новой Задачи
-
 start
 
 :Данные новой Задачи<
@@ -41,8 +39,6 @@ end
 
 @startuml f_jobs_set_lost
 
-title Пометка Задач "потерянными"
-
 start
 
 :Временной интервал<
@@ -54,8 +50,6 @@ end
 @enduml
 
 @startuml f_jobs_get_new
-
-title Запрос данных новой Задачи
 
 start
 
@@ -73,8 +67,6 @@ end
 @enduml
 
 @startuml p_jobs_set_running
-
-title Пометка Задачи, как запущенной
 
 start
 
@@ -107,8 +99,6 @@ end
 @enduml
 
 @startuml p_jobs_set_results
-
-title Уставновка результатов Задачи
 
 start
 

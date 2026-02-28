@@ -1,6 +1,4 @@
-@startuml User sign up/in algorithm (WebAPI)
-
-title Авторизация пользователя
+@startuml WEBAPI User sign up-in
 
 start
 
@@ -46,9 +44,7 @@ end
 
 @enduml
 
-@startuml Job creation
-
-title Создание новой Задачи
+@startuml WEBAPI Create Job
 
 start
 
@@ -67,9 +63,7 @@ end
 
 @enduml
 
-@startuml Jobs list
-
-title Запрос списка Задач
+@startuml WEBAPI Get Jobs list
 
 start
 
@@ -80,9 +74,7 @@ end
 
 @enduml
 
-@startuml Job results
-
-title Запрос результатов Задачи
+@startuml WEBAPI Get Job results
 
 start
 

@@ -1,8 +1,6 @@
 @startuml Shared.Contract classes
 hide empty members
 
-title Базовые классы, используемые по всему проекту
-
 interface IDisposable << Built-In >>
 {
     +void Dispose()

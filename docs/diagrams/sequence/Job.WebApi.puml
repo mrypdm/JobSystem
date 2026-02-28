@@ -1,7 +1,5 @@
 @startuml Create Job
 
-title Создание задачи
-
 boundary "Web API Задач" as API
 database "БД Задач" as DB
 queue "Очередь Задач" as KAFKA
@@ -27,8 +25,6 @@ end
 
 @startuml Get Job result
 
-title Запрос результатов задачи
-
 boundary "Web API Задач" as API
 database "БД Задач" as DB
 
@@ -50,8 +46,6 @@ end
 @enduml
 
 @startuml Lost Jobs worker
-
-title Обработка "потерянных" задач
 
 control "Обработчик 'потерянных' задач" as WORKER
 database "БД Задач" as DB

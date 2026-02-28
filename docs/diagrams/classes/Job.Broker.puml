@@ -1,8 +1,6 @@
 @startuml Job.Broker classes
 hide empty members
 
-title Классы для работы с Kafka
-
 interface ILogger << Built-In >>
 class ConsumerOptions << External >>
 class ProducerOptions << External >>

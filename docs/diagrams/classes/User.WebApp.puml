@@ -1,8 +1,6 @@
 @startuml User.WebApp classes
 hide empty members
 
-title Классы веб-приложения пользователей
-
 abstract class HttpContext << ASP.NET Core >>
 {
     +Task SignInAsync(string, ClaimsPrincipal)

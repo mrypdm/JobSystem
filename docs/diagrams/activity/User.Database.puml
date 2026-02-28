@@ -1,7 +1,5 @@
 @startuml p_users_add_new_user
 
-title Добавление нового пользователя
-
 start
 
 :Данные пользователя<
@@ -17,8 +15,6 @@ end
 @enduml
 
 @startuml f_users_get_user
-
-title Запрос данных пользователя
 
 start
 
@@ -36,8 +32,6 @@ end
 @enduml
 
 @startuml p_users_add_new_job
-
-title Добавление новой Задачи
 
 start
 
@@ -60,8 +54,6 @@ end
 
 @startuml f_users_get_user_jobs
 
-title Запрос Задач пользователя
-
 start
 
 :Имя пользователя<
@@ -77,8 +69,6 @@ end
 @enduml
 
 @startuml f_users_check_user_job
-
-title Проверка принадлежности Задачи пользователю
 
 start
 

@@ -1,8 +1,6 @@
 @startuml Shared.Broker classes
 hide empty members
 
-title Базовые классы для работы с Kafka
-
 interface IDisposable << Built-In >>
 class ConsumerConfig << Confluent >>
 class ProducerConfig << Confluent >>

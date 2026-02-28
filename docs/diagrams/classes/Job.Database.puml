@@ -1,8 +1,6 @@
 @startuml Job.Database classes
 hide empty members
 
-title Классы для работы с БД Задач
-
 interface IDisposable << Built-In >>
 interface ILogger << Built-In >>
 
