@@ -28,7 +28,7 @@ public interface IBrokerAdminClient : IDisposable
     /// Disallow permission for <paramref name="principal"/> to do <paramref name="operation"/> in resource
     /// with name<paramref name="resourceName"/> of type <paramref name="resourceType"/>
     /// </summary>
-    Task DisalloweActionAsync(ResourceType resourceType, string resourceName, AclOperation operation,
+    Task DisallowActionAsync(ResourceType resourceType, string resourceName, AclOperation operation,
         string principal);
 
     /// <summary>

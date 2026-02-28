@@ -21,10 +21,10 @@ internal sealed class Initial : IBrokerMigration
     /// <inheritdoc />
     public async Task DiscardAsync(IBrokerAdminClient adminClient, CancellationToken cancellationToken)
     {
-        await adminClient.DisalloweActionAsync(ResourceType.Group, "Job.Worker.Group", AclOperation.Read,
+        await adminClient.DisallowActionAsync(ResourceType.Group, "Job.Worker.Group", AclOperation.Read,
             "svc_jobs_worker@kafka");
-        await adminClient.DisalloweActionAsync(ResourceType.Topic, "Jobs", AclOperation.Read, "svc_jobs_worker@kafka");
-        await adminClient.DisalloweActionAsync(ResourceType.Topic, "Jobs", AclOperation.Write, "svc_jobs_webapi@kafka");
+        await adminClient.DisallowActionAsync(ResourceType.Topic, "Jobs", AclOperation.Read, "svc_jobs_worker@kafka");
+        await adminClient.DisallowActionAsync(ResourceType.Topic, "Jobs", AclOperation.Write, "svc_jobs_webapi@kafka");
 
         try
         {

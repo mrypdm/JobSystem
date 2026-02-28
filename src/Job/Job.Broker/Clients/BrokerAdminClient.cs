@@ -74,7 +74,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
     }
 
     /// <inheritdoc />
-    public async Task DisalloweActionAsync(ResourceType resourceType, string resourceName, AclOperation operation,
+    public async Task DisallowActionAsync(ResourceType resourceType, string resourceName, AclOperation operation,
         string principal)
     {
         await _client.DeleteAclsAsync([
