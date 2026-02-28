@@ -2,8 +2,6 @@
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title AuthenticationApiController
-
 component AuthenticationApiController {
     component IUserDbContext << Injected >> {
         portin GetUserAsync
@@ -54,8 +52,6 @@ component AuthenticationApiController {
 @startuml JobApiController
 skinparam componentStyle rectangle
 skinparam linetype polyline
-
-title JobApiController
 
 component JobApiController {
     component IUserDbContext << Injected >> {

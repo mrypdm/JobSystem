@@ -2,8 +2,6 @@
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title JobController
-
 component JobController {
     component JobControllerOptions << Injected >> {
         [MaxTimeout]
@@ -44,8 +42,6 @@ component JobController {
 @startuml LostJobWorker
 skinparam componentStyle rectangle
 skinparam linetype polyline
-
-title LostJobWorker
 
 component LostJobWorker {
     component LostJobWorkerOptions << Injected >> {

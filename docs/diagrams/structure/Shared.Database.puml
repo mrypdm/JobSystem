@@ -2,8 +2,6 @@
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title PostgreDbContext
-
 component PostgreDbContext {
     portin BuildOptions
 

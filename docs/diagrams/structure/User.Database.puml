@@ -2,8 +2,6 @@
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title UserDbContext
-
 component PostgreSQL {
     portin p_users_add_new_user
     portin f_users_get_user

@@ -2,8 +2,6 @@
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title SslValidator
-
 component SslValidator {
     component X509Chain  as _validationChain {
         portin ChainPolicy as ChainPolicy_port

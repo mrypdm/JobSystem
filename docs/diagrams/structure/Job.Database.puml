@@ -2,8 +2,6 @@
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title JobDbContext
-
 component PostgreSQL {
     portin p_jobs_add_new
     portin f_jobs_get_new

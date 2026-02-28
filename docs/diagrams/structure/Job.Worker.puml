@@ -2,8 +2,6 @@
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title ConsumerWorker
-
 component ConsumerWorker {
     component "IBrokerConsumer<Guid, JobMessage>" << Injected >> as consumer {
         portin Subscribe
@@ -75,8 +73,6 @@ component ConsumerWorker {
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title JobRunner
-
 component JobRunner {
     component IJobDbContext << Injected >> as jobDbContext {
         portin SetJobResultsAsync
@@ -129,8 +125,6 @@ component JobRunner {
 @startuml ResourceAnalyzer
 skinparam componentStyle rectangle
 skinparam linetype polyline
-
-title ResourceAnalyzer
 
 component ResourceAnalyzer {
     component IJobRunner << Injected >> as jobRunner {

@@ -2,8 +2,6 @@
 skinparam componentStyle rectangle
 skinparam linetype polyline
 
-title JobConsumer
-
 () Kafka
 
 component JobConsumer {
@@ -45,8 +43,6 @@ component JobConsumer {
 @startuml JobProducer
 skinparam componentStyle rectangle
 skinparam linetype polyline
-
-title JobProducer
 
 () Kafka
 
