@@ -254,6 +254,7 @@ public class Solver(SimpleLogger logger, Job[] jobs)
                 var created = g.Single(m => m.Type == JobEventType.Create).Time;
                 var started = g.SingleOrDefault(m => m.Type == JobEventType.Start)?.Time ?? TimeSpan.MaxValue;
                 var finished = g.SingleOrDefault(m => m.Type == JobEventType.Finish)?.Time ?? TimeSpan.MaxValue;
+
                 if (started == TimeSpan.MaxValue)
                 {
                     return TimeSpan.MaxValue.TotalMilliseconds;

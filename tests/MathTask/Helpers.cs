@@ -213,7 +213,7 @@ public static class Helpers
 
         await Parallel.ForEachAsync(samples, async (sample, _) =>
         {
-            using var logger = new SimpleLogger($"{dumpsPath}/{sample.Id}/{metricToOptimize}.log", $"[Sample {sample.Id}] ");
+            using var logger = new SimpleLogger($"{dumpsPath}/{sample.Id}/{metricToOptimize}.txt", $"[Sample {sample.Id}] ");
             var solver = new Solver(logger, sample.Jobs);
 
             logger.WriteLine($"Running optimization by {metricToOptimize} [target is {targetMetric}] with {sample.Jobs.Length} jobs");
@@ -241,7 +241,7 @@ public static class Helpers
 
         await Parallel.ForEachAsync(samples, async (sample, _) =>
         {
-            using var logger = new SimpleLogger($"{dumpsPath}/{sample.Id}/{metricToOptimize}.log", $"[Sample {sample.Id}] ", append: true);
+            using var logger = new SimpleLogger($"{dumpsPath}/{sample.Id}/{metricToOptimize}.txt", $"[Sample {sample.Id}] ", append: true);
             var solver = new Solver(logger, sample.Jobs);
 
             logger.WriteLine($"Checking CPU and RAM values for {metricToOptimize}");
@@ -298,7 +298,7 @@ public static class Helpers
                 deltaJobRamUsage: 1)
             .Single();
 
-        using var logger = new SimpleLogger($"{saveTo}/{metricToOptimize}.log", $"[{metricToOptimize}] ");
+        using var logger = new SimpleLogger($"{saveTo}/{metricToOptimize}.txt", $"[{metricToOptimize}] ");
         var solver = new Solver(logger, sample.Jobs);
         var results = new ConcurrentBag<ExperimentResult>();
 

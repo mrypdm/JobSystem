@@ -48,7 +48,7 @@ else
 var waitTimeResults = await samples.Optimize(OptimizingMetric.WaitTime, TargetWaitTime, ResultsDir);
 var queueSizeResults = await samples.Optimize(OptimizingMetric.QueueSize, TargetQueueSize, ResultsDir);
 
-using var logger = new SimpleLogger($"{ResultsDir}/common.log");
+using var logger = new SimpleLogger($"{ResultsDir}/common.txt");
 
 var (waitTimeMeanBestCpu, waitTimeMeanBestRam) = waitTimeResults
     .DumpTotalResults(OptimizingMetric.WaitTime.ToString(), TargetWaitTime, logger);

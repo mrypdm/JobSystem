@@ -27,7 +27,7 @@ Final optimization results is CPU=1386 and RAM=1917
 
 Final results for sample 0 are WaitTime=0 (True) and QueueSize=0 (True)
 Final results for sample 1 are WaitTime=0 (True) and QueueSize=0 (True)
-Final results for sample 2 are WaitTime=0 (True) and QueueSize=0(True)
+Final results for sample 2 are WaitTime=0 (True) and QueueSize=0 (True)
 Final results for sample 3 are WaitTime=0 (True) and QueueSize=0 (True)
 Final results for sample 4 are WaitTime=0 (True) and QueueSize=0 (True)
 Final results for sample 5 are WaitTime=0.02569242875504731 (True) and QueueSize=0.022364217252396124 (True)

@@ -142,7 +142,7 @@ public static class Graphs
                 .Select(m => (
                     $"Sample {m.Id}",
                     m.Values.Select(v => v.CpuCores).ToArray(),
-                    m.Values.Select(v => v.Metric).ToArray()
+                    m.Values.Select(v => Math.Abs(v.Metric - targetValue)).ToArray()
                 ))
                 .ToArray());
 
@@ -160,7 +160,7 @@ public static class Graphs
                 .Select(m => (
                     $"Sample {m.Id}",
                     m.Values.Select(v => v.RamGb).ToArray(),
-                    m.Values.Select(v => v.Metric).ToArray()
+                    m.Values.Select(v => Math.Abs(v.Metric - targetValue)).ToArray()
                 ))
                 .ToArray());
 
