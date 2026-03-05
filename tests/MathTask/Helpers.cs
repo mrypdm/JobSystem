@@ -285,28 +285,25 @@ public static class Helpers
         var saveTo = $"{basePath}/examples";
         Directory.CreateDirectory(saveTo);
 
-        var sample = ReadSamples("samples").OrderBy(m => m.Id).First();
-
-        // var sample = GenerateSamples(
-        //         samplesCount: 1,
-        //         samplesLength: 3 * 30 * 30,
-        //         meanJobsPerSample: 1_250,
-        //         deltaJobsPerSample: 0,
-        //         minJobTimeout: 60,
-        //         maxJobTimeout: 3600,
-        //         meanJobCpuUsage: 1.5,
-        //         deltaJobCpuUsage: 0.5,
-        //         meanJobRamUsage: 2,
-        //         deltaJobRamUsage: 1)
-        //     .Single();
+        var sample = GenerateSamples(
+                samplesCount: 1,
+                samplesLength: 3 * 30 * 30,
+                meanJobsPerSample: 1_250,
+                deltaJobsPerSample: 0,
+                minJobTimeout: 60,
+                maxJobTimeout: 3600,
+                meanJobCpuUsage: 1.5,
+                deltaJobCpuUsage: 0.5,
+                meanJobRamUsage: 2,
+                deltaJobRamUsage: 1)
+            .Single();
 
         using var logger = new SimpleLogger($"{saveTo}/{metricToOptimize}.log", $"[{metricToOptimize}] ");
         var solver = new Solver(logger, sample.Jobs);
         var results = new ConcurrentBag<ExperimentResult>();
 
-        var startV = 0L;
         var size = 400;
-        var step = 1;
+        var step = 10;
         var minCpu = 0L;
         var maxCpu = 0L;
         var minRam = 0L;
@@ -316,19 +313,20 @@ public static class Helpers
         if (!File.Exists(resultsFile))
         {
             logger.WriteLine("Example not found. Generating new one");
-            for (startV = 1040; ; startV += 10)
+            var baseValue = 0L;
+            for (baseValue = 1040; ; baseValue += 10)
             {
-                var checkingRes = solver.DoExperiment(OptimizingMetric.WaitTime, startV, startV, notSave: true);
+                var checkingRes = solver.DoExperiment(OptimizingMetric.WaitTime, baseValue, baseValue, notSave: true);
                 if (checkingRes.Metric < targetMetric)
                 {
                     break;
                 }
             }
 
-            minCpu = startV - 2 * size;
-            maxCpu = startV + 2 * size;
-            minRam = startV - size;
-            maxRam = startV + size;
+            minCpu = baseValue - 2 * size;
+            maxCpu = baseValue + 2 * size;
+            minRam = baseValue - size;
+            maxRam = baseValue + size;
 
             var cpu = new List<long>();
             for (var i = minCpu; i < maxCpu; i += step)
