@@ -55,9 +55,10 @@ public class Solver(SimpleLogger logger, Job[] jobs)
     /// Do experiment for taraget metric <paramref name="mectricToOptimize"/>
     /// with given resources <paramref name="cpuCores"/> and <paramref name="ramGb"/>
     /// </summary>
-    public ExperimentResult DoExperiment(OptimizingMetric mectricToOptimize, long cpuCores, long ramGb)
+    public ExperimentResult DoExperiment(OptimizingMetric mectricToOptimize, long cpuCores, long ramGb,
+        bool notSave = false)
     {
-        return DoExperiment(new Estimator(cpuCores, ramGb), GetMetricFunction(mectricToOptimize));
+        return DoExperiment(new Estimator(cpuCores, ramGb), GetMetricFunction(mectricToOptimize), notSave);
     }
 
     /// <summary>
@@ -121,7 +122,10 @@ public class Solver(SimpleLogger logger, Job[] jobs)
     /// <summary>
     /// Do experiment for given <paramref name="estimator"/>
     /// </summary>
-    private ExperimentResult DoExperiment(Estimator estimator, Func<SortedList<JobEvent, Job>, List<Metric>, double> metricFunc)
+    private ExperimentResult DoExperiment(
+        Estimator estimator,
+        Func<SortedList<JobEvent, Job>, List<Metric>, double> metricFunc,
+        bool notSave = false)
     {
         var (timeline, metrics) = LoadFromDisk(estimator.ToString());
 
@@ -129,7 +133,11 @@ public class Solver(SimpleLogger logger, Job[] jobs)
         {
             logger.WriteLine($"\tRunning experiment for [{estimator}]");
             (timeline, metrics) = BuildTimeline(estimator);
-            DumpToDisk(estimator.ToString(), timeline, metrics);
+
+            if (!notSave)
+            {
+                DumpToDisk(estimator.ToString(), timeline, metrics);
+            }
         }
         else
         {
@@ -244,8 +252,13 @@ public class Solver(SimpleLogger logger, Job[] jobs)
             .Select(g =>
             {
                 var created = g.Single(m => m.Type == JobEventType.Create).Time;
-                var started = g.Single(m => m.Type == JobEventType.Start).Time;
-                var finished = g.Single(m => m.Type == JobEventType.Finish).Time;
+                var started = g.SingleOrDefault(m => m.Type == JobEventType.Start)?.Time ?? TimeSpan.MaxValue;
+                var finished = g.SingleOrDefault(m => m.Type == JobEventType.Finish)?.Time ?? TimeSpan.MaxValue;
+                if (started == TimeSpan.MaxValue)
+                {
+                    return TimeSpan.MaxValue.TotalMilliseconds;
+                }
+
                 return (started - created).TotalMilliseconds / (finished - started).TotalMilliseconds;
             })
             .Percentile(90);

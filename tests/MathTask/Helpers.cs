@@ -25,6 +25,22 @@ public static class Helpers
     }
 
     /// <summary>
+    /// Loads results from CSV
+    /// </summary>
+    public static IEnumerable<ExperimentResult> ReadResults(string path)
+    {
+        return File.ReadAllLines(path).Skip(1).Select(line =>
+        {
+            var parts = line.Split(';');
+            return new ExperimentResult(
+                long.Parse(parts[0]),
+                long.Parse(parts[1]),
+                double.Parse(parts[2])
+            );
+        });
+    }
+
+    /// <summary>
     /// Saves <paramref name="metrics"/> to CSV file at <paramref name="path"/>
     /// </summary>
     public static void CreateCsv(this IEnumerable<Metric> metrics, string path)
@@ -262,5 +278,91 @@ public static class Helpers
         results.PlotExperimentsResults(experimentName, targetMetric, percBestCpu, percBestRam, logger.BasePath);
 
         return (percBestCpu, percBestRam);
+    }
+
+    public static void CreateExampleOfMetric(string basePath, OptimizingMetric metricToOptimize, double targetMetric)
+    {
+        var saveTo = $"{basePath}/examples";
+        Directory.CreateDirectory(saveTo);
+
+        var sample = ReadSamples("samples").OrderBy(m => m.Id).First();
+
+        // var sample = GenerateSamples(
+        //         samplesCount: 1,
+        //         samplesLength: 3 * 30 * 30,
+        //         meanJobsPerSample: 1_250,
+        //         deltaJobsPerSample: 0,
+        //         minJobTimeout: 60,
+        //         maxJobTimeout: 3600,
+        //         meanJobCpuUsage: 1.5,
+        //         deltaJobCpuUsage: 0.5,
+        //         meanJobRamUsage: 2,
+        //         deltaJobRamUsage: 1)
+        //     .Single();
+
+        using var logger = new SimpleLogger($"{saveTo}/{metricToOptimize}.log", $"[{metricToOptimize}] ");
+        var solver = new Solver(logger, sample.Jobs);
+        var results = new ConcurrentBag<ExperimentResult>();
+
+        var startV = 0L;
+        var size = 400;
+        var step = 1;
+        var minCpu = 0L;
+        var maxCpu = 0L;
+        var minRam = 0L;
+        var maxRam = 0L;
+
+        var resultsFile = $"{saveTo}/{metricToOptimize}.csv";
+        if (!File.Exists(resultsFile))
+        {
+            logger.WriteLine("Example not found. Generating new one");
+            for (startV = 1040; ; startV += 10)
+            {
+                var checkingRes = solver.DoExperiment(OptimizingMetric.WaitTime, startV, startV, notSave: true);
+                if (checkingRes.Metric < targetMetric)
+                {
+                    break;
+                }
+            }
+
+            minCpu = startV - 2 * size;
+            maxCpu = startV + 2 * size;
+            minRam = startV - size;
+            maxRam = startV + size;
+
+            var cpu = new List<long>();
+            for (var i = minCpu; i < maxCpu; i += step)
+            {
+                cpu.Add(i);
+            }
+
+            var ram = new List<long>();
+            for (var i = minRam; i < maxRam; i += step)
+            {
+                ram.Add(i);
+            }
+
+            Parallel.ForEach(cpu, cpuCores =>
+            {
+                Parallel.ForEach(ram, ramGb =>
+                {
+                    var expRes = solver.DoExperiment(metricToOptimize, cpuCores, ramGb, notSave: true);
+                    results.Add(new(expRes.CpuCores, expRes.RamGb, Math.Abs(expRes.Metric - targetMetric)));
+                });
+            });
+
+            results.CreateCsv(resultsFile);
+        }
+        else
+        {
+            logger.WriteLine("Example found on disk. Using it");
+            results = [.. ReadResults(resultsFile)];
+            minCpu = results.MinBy(m => m.CpuCores).CpuCores;
+            minRam = results.MinBy(m => m.RamGb).RamGb;
+            maxCpu = results.MaxBy(m => m.CpuCores).CpuCores + step;
+            maxRam = results.MaxBy(m => m.RamGb).RamGb + step;
+        }
+
+        results.Plot3DResults(minCpu, maxCpu, minRam, maxRam, step, saveTo, metricToOptimize.ToString());
     }
 }

@@ -1,4 +1,5 @@
 using ScottPlot;
+using ScottPlot.Colormaps;
 
 namespace MathTask;
 
@@ -73,8 +74,6 @@ public static class Graphs
     /// <summary>
     /// Plot mean values by samples: jobs timeout and resources
     /// </summary>
-    /// <param name="samples"></param>
-    /// <param name="basePath"></param>
     public static void PlotMeanValuesBySamples(this IEnumerable<(int Id, Job[] Jobs)> samples, string basePath)
     {
         Directory.CreateDirectory(basePath);
@@ -192,6 +191,34 @@ public static class Graphs
         bestRamLine.Color = Colors.Red;
 
         multiplot.SavePng($"{basePath}/{experimentName}.png", Width, Height);
+    }
+
+    /// <summary>
+    /// Shows <paramref name="results"/> as Heatmap
+    /// </summary>
+    public static void Plot3DResults(this IEnumerable<ExperimentResult> results,
+        long minCpu, long maxCpu, long minRam, long maxRam, long step, string basePath, string experimentName)
+    {
+        Directory.CreateDirectory(basePath);
+        var plot = new Plot();
+
+        var points = new double[(maxCpu - minCpu) / step, (maxRam - minRam) / step];
+        foreach (var r in results)
+        {
+            points[(r.CpuCores - minCpu) / step, (r.RamGb - minRam) / step] = r.Metric;
+        }
+
+        var hm = plot.Add.Heatmap(points);
+        hm.FlipVertically = true;
+        hm.FlipRows = true;
+        hm.Smooth = true;
+        hm.Colormap = new Turbo();
+
+        plot.Add.ColorBar(hm);
+
+        plot.Layout.Frameless();
+        plot.Axes.Margins(0, 0);
+        plot.SavePng($"{basePath}/{experimentName}.png", Width, Height);
     }
 
     /// <summary>

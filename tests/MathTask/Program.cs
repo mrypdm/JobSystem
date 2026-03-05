@@ -40,6 +40,9 @@ else
 
     samples.PlotSamples(ResultsDir);
     samples.PlotMeanValuesBySamples(ResultsDir);
+
+    Helpers.CreateExampleOfMetric(ResultsDir, OptimizingMetric.WaitTime, TargetWaitTime);
+    Helpers.CreateExampleOfMetric(ResultsDir, OptimizingMetric.QueueSize, TargetQueueSize);
 }
 
 var waitTimeResults = await samples.Optimize(OptimizingMetric.WaitTime, TargetWaitTime, ResultsDir);
