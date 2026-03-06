@@ -33,9 +33,9 @@ else
         meanJobRamUsage: 2,
         deltaJobRamUsage: 1)];
 
-    foreach (var sample in samples)
+    foreach (var (Id, Jobs) in samples)
     {
-        sample.Jobs.CreateCsv($"{SamplesDir}/{sample.Id}.csv");
+        Jobs.CreateCsv($"{SamplesDir}/{Id}.csv");
     }
 
     samples.PlotSamples(ResultsDir);
@@ -53,7 +53,7 @@ using var logger = new SimpleLogger($"{ResultsDir}/common.txt");
 var (waitTimeMeanBestCpu, waitTimeMeanBestRam) = waitTimeResults
     .DumpTotalResults(OptimizingMetric.WaitTime.ToString(), TargetWaitTime, logger);
 var (queueSizeMeanBestCpu, queueSizeMeanBestRam) = queueSizeResults
-    .DumpTotalResults(OptimizingMetric.QueueSize.ToString(), TargetQueueSize, logger);
+     .DumpTotalResults(OptimizingMetric.QueueSize.ToString(), TargetQueueSize, logger);
 
 var bestCpu = Math.Max(waitTimeMeanBestCpu, queueSizeMeanBestCpu);
 var bestRam = Math.Max(waitTimeMeanBestRam, queueSizeMeanBestRam);

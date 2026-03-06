@@ -36,33 +36,33 @@ public static class Graphs
                 .OrderBy(m => m.Ram)
                 .ToArray();
 
-            Plot(mulitplot.Subplots.GetPlot(0), "Timeout, minutes",
+            Plot(mulitplot.Subplots.GetPlot(0), "Время исполнения, минут",
                 (
                     null,
                     jobs.Select(j => j.Id).ToArray(),
                     jobs.Select(j => j.Timeout.TotalMinutes).ToArray()
                 ));
 
-            Plot(mulitplot.Subplots.GetPlot(1), "Job resources",
+            Plot(mulitplot.Subplots.GetPlot(1), "Ресурсы программ",
                 (
-                    "CPU, Cores",
+                    "ЦП, ядра",
                     jobs.Select(j => j.Id).ToArray(),
                     jobs.Select(j => j.CpuUsage / 100.0).ToArray()
                 ),
                 (
-                    "RAM, GB",
+                    "ОЗУ, ГБ",
                     jobs.Select(j => j.Id).ToArray(),
                     jobs.Select(j => Math.Round(j.RamUsage / 1073741824.0)).ToArray()
                 ));
 
-            Plot(mulitplot.Subplots.GetPlot(2), "Resources distribution",
+            Plot(mulitplot.Subplots.GetPlot(2), "Распределение ресурсов программ",
                 (
-                    "CPU Distribution",
+                    "ЦП, ядра",
                     cpuHistogram.Select(j => j.Cpu).ToArray(),
                     cpuHistogram.Select(j => j.Count).ToArray()
                 ),
                 (
-                    "RAM Distribution",
+                    "ОЗУ, ГБ",
                     ramHistogram.Select(j => j.Ram).ToArray(),
                     ramHistogram.Select(j => j.Count).ToArray()
                 ));
@@ -79,7 +79,7 @@ public static class Graphs
         Directory.CreateDirectory(basePath);
 
         var multiplot = new Multiplot();
-        multiplot.AddPlots(2);
+        multiplot.AddPlots(3);
 
         var meanSamples = samples.Select(m =>
         (
@@ -89,25 +89,28 @@ public static class Graphs
             MeanTimeout: m.Jobs.Average(m => m.Timeout.TotalMinutes)
         )).ToArray();
 
-        Plot(multiplot.Subplots.GetPlot(0), "Mean jobs resources",
+        Plot(multiplot.Subplots.GetPlot(0), "Среднее время исполнения программ, минут",
             (
-                "Timeout, minutes",
+                null,
                 meanSamples.Select(m => m.Id).ToArray(),
                 meanSamples.Select(m => m.MeanTimeout).ToArray()
-            ),
-            (
-                "RAM, GB",
-                meanSamples.Select(m => m.Id).ToArray(),
-                meanSamples.Select(m => m.MeanRamUsage / 1073741824.0).ToArray()
-            ),
-            (
-                "CPU, Cores",
-                meanSamples.Select(m => m.Id).ToArray(),
-                meanSamples.Select(m => m.MeanCpuUsage / 100.0).ToArray()
             )
         );
 
-        Plot(multiplot.Subplots.GetPlot(1), "Jobs count",
+        Plot(multiplot.Subplots.GetPlot(1), "Средние ресурсы программ",
+            (
+                "ЦП, ядер",
+                meanSamples.Select(m => m.Id).ToArray(),
+                meanSamples.Select(m => m.MeanCpuUsage / 100.0).ToArray()
+            ),
+            (
+                "ОЗУ, ГБ",
+                meanSamples.Select(m => m.Id).ToArray(),
+                meanSamples.Select(m => m.MeanRamUsage / 1073741824.0).ToArray()
+            )
+        );
+
+        Plot(multiplot.Subplots.GetPlot(2), "Число программ",
             (
                 null,
                 samples.Select(m => m.Id).ToArray(),
@@ -137,10 +140,10 @@ public static class Graphs
                 .OrderBy(m => m.CpuCores)
                 .ToArray()
         )).ToArray();
-        Plot(multiplot.Subplots.GetPlot(0), $"{experimentName} by CPU, Cores",
+        Plot(multiplot.Subplots.GetPlot(0), $"Оптимизация по ЦП",
             byCpu
                 .Select(m => (
-                    $"Sample {m.Id}",
+                    $"Образец {m.Id}",
                     m.Values.Select(v => v.CpuCores).ToArray(),
                     m.Values.Select(v => Math.Abs(v.Metric - targetValue)).ToArray()
                 ))
@@ -155,10 +158,10 @@ public static class Graphs
                 .OrderBy(m => m.RamGb)
                 .ToArray()
         )).ToArray();
-        Plot(multiplot.Subplots.GetPlot(1), $"{experimentName} by RAM, GB",
+        Plot(multiplot.Subplots.GetPlot(1), $"Оптимизация по ОЗУ",
             byRam
                 .Select(m => (
-                    $"Sample {m.Id}",
+                    $"Образец {m.Id}",
                     m.Values.Select(v => v.RamGb).ToArray(),
                     m.Values.Select(v => Math.Abs(v.Metric - targetValue)).ToArray()
                 ))
