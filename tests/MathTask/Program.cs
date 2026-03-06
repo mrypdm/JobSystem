@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using MathTask;
 
 if (Environment.CurrentDirectory.Replace("\\", "/").Contains("bin/Debug/net"))
