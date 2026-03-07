@@ -48,7 +48,7 @@ jobs:
       - name: Start PostgreSQL container
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Database
-            bash ./init.sh
+            sudo bash ./init.sh
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
             sleep 5 # waiting for full startup of service
@@ -56,7 +56,7 @@ jobs:
       - name: Start Apache Kafka container
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Broker
-            bash ./init.sh
+            sudo bash ./init.sh
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
             sleep 5 # waiting for full startup of service
@@ -79,22 +79,27 @@ jobs:
         run: dotnet test --no-build --verbosity normal --filter TestCategory=Integration
         timeout-minutes: 2
 
-      - name: Get Job.WebApi container logs
+      - name: Finalize Job.WebApi container
         if: always()
-        run: docker compose -f ${{ github.workspace }}/src/Job/Job.WebApi/docker-compose.github.yaml logs
-      - name: Get Apache Kafka container logs
-        if: always()
-        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml logs
-      - name: Get PostgreSQL container logs
-        if: always()
-        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml logs
+        run: |
+            cd ${{ github.workspace }}/src/Job/Job.WebApi
+            docker compose -f docker-compose.github.yaml logs
+            docker compose -f docker-compose.github.yaml down -t 1
+            cd ${{ github.workspace }}
 
-      - name: Stop Job.WebApi container
+      - name: Finalize Apache Kafka container
         if: always()
-        run: docker compose -f ${{ github.workspace }}/src/Job/Job.WebApi/docker-compose.github.yaml down -t 1
-      - name: Stop PostgreSQL container
+        run: |
+            cd ${{ github.workspace }}/src/Job/Job.WebApi
+            docker compose -f docker-compose.github.yaml logs
+            docker compose -f docker-compose.github.yaml down -t 1
+            sudo rm -rf ./data
+            cd ${{ github.workspace }}
+      - name: Finalize PostgreSQL container
         if: always()
-        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Database/docker-compose.github.yaml down -t 1
-      - name: Stop Apache Kafka container
-        if: always()
-        run: docker compose -f ${{ github.workspace }}/infrastructure/Tools/Broker/docker-compose.github.yaml down -t 1
+        run: |
+            cd ${{ github.workspace }}/src/Job/Job.WebApi
+            docker compose -f docker-compose.github.yaml logs
+            docker compose -f docker-compose.github.yaml down -t 1
+            sudo rm -rf ./data
+            cd ${{ github.workspace }}

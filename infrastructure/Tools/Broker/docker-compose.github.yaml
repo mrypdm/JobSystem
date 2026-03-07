@@ -6,6 +6,7 @@ services:
       restart: unless-stopped
       env_file: config/kafka.env
       volumes:
+        - ./data/kafka/logs:/var/log/kafka
         - ./data/kafka/secrets:/etc/kafka/secrets:ro
       networks:
         - test-net
