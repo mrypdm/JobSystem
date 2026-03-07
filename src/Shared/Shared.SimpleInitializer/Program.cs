@@ -4,25 +4,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using Shared.Broker.Abstractions;
 using Shared.Broker.Helpers;
 using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
-using Shared.Contract.Logging;
-using Shared.Contract.Options;
 using Shared.Database;
 using Shared.Database.Migrations;
 using User.Database.Contexts;
+using ILogger = Serilog.ILogger;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddLogging(logBuilder =>
-{
-    logBuilder.ClearProviders();
-    logBuilder.AddConsoleFormatter<SimpleConsoleFormatter, SimpleFormatterOptions>();
-    logBuilder.AddConsole(options => options.FormatterName = nameof(SimpleConsoleFormatter));
-});
+builder.Services.AddSerilog(
+    (_, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(builder.Configuration));
 
 builder.Services.AddSingleton(builder.Configuration.GetOptions<AdminOptions>());
 builder.Services.AddTransient<IBrokerAdminClient, BrokerAdminClient>();
@@ -38,7 +34,7 @@ builder.Services.AddTransient(context =>
         jobDbOptions,
         jobDbSslValidator,
         context.GetRequiredService<ILoggerFactory>());
-    return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
+    return new JobDbContext(options.Options, context.GetRequiredService<ILogger>());
 });
 builder.Services.AddTransient<IInitializer>(
     context => new DbInitializer(context.GetRequiredService<JobDbContext>()));
@@ -52,7 +48,7 @@ builder.Services.AddTransient(context =>
         userDbOptions,
         userDbSslValidator,
         context.GetRequiredService<ILoggerFactory>());
-    return new UserDbContext(options.Options, context.GetRequiredService<ILogger<UserDbContext>>());
+    return new UserDbContext(options.Options, context.GetRequiredService<ILogger>());
 });
 builder.Services.AddTransient<IInitializer>(
     context => new DbInitializer(context.GetRequiredService<UserDbContext>()));

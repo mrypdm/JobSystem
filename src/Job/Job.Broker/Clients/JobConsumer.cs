@@ -1,23 +1,33 @@
 using Confluent.Kafka;
 using Job.Broker.Converters;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using Shared.Broker.Abstractions;
 using Shared.Broker.Helpers;
 using Shared.Broker.Options;
+using Shared.Contract.Extensions;
 
 namespace Job.Broker.Clients;
 
 /// <inheritdoc cref="IJobConsumer" />
-public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> logger) : IBrokerConsumer<Guid, JobMessage>
+public sealed class JobConsumer : IBrokerConsumer<Guid, JobMessage>
 {
     private bool _disposed;
 
-    private readonly IConsumer<Guid, JobMessage> _consumer = new ConsumerBuilder<Guid, JobMessage>(options.ToConfig())
-        .SetKeyDeserializer(new GuidConverter())
-        .SetValueDeserializer(new JobMessageConverter())
-        .SetLogHandler(logger.GetLogHandler<IConsumer<Guid, JobMessage>>("Consumer"))
-        .SetErrorHandler(logger.GetErrorHandler<IConsumer<Guid, JobMessage>>("Consumer"))
-        .Build();
+    private readonly IConsumer<Guid, JobMessage> _consumer;
+    private readonly ConsumerOptions _options;
+    private readonly ILogger _logger;
+
+    public JobConsumer(ConsumerOptions options, ILogger logger)
+    {
+        _options = options;
+        _logger = logger.ForContext<JobConsumer>();
+        _consumer = new ConsumerBuilder<Guid, JobMessage>(options.ToConfig())
+            .SetKeyDeserializer(new GuidConverter())
+            .SetValueDeserializer(new JobMessageConverter())
+            .SetLogHandler(_logger.GetLogHandler<IConsumer<Guid, JobMessage>>("Consumer"))
+            .SetErrorHandler(_logger.GetErrorHandler<IConsumer<Guid, JobMessage>>("Consumer"))
+            .Build();
+    }
 
     /// <inheritdoc />
     public void Dispose()
@@ -29,15 +39,15 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
 
         _consumer.Close();
         _consumer.Dispose();
-        logger.LogInformation("Consumer closed");
+        _logger.Information("Consumer closed");
     }
 
     /// <inheritdoc />
 
     public void Subscribe()
     {
-        _consumer.Subscribe(options.Topic);
-        logger.LogInformation("Subscribed to topic [{TopicName}]", options.Topic);
+        _consumer.Subscribe(_options.Topic);
+        _logger.Information("Subscribed to topic [{TopicName}]", _options.Topic);
     }
 
     /// <inheritdoc />
@@ -67,7 +77,7 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
                 $"Key '{result.Message.Key}' is not equal to Value '{result.Message.Value.Id}'");
         }
 
-        logger.LogCritical("Consumed messsage for Job [{JobId}]", result.Message.Value.Id);
+        _logger.Critical().Information("Consumed messsage for Job [{JobId}]", result.Message.Value.Id);
 
         return result;
     }
@@ -76,6 +86,6 @@ public sealed class JobConsumer(ConsumerOptions options, ILogger<JobConsumer> lo
     public void Commit(ConsumeResult<Guid, JobMessage> result)
     {
         _consumer.Commit(result);
-        logger.LogCritical("Commited messsage for Job [{JobId}]", result.Message.Value.Id);
+        _logger.Critical().Information("Commited messsage for Job [{JobId}]", result.Message.Value.Id);
     }
 }

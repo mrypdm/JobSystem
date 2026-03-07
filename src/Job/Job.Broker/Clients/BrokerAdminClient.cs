@@ -1,22 +1,30 @@
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using Shared.Broker.Abstractions;
 using Shared.Broker.Helpers;
 using Shared.Broker.Options;
+using Shared.Contract.Extensions;
 
 namespace Job.Broker.Clients;
 
 /// <inheritdoc cref="IBrokerAdminClient"/>
-public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminClient> logger)
-    : IBrokerAdminClient
+public sealed class BrokerAdminClient : IBrokerAdminClient
 {
     private bool _disposed;
+    private readonly ILogger _logger;
+    private readonly AdminOptions _options;
+    private readonly IAdminClient _client;
 
-    private readonly IAdminClient _client = new AdminClientBuilder(options.ToConfig())
-        .SetLogHandler(logger.GetLogHandler<IAdminClient>("AdminClient"))
-        .SetErrorHandler(logger.GetErrorHandler<IAdminClient>("AdminClient"))
-        .Build();
+    public BrokerAdminClient(AdminOptions options, ILogger logger)
+    {
+        _options = options;
+        _logger = logger.ForContext<BrokerAdminClient>();
+        _client = new AdminClientBuilder(options.ToConfig())
+            .SetLogHandler(_logger.GetLogHandler<IAdminClient>("AdminClient"))
+            .SetErrorHandler(_logger.GetErrorHandler<IAdminClient>("AdminClient"))
+            .Build();
+    }
 
     /// <inheritdoc />
     public void Dispose()
@@ -27,7 +35,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         }
 
         _client.Dispose();
-        logger.LogInformation("Broker admin client was disposed");
+        _logger.Information("Broker admin client was disposed");
     }
 
     /// <inheritdoc />
@@ -36,18 +44,18 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         await _client.CreateTopicsAsync([new TopicSpecification()
         {
             Name = topicName,
-            NumPartitions = options.PartitionsCount,
-            ReplicationFactor = options.ReplicationFactor
+            NumPartitions = _options.PartitionsCount,
+            ReplicationFactor = _options.ReplicationFactor
         }]);
-        logger.LogCritical("Created topic [{TopicName}] with [{PartitionsCount} | {ReplicationFactor}]",
-            topicName, options.PartitionsCount, options.ReplicationFactor);
+        _logger.Critical().Warning("Created topic [{TopicName}] with [{PartitionsCount} | {ReplicationFactor}]",
+            topicName, _options.PartitionsCount, _options.ReplicationFactor);
     }
 
     /// <inheritdoc />
     public async Task RemoveTopicAsync(string topicName)
     {
         await _client.DeleteTopicsAsync([topicName]);
-        logger.LogCritical("Topic [{TopicName}] was deleted", topicName);
+        _logger.Critical().Warning("Topic [{TopicName}] was deleted", topicName);
     }
 
     /// <inheritdoc />
@@ -69,7 +77,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
                 }
             }
         ]);
-        logger.LogCritical("[{Operation}] is now allowed for [{Principal}] in [{ResourceType} {ResourceName}]",
+        _logger.Critical().Warning("[{Operation}] is now allowed for [{Principal}] in [{ResourceType} {ResourceName}]",
             operation, principal, resourceType, resourceName);
     }
 
@@ -92,7 +100,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
                 }
             }
         ]);
-        logger.LogCritical("[{Operation}] is now disallowed for [{Principal}] in [{ResourceType} {ResourceName}]",
+        _logger.Critical().Warning("[{Operation}] is now disallowed for [{Principal}] in [{ResourceType} {ResourceName}]",
             operation, principal, resourceType, resourceName);
     }
 
@@ -108,7 +116,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         {
             var migration = Activator.CreateInstance(migrationType) as IBrokerMigration;
             await migration.ApplyAsync(this, cancellationToken);
-            logger.LogCritical("Migration [{MigrationName}] was applied", migration.GetType().Name);
+            _logger.Critical().Warning("Migration [{MigrationName}] was applied", migration.GetType().Name);
         }
     }
 
@@ -124,7 +132,7 @@ public sealed class BrokerAdminClient(AdminOptions options, ILogger<BrokerAdminC
         {
             var migration = Activator.CreateInstance(migrationType) as IBrokerMigration;
             await migration.DiscardAsync(this, cancellationToken);
-            logger.LogCritical("Migration [{MigrationName}] was discarded", migration.GetType().Name);
+            _logger.Critical().Warning("Migration [{MigrationName}] was discarded", migration.GetType().Name);
         }
     }
 }

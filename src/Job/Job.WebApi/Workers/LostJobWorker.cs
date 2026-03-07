@@ -1,6 +1,7 @@
 using Job.Database.Contexts;
 using Job.WebApi.Options;
 using Shared.Contract.Owned;
+using ILogger = Serilog.ILogger;
 
 namespace Job.WebApi.Workers;
 
@@ -9,9 +10,10 @@ namespace Job.WebApi.Workers;
 /// </summary>
 public class LostJobWorker(
     IOwnedService<IJobDbContext> jobDbContextOwned,
-    ILogger<LostJobWorker> logger,
+    ILogger logger,
     LostJobWorkerOptions options) : IHostedService
 {
+    private readonly ILogger _logger = logger.ForContext<LostJobWorker>();
     private readonly CancellationTokenSource _wokerCancellation = new();
     private Task _workerTask;
 
@@ -24,7 +26,7 @@ public class LostJobWorker(
 
         if (!options.IsEnabled)
         {
-            logger.LogInformation("Worker is disabled");
+            _logger.Information("Worker is disabled");
         }
 
         return Task.CompletedTask;
@@ -42,13 +44,13 @@ public class LostJobWorker(
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            logger.LogDebug("Consume iteration started");
+            _logger.Debug("Consume iteration started");
             await RunIterationAsync(cancellationToken);
-            logger.LogDebug("Consume iteration ended");
+            _logger.Debug("Consume iteration ended");
 
             try
             {
-                logger.LogDebug("Sleeping for [{IterationDeplay}]", options.IterationDeplay);
+                _logger.Debug("Sleeping for [{IterationDeplay}]", options.IterationDeplay);
                 await Task.Delay(options.IterationDeplay, cancellationToken);
             }
             catch (OperationCanceledException)
@@ -67,11 +69,11 @@ public class LostJobWorker(
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            logger.LogWarning("Iteration cancelled");
+            _logger.Warning("Iteration cancelled");
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Cannot mark Jobs as Lost");
+            _logger.Error(e, "Cannot mark Jobs as Lost");
         }
     }
 }

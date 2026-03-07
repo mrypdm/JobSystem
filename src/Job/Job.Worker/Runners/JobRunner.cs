@@ -5,7 +5,7 @@ using Job.Worker.Collectors;
 using Job.Worker.Environments;
 using Job.Worker.JobProcesses;
 using Job.Worker.Models;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using Shared.Contract.Owned;
 
 namespace Job.Worker.Runners;
@@ -16,8 +16,10 @@ public class JobRunner(
     IJobEnvironment jobEnvironment,
     IJobProcessRunner processRunner,
     IResultsCollector resultsCollector,
-    ILogger<JobRunner> logger) : IJobRunner
+    ILogger logger) : IJobRunner
 {
+    private readonly ILogger _logger = logger.ForContext<JobRunner>();
+
     private readonly ConcurrentDictionary<Guid, Task> _jobs = [];
 
     /// <inheritdoc />
@@ -36,7 +38,7 @@ public class JobRunner(
 
         if (_jobs.ContainsKey(runJobModel.Id))
         {
-            logger.LogWarning("Job [{JobId}] is already running", runJobModel.Id);
+            _logger.Warning("Job [{JobId}] is already running", runJobModel.Id);
             return;
         }
 
@@ -57,7 +59,7 @@ public class JobRunner(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error while running Job [{JobId}]", jobModel.Id);
+            _logger.Error(e, "Error while running Job [{JobId}]", jobModel.Id);
             await TrySetFault(jobModel);
         }
         finally
@@ -76,7 +78,7 @@ public class JobRunner(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Cannot set Fault result for Job [{JobId}]", jobModel.Id);
+            _logger.Error(e, "Cannot set Fault result for Job [{JobId}]", jobModel.Id);
         }
     }
 }

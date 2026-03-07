@@ -2,7 +2,8 @@ using Docker.DotNet;
 using Docker.DotNet.Models;
 using Job.Worker.Models;
 using Job.Worker.Options;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using Shared.Contract.Extensions;
 using Shared.Contract.Owned;
 
 using JobStatus = Job.Contract.JobStatus;
@@ -15,7 +16,7 @@ namespace Job.Worker.JobProcesses;
 public class DockerJobProcessRunner(
     IOwnedService<IDockerClient> dockerClientOwned,
     JobEnvironmentOptions jobEnvironmentOptions,
-    ILogger<DockerJobProcessRunner> logger)
+    ILogger logger)
     : IJobProcessRunner
 {
     private readonly ContainerStartParameters _containerStartParameters = new();
@@ -27,6 +28,8 @@ public class DockerJobProcessRunner(
     {
         Force = true
     };
+
+    private readonly ILogger _logger = logger.ForContext<DockerJobProcessRunner>();
 
     /// <inheritdoc />
     public async Task RunProcessAsync(RunJobModel jobModel)
@@ -44,7 +47,7 @@ public class DockerJobProcessRunner(
         }
 
         using var jobTimeoutCancellation = new CancellationTokenSource(jobModel.Timeout);
-        logger.LogCritical("Starting process for Job [{JobId}] with timeout [{Timeout}]",
+        _logger.Critical().Information("Starting process for Job [{JobId}] with timeout [{Timeout}]",
             jobModel.Id, jobModel.Timeout);
 
         var dockerClient = dockerClientOwned.Value;
@@ -59,18 +62,18 @@ public class DockerJobProcessRunner(
         }
         catch (OperationCanceledException e)
         {
-            logger.LogWarning(e, "Job [{JobId}] process was cancelled by Timeout", jobModel.Id);
+            _logger.Warning(e, "Job [{JobId}] process was cancelled by Timeout", jobModel.Id);
             jobModel.Status = JobStatus.Timeout;
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error while running process for Job [{JobId}]", jobModel.Id);
+            _logger.Error(e, "Error while running process for Job [{JobId}]", jobModel.Id);
             jobModel.Status = JobStatus.Fault;
         }
         finally
         {
             await ClearContainerAsync(dockerClient, containerId, jobModel.Id);
-            logger.LogCritical("Process for Job [{JobId}] ended with status [{JobStatus}]",
+            _logger.Critical().Information("Process for Job [{JobId}] ended with status [{JobStatus}]",
                 jobModel.Id, jobModel.Status);
         }
     }
@@ -78,7 +81,7 @@ public class DockerJobProcessRunner(
     private async Task<string> CreateContainerAsync(IDockerClient dockerClient, RunJobModel jobModel,
         CancellationToken cancellationToken)
     {
-        logger.LogCritical("Creating container for Job [{JobId}]", jobModel.Id);
+        _logger.Critical().Information("Creating container for Job [{JobId}]", jobModel.Id);
         var containerCreateResult = await dockerClient.Containers.CreateContainerAsync(
             new CreateContainerParameters
             {
@@ -106,12 +109,12 @@ public class DockerJobProcessRunner(
 
         if (containerCreateResult.Warnings.Count != 0)
         {
-            logger.LogWarning(
+            _logger.Warning(
                 "Warning while creating container for Job [{JobId}]: {@Warnings}",
                 jobModel.Id, containerCreateResult.Warnings);
         }
 
-        logger.LogCritical(
+        _logger.Critical().Information(
             "Container [{ContainerId}] for Job [{JobId}] created",
             containerCreateResult.ID, jobModel.Id);
         return containerCreateResult.ID;
@@ -128,7 +131,7 @@ public class DockerJobProcessRunner(
             throw new InvalidOperationException($"Failed to start container for Job [{jobId}]");
         }
 
-        logger.LogCritical(
+        _logger.Critical().Information(
             "Container [{ContainerId}] for Job [{JobId}] started",
             containerId, jobId);
     }
@@ -138,18 +141,18 @@ public class DockerJobProcessRunner(
         try
         {
             await dockerClient.Containers.StopContainerAsync(containerId, _containerStopParameters, default);
-            logger.LogCritical(
+            _logger.Critical().Information(
                 "Container [{ContainerId}] for Job [{JobId}] stopped",
                 containerId, jobId);
 
             await dockerClient.Containers.RemoveContainerAsync(containerId, _containerRemoveParameters, default);
-            logger.LogCritical(
+            _logger.Critical().Information(
                 "Container [{ContainerId}] for Job [{JobId}] removed",
                 containerId, jobId);
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error while stopping Job [{JobId}] process", jobId);
+            _logger.Error(e, "Error while stopping Job [{JobId}] process", jobId);
         }
     }
 }

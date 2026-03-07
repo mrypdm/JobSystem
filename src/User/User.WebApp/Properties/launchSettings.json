@@ -10,17 +10,15 @@
         "ASPNETCORE_URLS": "http://*:4001",
         "ASPNETCORE_HTTPS_PORT": "",
         "Urls": "http://*:4001",
-
         "WebServerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp/svc_users_webapp.keystore.p12",
         "WebServerOptions:Password": "qwerty-123",
-
         "DatabaseOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp@postgres/svc_users_webapp@postgres.keystore.p12",
         "DatabaseOptions:Password": "qwerty-123",
         "DatabaseOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
-
         "JobWebApiClientOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp@webapi/svc_users_webapp@webapi.keystore.p12",
         "JobWebApiClientOptions:Password": "qwerty-123",
-        "JobWebApiClientOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
+        "JobWebApiClientOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
+        "Serilog:WriteTo:1:Args:path": "logs/log.json"
       }
     },
     "Staging (HTTPS)": {
@@ -32,17 +30,15 @@
         "ASPNETCORE_URLS": "https://*:5001;http://*:4001",
         "ASPNETCORE_HTTPS_PORT": "5001",
         "Urls": "https://*:5001;http://*:4001",
-
         "WebServerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp/svc_users_webapp.keystore.p12",
         "WebServerOptions:Password": "qwerty-123",
-
         "DatabaseOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp@postgres/svc_users_webapp@postgres.keystore.p12",
         "DatabaseOptions:Password": "qwerty-123",
         "DatabaseOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
-
         "JobWebApiClientOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_users_webapp@webapi/svc_users_webapp@webapi.keystore.p12",
         "JobWebApiClientOptions:Password": "qwerty-123",
-        "JobWebApiClientOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
+        "JobWebApiClientOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
+        "Serilog:WriteTo:1:Args:path": "logs/log.json"
       }
     }
   }

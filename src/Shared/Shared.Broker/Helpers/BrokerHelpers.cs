@@ -1,5 +1,7 @@
 using Confluent.Kafka;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
+using Shared.Contract.Extensions;
 
 namespace Shared.Broker.Helpers;
 
@@ -20,8 +22,8 @@ public static class BrokerHelpers
                 return; // will be logged in ErrorHandler
             }
 
-            logger.Log(
-                (LogLevel)logMessage.LevelAs(LogLevelType.MicrosoftExtensionsLogging),
+            logger.Write(
+                logMessage.LevelAsSerilog(),
                 $"{{{name}Message}}", logMessage.Message);
         };
     }
@@ -33,10 +35,24 @@ public static class BrokerHelpers
     {
         return (_, error) =>
         {
-            logger.Log(
-                error.IsFatal ? LogLevel.Critical : LogLevel.Error,
+            logger.Critical().Write(
+                error.IsFatal ? LogEventLevel.Fatal : LogEventLevel.Error,
                 $"{name} error detected [{{Code}} | {{Reason}}]",
                 error.Code, error.Reason);
         };
     }
+
+    private static LogEventLevel LevelAsSerilog(this LogMessage message)
+    {
+        return message.Level switch
+        {
+            SyslogLevel.Emergency or SyslogLevel.Alert or SyslogLevel.Critical => LogEventLevel.Fatal,
+            SyslogLevel.Error => LogEventLevel.Error,
+            SyslogLevel.Warning => LogEventLevel.Warning,
+            SyslogLevel.Info or SyslogLevel.Notice => LogEventLevel.Information,
+            SyslogLevel.Debug => LogEventLevel.Debug,
+            _ => LogEventLevel.Verbose
+        };
+    }
+
 }

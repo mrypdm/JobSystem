@@ -1,12 +1,13 @@
 using Job.WebApi.Client.Exceptions;
 using Shared.WebApi.Filters;
+using ILogger = Serilog.ILogger;
 
 namespace User.WebApp.Filters;
 
 /// <summary>
 /// Filter for <see cref="JobWebApiTimeoutExceptionFilter"/>
 /// </summary>
-public class JobWebApiTimeoutExceptionFilter(ILogger<JobWebApiTimeoutExceptionFilter> logger)
+public class JobWebApiTimeoutExceptionFilter(ILogger logger)
     : BaseExceptionFilter(logger)
 {
     /// <inheritdoc />

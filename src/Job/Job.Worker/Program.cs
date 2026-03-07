@@ -12,24 +12,18 @@ using Job.Worker.Runners;
 using Job.Worker.Workers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using Shared.Broker.Abstractions;
 using Shared.Broker.Options;
 using Shared.Contract;
 using Shared.Contract.Extensions;
-using Shared.Contract.Logging;
-using Shared.Contract.Options;
 using Shared.Contract.Owned;
 using Shared.Database;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddLogging(logBuilder =>
-{
-    logBuilder.ClearProviders();
-    logBuilder.AddConsoleFormatter<SimpleConsoleFormatter, SimpleFormatterOptions>();
-    logBuilder.AddConsole(options => options.FormatterName = nameof(SimpleConsoleFormatter));
-});
+builder.Services.AddSerilog(
+    (_, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(builder.Configuration));
 
 var dockerOptions = builder.Configuration.GetOptions<DockerOptions>();
 builder.Services.AddTransient<IDockerClient, DockerClient>(_ =>

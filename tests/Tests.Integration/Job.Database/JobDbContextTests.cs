@@ -10,6 +10,7 @@ using Shared.Contract;
 using Shared.Contract.Extensions;
 using Shared.Database;
 using Shared.Database.Migrations;
+using ILogger = Serilog.ILogger;
 
 namespace Tests.Integration.Job.Database;
 
@@ -397,7 +398,7 @@ internal class JobDbContextTests : IntegrationTestBase
                 webApiSslValidator,
                 context.GetRequiredService<ILoggerFactory>(),
                 forTests: true);
-            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger>());
         });
 
         var workerDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("WorkerDatabaseOptions");
@@ -410,7 +411,7 @@ internal class JobDbContextTests : IntegrationTestBase
                 workerSslValidator,
                 context.GetRequiredService<ILoggerFactory>(),
                 forTests: true);
-            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger>());
         });
 
         var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminJobsDatabaseOptions");
@@ -423,7 +424,7 @@ internal class JobDbContextTests : IntegrationTestBase
                 adminSslValidator,
                 context.GetRequiredService<ILoggerFactory>(),
                 forTests: true);
-            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger>());
         });
         builder.Services.AddTransient<IInitializer>(
             context => new DbInitializer(context.GetRequiredKeyedService<JobDbContext>(Admin)));

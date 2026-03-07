@@ -10,20 +10,18 @@
         "ASPNETCORE_URLS": "http://*:4000",
         "ASPNETCORE_HTTPS_PORT": "",
         "Urls": "http://*:4000",
-
         "WebServerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_webapi/svc_jobs_webapi.keystore.p12",
         "WebServerOptions:Password": "qwerty-123",
         "WebServerOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
-
         "DatabaseOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_webapi@postgres/svc_jobs_webapi@postgres.keystore.p12",
         "DatabaseOptions:Password": "qwerty-123",
         "DatabaseOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
-
         "ProducerOptions:TruststoreFilePath": "../../../infrastructure/Certificates/certs/svc_kafka/svc_kafka.truststore.pem",
         "ProducerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_webapi@kafka/svc_jobs_webapi@kafka.crt",
         "ProducerOptions:KeyFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_webapi@kafka/svc_jobs_webapi@kafka.key",
         "ProducerOptions:Password": "qwerty-123",
-        "ProducerOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
+        "ProducerOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
+        "Serilog:WriteTo:1:Args:path": "logs/log.json"
       }
     },
     "Staging (HTTPS w/ Auth)": {
@@ -35,20 +33,18 @@
         "ASPNETCORE_URLS": "https://*:5000;http://*:4000",
         "ASPNETCORE_HTTPS_PORT": "5000",
         "Urls": "https://*:5000;http://*:4000",
-
         "WebServerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_webapi/svc_jobs_webapi.keystore.p12",
         "WebServerOptions:Password": "qwerty-123",
         "WebServerOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
-
         "DatabaseOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_webapi@postgres/svc_jobs_webapi@postgres.keystore.p12",
         "DatabaseOptions:Password": "qwerty-123",
         "DatabaseOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
-
         "ProducerOptions:TruststoreFilePath": "../../../infrastructure/Certificates/certs/svc_kafka/svc_kafka.truststore.pem",
         "ProducerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_webapi@kafka/svc_jobs_webapi@kafka.crt",
         "ProducerOptions:KeyFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_webapi@kafka/svc_jobs_webapi@kafka.key",
         "ProducerOptions:Password": "qwerty-123",
-        "ProducerOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
+        "ProducerOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
+        "Serilog:WriteTo:1:Args:path": "logs/log.json"
       }
     },
   }

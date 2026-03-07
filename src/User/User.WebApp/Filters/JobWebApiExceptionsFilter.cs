@@ -1,13 +1,14 @@
 using System.Net;
 using Job.WebApi.Client.Exceptions;
 using Shared.WebApi.Filters;
+using ILogger = Serilog.ILogger;
 
 namespace User.WebApp.Filters;
 
 /// <summary>
 /// Filter for <see cref="JobWebApiException"/>
 /// </summary>
-public class JobWebApiExceptionsFilter(ILogger<JobWebApiExceptionsFilter> logger) : BaseExceptionFilter(logger)
+public class JobWebApiExceptionsFilter(ILogger logger) : BaseExceptionFilter(logger)
 {
     /// <inheritdoc />
     protected override bool IsSupportedException(Exception exception)

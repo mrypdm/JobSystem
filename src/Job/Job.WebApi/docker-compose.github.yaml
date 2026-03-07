@@ -17,7 +17,7 @@ services:
       ports:
         - 5000:443
       volumes:
-        - ./config:/etc/job.webapi.d/:ro
+        - ./config:/etc/job-webapi.d/:ro
       networks:
         - test-net
 

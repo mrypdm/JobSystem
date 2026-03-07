@@ -1,7 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Shared.Contract.Extensions;
+using Serilog;
 
 namespace Tests.Common;
 
@@ -37,15 +35,7 @@ public abstract class TestBase
     /// </summary>
     protected virtual void ConfigureServices(HostApplicationBuilder builder)
     {
-        builder.Services.AddLogging(logBuilder =>
-        {
-            logBuilder.ClearProviders();
-            logBuilder
-                .SetMinimumLevel(LogLevel.Information)
-                .AddFilter(null, LogLevel.Information);
-            logBuilder.AddSimpleLogger(
-                logOptions => logOptions.IsEnabled = () => TestContext.Progress is not null,
-                formatOptions => formatOptions.WithColors = false);
-        });
+        builder.Services.AddSerilog(
+            (_, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(builder.Configuration));
     }
 }

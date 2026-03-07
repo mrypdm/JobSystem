@@ -6,9 +6,9 @@ using Job.WebApi.Client.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Serilog;
 using Shared.Contract;
 using Shared.Contract.Extensions;
-using Shared.Contract.Logging;
 using Shared.Contract.Options;
 using Shared.Database;
 using User.Database.Contexts;
@@ -82,12 +82,8 @@ public static class AppBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
     {
-        builder.Services.AddLogging(logBuilder =>
-        {
-            logBuilder.ClearProviders();
-            logBuilder.AddConsoleFormatter<SimpleConsoleFormatter, SimpleFormatterOptions>();
-            logBuilder.AddConsole(options => options.FormatterName = nameof(SimpleConsoleFormatter));
-        });
+        builder.Services.AddSerilog(
+            (_, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(builder.Configuration));
         return builder;
     }
 

@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using Shared.Contract.Extensions;
 using Shared.Database;
 using User.Database.Models;
 
 namespace User.Database.Contexts;
 
 /// <inheritdoc />
-public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logger)
+public class UserDbContext(DbContextOptions options, ILogger logger)
     : PostgreDbContext(options, logger), IUserDbContext
 {
     /// <summary>
@@ -25,7 +26,7 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
         await Database.ExecuteSqlAsync(
             $"CALL pgdbo.p_users_add_new_user({user.Username}, {user.PasswordHash}, {user.PasswordSalt})",
             cancellationToken);
-        logger.LogCritical("User [{Username}] registered", user.Username);
+        Logger.Critical().Information("User [{Username}] registered", user.Username);
     }
 
     /// <inheritdoc />
@@ -42,7 +43,7 @@ public class UserDbContext(DbContextOptions options, ILogger<UserDbContext> logg
         await Database.ExecuteSqlAsync(
             $"CALL pgdbo.p_users_add_new_job({username}, {jobId})",
             cancellationToken);
-        logger.LogCritical("New Job [{JobId}] created by user [{Username}]", jobId, username);
+        Logger.Critical().Information("New Job [{JobId}] created by user [{Username}]", jobId, username);
     }
 
     /// <inheritdoc />

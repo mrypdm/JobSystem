@@ -6,6 +6,7 @@ using Job.WebApi.Options;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Broker.Abstractions;
 using Shared.Contract.Owned;
+using ILogger = Serilog.ILogger;
 
 namespace Job.WebApi.Controllers;
 
@@ -14,9 +15,11 @@ namespace Job.WebApi.Controllers;
 /// </summary>
 [Route("api/jobs")]
 public class JobController(IOwnedService<IJobDbContext> jobDbContextOwned, IBrokerProducer<Guid, JobMessage> jobProducer,
-    JobControllerOptions options, ILogger<JobController> logger)
+    JobControllerOptions options, ILogger logger)
     : Controller
 {
+    private readonly ILogger _logger = logger.ForContext<JobController>();
+
     /// <summary>
     /// Add new job
     /// </summary>
@@ -31,12 +34,12 @@ public class JobController(IOwnedService<IJobDbContext> jobDbContextOwned, IBrok
 
         if (request.Id is null)
         {
-            logger.LogInformation("Job is created without Id. It will be generated");
+            _logger.Information("Job is created without Id. It will be generated");
         }
 
         if (request.Timeout is null)
         {
-            logger.LogInformation("Job is created without Timeout. Default [{DefaultTimeout}] value will be used",
+            _logger.Information("Job is created without Timeout. Default [{DefaultTimeout}] value will be used",
                 options.DefaultTimeout);
         }
 

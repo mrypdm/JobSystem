@@ -1,7 +1,8 @@
 using Job.Worker.Options;
 using Job.Worker.Resources.Readers;
 using Job.Worker.Runners;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using Shared.Contract.Extensions;
 
 namespace Job.Worker.Resources.Analyzers;
 
@@ -11,14 +12,16 @@ public class ResourcesAnalyzer(
     IResourcesReader resourcesReader,
     JobEnvironmentOptions jobEnvironmentOptions,
     ResourcesAnalyzerOptions resourceMonitorOptions,
-    ILogger<ResourcesAnalyzer> logger) : IResourcesAnalyzer
+    ILogger logger) : IResourcesAnalyzer
 {
+    private readonly ILogger _logger = logger.ForContext<ResourcesAnalyzer>();
+
     /// <inheritdoc />
     public async Task<bool> CanRunNewJobAsync(CancellationToken cancellationToken)
     {
         if (jobRunner.RunningJobsCount > resourceMonitorOptions.ThresholdRunningJobs)
         {
-            logger.LogInformation("Running Jobs count is [{RunningJobs}], cannot run new job",
+            _logger.Information("Running Jobs count is [{RunningJobs}], cannot run new job",
                 jobRunner.RunningJobsCount);
             return false;
         }
@@ -26,7 +29,7 @@ public class ResourcesAnalyzer(
         var cpu = await GetCpuLoadAsync(cancellationToken);
         if (cpu > resourceMonitorOptions.ThresholdCpuUsage)
         {
-            logger.LogCritical("CPU usage is [{CpuUsage}], cannot run new Job", cpu);
+            _logger.Critical().Warning("CPU usage is [{CpuUsage}], cannot run new Job", cpu);
             return false;
         }
 
@@ -34,7 +37,7 @@ public class ResourcesAnalyzer(
         var memoryUsageOfOneJob = (double)jobEnvironmentOptions.MemoryUsage / memory.Total;
         if (memory.UsagePercentage + memoryUsageOfOneJob > resourceMonitorOptions.ThresholdMemoryUsage)
         {
-            logger.LogCritical("Memory usage is [{MemoryUsage}, {EnrichedMemoryUsage}], cannot run new Job",
+            _logger.Critical().Warning("Memory usage is [{MemoryUsage}, {EnrichedMemoryUsage}], cannot run new Job",
                 memory.UsagePercentage, memory.UsagePercentage + memoryUsageOfOneJob);
             return false;
         }
@@ -43,7 +46,7 @@ public class ResourcesAnalyzer(
             cancellationToken);
         if (drive.UsagePercentage > resourceMonitorOptions.ThresholdDriveUsage)
         {
-            logger.LogCritical("Drive usage is [{DriveUsage}], cannot run new Job", drive.UsagePercentage);
+            _logger.Critical().Warning("Drive usage is [{DriveUsage}], cannot run new Job", drive.UsagePercentage);
             return false;
         }
 

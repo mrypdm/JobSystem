@@ -4,15 +4,24 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Shared.Contract;
+using Shared.Contract.Extensions;
 using Shared.Database.Migrations;
+using ILogger = Serilog.ILogger;
 
 namespace Shared.Database;
 
 /// <summary>
 /// Common context for PostgreSQL databases
 /// </summary>
-public abstract class PostgreDbContext(DbContextOptions options, ILogger<PostgreDbContext> logger) : DbContext(options)
+public abstract class PostgreDbContext : DbContext
 {
+    public PostgreDbContext(DbContextOptions options, ILogger logger) : base(options)
+    {
+        Logger = logger.ForContext(GetType());
+    }
+
+    protected ILogger Logger { get; }
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,7 +43,7 @@ public abstract class PostgreDbContext(DbContextOptions options, ILogger<Postgre
         {
             var migration = Activator.CreateInstance(migrationType) as IDatabaseMigration;
             await migration.ApplyAsync(this, cancellationToken);
-            logger.LogCritical("Migration [{MigrationName}] was applied", migration.GetType().Name);
+            Logger.Critical().Warning("Migration [{MigrationName}] was applied", migration.GetType().Name);
         }
     }
 
@@ -52,12 +61,12 @@ public abstract class PostgreDbContext(DbContextOptions options, ILogger<Postgre
         {
             var migration = Activator.CreateInstance(migrationType) as IDatabaseMigration;
             await migration.DiscardAsync(this, cancellationToken);
-            logger.LogCritical("Migration [{MigrationName}] was discarded", migration.GetType().Name);
+            Logger.Critical().Warning("Migration [{MigrationName}] was discarded", migration.GetType().Name);
         }
 
         await Database.EnsureDeletedAsync(cancellationToken);
         await Database.EnsureCreatedAsync(cancellationToken);
-        logger.LogCritical("Database [{DatabaseName}] was recreated", GetType().Name);
+        Logger.Critical().Warning("Database [{DatabaseName}] was recreated", GetType().Name);
     }
 
     /// <summary>

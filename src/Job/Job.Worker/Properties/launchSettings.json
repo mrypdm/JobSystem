@@ -6,16 +6,15 @@
       "dotnetRunMessages": true,
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
-
         "DatabaseOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_worker@postgres/svc_jobs_worker@postgres.keystore.p12",
         "DatabaseOptions:Password": "qwerty-123",
         "DatabaseOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
-
         "ConsumerOptions:TruststoreFilePath": "../../../infrastructure/Certificates/certs/svc_kafka/svc_kafka.truststore.pem",
         "ConsumerOptions:CertificateFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_worker@kafka/svc_jobs_worker@kafka.crt",
         "ConsumerOptions:KeyFilePath": "../../../infrastructure/Certificates/certs/svc_jobs_worker@kafka/svc_jobs_worker@kafka.key",
         "ConsumerOptions:Password": "qwerty-123",
-        "ConsumerOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem"
+        "ConsumerOptions:RevocationListFilePath": "../../../infrastructure/Certificates/root/crl.pem",
+        "Serilog:WriteTo:1:Args:path": "logs/log.json"
       }
     }
   }

@@ -9,6 +9,7 @@ using Shared.Database;
 using Shared.Database.Migrations;
 using User.Database.Contexts;
 using User.Database.Models;
+using ILogger = Serilog.ILogger;
 
 namespace Tests.Integration.User.Database;
 
@@ -254,7 +255,7 @@ internal class UserDbContextTests : IntegrationTestBase
                 sslValidator,
                 context.GetRequiredService<ILoggerFactory>(),
                 forTests: true);
-            return new UserDbContext(options.Options, context.GetRequiredService<ILogger<UserDbContext>>());
+            return new UserDbContext(options.Options, context.GetRequiredService<ILogger>());
         });
 
         var adminDbOptions = builder.Configuration.GetOptions<DatabaseOptions>("AdminUsersDatabaseOptions");
@@ -267,7 +268,7 @@ internal class UserDbContextTests : IntegrationTestBase
                 adminSslValidator,
                 context.GetRequiredService<ILoggerFactory>(),
                 forTests: true);
-            return new UserDbContext(options.Options, context.GetRequiredService<ILogger<UserDbContext>>());
+            return new UserDbContext(options.Options, context.GetRequiredService<ILogger>());
         });
         builder.Services.AddTransient<IInitializer>(
             context => new DbInitializer(context.GetRequiredKeyedService<UserDbContext>(Admin)));

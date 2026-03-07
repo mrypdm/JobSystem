@@ -27,6 +27,7 @@ using Shared.Contract.Extensions;
 using Shared.Contract.Owned;
 using Shared.Database;
 using Shared.Database.Migrations;
+using ILogger = Serilog.ILogger;
 
 namespace Tests.Integration.Job.Worker;
 
@@ -176,7 +177,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
                 workerSslValidator,
                 context.GetRequiredService<ILoggerFactory>(),
                 forTests: true);
-            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger>());
         });
         builder.Services.AddSingleton<IOwnedService<IJobDbContext>, OwnedService<IJobDbContext>>();
 
@@ -190,7 +191,7 @@ internal class ConsumerWorkerTests : IntegrationTestBase
                 adminSslValidator,
                 context.GetRequiredService<ILoggerFactory>(),
                 forTests: true);
-            return new JobDbContext(options.Options, context.GetRequiredService<ILogger<JobDbContext>>());
+            return new JobDbContext(options.Options, context.GetRequiredService<ILogger>());
         });
         builder.Services.AddTransient<IInitializer>(
             context => new DbInitializer(context.GetRequiredKeyedService<JobDbContext>(Admin)));

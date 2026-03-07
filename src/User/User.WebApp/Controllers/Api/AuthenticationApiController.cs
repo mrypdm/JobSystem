@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Shared.Contract.Extensions;
 using User.Database.Contexts;
 using User.Database.Models;
 using User.WebApp.Extensions;
 using User.WebApp.Models;
+using ILogger = Serilog.ILogger;
 
 namespace User.WebApp.Controllers.Api;
 
@@ -21,10 +23,12 @@ namespace User.WebApp.Controllers.Api;
 [ValidateAntiForgeryToken]
 public class AuthenticationApiController(
     IUserDbContext userDbContext,
-    ILogger<AuthenticationApiController> logger,
+    ILogger logger,
     IMemoryCache blockedUsersCache)
     : Controller
 {
+    private readonly ILogger _logger = logger.ForContext<AuthenticationApiController>();
+
     /// <summary>
     /// Sign in user with cookie
     /// </summary>
@@ -74,7 +78,7 @@ public class AuthenticationApiController(
 
         blockedUsersCache.Remove(request.Username);
         await HttpContext.SignInAsync(request.Username);
-        logger.LogCritical("User [{Username}] signed in", request.Username);
+        _logger.Critical().Information("User [{Username}] signed in", request.Username);
 
         return Ok();
     }
@@ -88,11 +92,11 @@ public class AuthenticationApiController(
         var userName = HttpContext.GetUserName();
         if (userName is null)
         {
-            logger.LogCritical("Anonymous request for sign out");
+            _logger.Debug("Anonymous request for sign out");
         }
         else
         {
-            logger.LogCritical("User [{Username}] signed out", userName);
+            _logger.Critical().Information("User [{Username}] signed out", userName);
         }
 
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

@@ -3,7 +3,7 @@ using Job.Contract;
 using Job.WebApi.Client.Exceptions;
 using Job.WebApi.Client.Factories;
 using Job.WebApi.Client.Options;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Job.WebApi.Client.Clients;
 
@@ -11,9 +11,10 @@ namespace Job.WebApi.Client.Clients;
 public sealed class JobWebApiClient(
     IFlurlClientFactory factory,
     JobWebApiClientOptions options,
-    ILogger<JobWebApiClient> logger) : IJobWebApiClient
+    ILogger logger) : IJobWebApiClient
 {
     private readonly IFlurlClient _httpClient = factory.Create(options);
+    private readonly ILogger _logger = logger.ForContext<JobWebApiClient>();
 
     /// <inheritdoc />
     public void Dispose()
@@ -42,7 +43,7 @@ public sealed class JobWebApiClient(
 
     private void LogHttpRequest(string method, string path)
     {
-        logger.LogDebug("Doing HTTP request [{Method} {Path}]", method, path);
+        _logger.Debug("Doing HTTP request [{Method} {Path}]", method, path);
     }
 
     private static async Task<TResult> DoHttpRequest<TResult>(Func<Task<TResult>> action)

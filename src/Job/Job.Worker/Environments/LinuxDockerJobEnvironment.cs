@@ -2,16 +2,18 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Job.Worker.Models;
 using Job.Worker.Options;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Job.Worker.Environments;
 
 /// <summary>
 /// Job environment for Linux Docker
 /// </summary>
-public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<LinuxDockerJobEnvironment> logger)
+public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger logger)
     : IJobEnvironment
 {
+    private readonly ILogger _logger = logger.ForContext<LinuxDockerJobEnvironment>();
+
     /// <inheritdoc />
     public void PrepareEnvironment(RunJobModel jobModel)
     {
@@ -51,7 +53,7 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.OtherWrite);
         }
 
-        logger.LogInformation("Environment [{JobEnvironment}] prepared", jobModel.Directory);
+        _logger.Information("Environment [{JobEnvironment}] prepared", jobModel.Directory);
     }
 
     /// <inheritdoc />
@@ -65,7 +67,7 @@ public class LinuxDockerJobEnvironment(JobEnvironmentOptions options, ILogger<Li
         }
 
         Directory.Delete(jobModel.Directory, true);
-        logger.LogInformation("Environment [{JobEnvironment}] cleared", jobModel.Directory);
+        _logger.Information("Environment [{JobEnvironment}] cleared", jobModel.Directory);
     }
 
     private static void WriteScript(string path, string content)

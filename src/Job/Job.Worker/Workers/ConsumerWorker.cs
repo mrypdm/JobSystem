@@ -6,8 +6,8 @@ using Job.Worker.Options;
 using Job.Worker.Resources.Analyzers;
 using Job.Worker.Runners;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Npgsql;
+using Serilog;
 using Shared.Broker.Abstractions;
 using Shared.Contract.Owned;
 
@@ -22,9 +22,11 @@ public class ConsumerWorker(
     IResourcesAnalyzer resourceAnalyzer,
     IOwnedService<IJobDbContext> jobDbContextOwned,
     ConsumerWorkerOptions consumerWorkerOptions,
-    ILogger<ConsumerWorker> logger)
+    ILogger logger)
     : IHostedService
 {
+    private readonly ILogger _logger = logger.ForContext<ConsumerWorker>();
+
     private readonly CancellationTokenSource _consumingLoopCancellation = new();
     private Task _consumingLoopTask;
 
@@ -33,7 +35,7 @@ public class ConsumerWorker(
     /// <inheritdoc />
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        logger.LogInformation("Starting consuming Jobs");
+        _logger.Information("Starting consuming Jobs");
 
         consumer.Subscribe();
         _consumingLoopTask = Task.Run(
@@ -46,22 +48,22 @@ public class ConsumerWorker(
     /// <inheritdoc />
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        logger.LogInformation("Cancelling consuming Jobs");
+        _logger.Information("Cancelling consuming Jobs");
         _consumingLoopCancellation.Cancel();
         await _consumingLoopTask;
         consumer.Dispose();
-        logger.LogInformation("Consuming ended");
+        _logger.Information("Consuming ended");
 
-        logger.LogInformation("Waiting for Jobs to finish");
+        _logger.Information("Waiting for Jobs to finish");
         await runner.WaitForAllJobs();
-        logger.LogInformation("All Jobs finished");
+        _logger.Information("All Jobs finished");
     }
 
     private async Task ConsumingLooop(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            logger.LogDebug("Consume iteration started");
+            _logger.Debug("Consume iteration started");
 
             if (await resourceAnalyzer.CanRunNewJobAsync(cancellationToken))
             {
@@ -69,14 +71,14 @@ public class ConsumerWorker(
             }
             else
             {
-                logger.LogInformation("Consuming skipped because there are no resources for new Job");
+                _logger.Information("Consuming skipped because there are no resources for new Job");
             }
 
-            logger.LogDebug("Consume iteration ended");
+            _logger.Debug("Consume iteration ended");
 
             try
             {
-                logger.LogDebug("Sleeping for [{IterationDeplay}]", consumerWorkerOptions.IterationDeplay);
+                _logger.Debug("Sleeping for [{IterationDeplay}]", consumerWorkerOptions.IterationDeplay);
                 await Task.Delay(consumerWorkerOptions.IterationDeplay, cancellationToken);
             }
             catch (OperationCanceledException)
@@ -96,13 +98,13 @@ public class ConsumerWorker(
             var job = await jobDbContext.GetNewJobAsync(_lastConsumed.Message.Value.Id, cancellationToken);
             if (job is null)
             {
-                logger.LogWarning(
+                _logger.Warning(
                     "Cannot find Job [{JobId}] for running (Job does not exists or has been already started)",
                     _lastConsumed.Message.Value.Id);
             }
             else
             {
-                logger.LogInformation("Job [{JobId}] loaded from database", _lastConsumed.Message.Value.Id);
+                _logger.Information("Job [{JobId}] loaded from database", _lastConsumed.Message.Value.Id);
                 runner.RunJob(new RunJobModel
                 {
                     Id = job.Id,
@@ -117,11 +119,11 @@ public class ConsumerWorker(
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            logger.LogWarning("Job processing was cancelled");
+            _logger.Warning("Job processing was cancelled");
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error processing new Job");
+            _logger.Error(e, "Error processing new Job");
         }
     }
 
@@ -133,7 +135,7 @@ public class ConsumerWorker(
         }
         catch (PostgresException e) when (e.MessageText.Contains("Job is finished"))
         {
-            logger.LogWarning("Job is finished already. Skipping it");
+            _logger.Warning("Job is finished already. Skipping it");
         }
     }
 }

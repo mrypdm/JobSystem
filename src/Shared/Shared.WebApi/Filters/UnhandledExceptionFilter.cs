@@ -1,11 +1,11 @@
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Shared.WebApi.Filters;
 
 /// <summary>
 /// Filter for all exceptions
 /// </summary>
-public class UnhandledExceptionFilter(ILogger<UnhandledExceptionFilter> logger) : BaseExceptionFilter(logger)
+public class UnhandledExceptionFilter(ILogger logger) : BaseExceptionFilter(logger)
 {
     /// <inheritdoc />
     protected override bool IsSupportedException(Exception exception)

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Common;
 using User.Database.Contexts;
@@ -17,6 +16,7 @@ using User.Database.Models;
 using User.WebApp.Controllers.Api;
 using User.WebApp.Extensions;
 using User.WebApp.Models;
+using ILogger = Serilog.ILogger;
 
 namespace Tests.Unit.User.WebApp;
 
@@ -255,7 +255,7 @@ internal class AuthenticationApiControllerTests : TestBase
         {
             var controller = new AuthenticationApiController(
                 _userDbContext.Object,
-                context.GetRequiredService<ILogger<AuthenticationApiController>>(),
+                context.GetRequiredService<ILogger>(),
                 context.GetRequiredService<IMemoryCache>());
 
             controller.ControllerContext.HttpContext = new DefaultHttpContext();

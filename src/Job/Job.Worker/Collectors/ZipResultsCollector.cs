@@ -1,16 +1,18 @@
 using System.IO.Compression;
 using Job.Worker.Environments;
 using Job.Worker.Models;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Job.Worker.Collectors;
 
 /// <summary>
 /// Collects artifacts to ZIP archive
 /// </summary>
-public class ZipResultsCollector(ILogger<ZipResultsCollector> logger)
+public class ZipResultsCollector(ILogger logger)
     : IResultsCollector
 {
+    private readonly ILogger _logger = logger.ForContext<ZipResultsCollector>();
+
     /// <inheritdoc />
     public async Task CollectResultsAsync(RunJobModel jobModel)
     {
@@ -21,9 +23,9 @@ public class ZipResultsCollector(ILogger<ZipResultsCollector> logger)
                 $"Cannot collect results of Job '{jobModel.Id}' because its environment is not initialized");
         }
 
-        logger.LogInformation("Collecting Job [{JobId}] results", jobModel.Id);
+        _logger.Information("Collecting Job [{JobId}] results", jobModel.Id);
         jobModel.Results = CreateZip(jobModel);
-        logger.LogInformation("Job [{JobId}] results collected [{ResultsSize} MB]",
+        _logger.Information("Job [{JobId}] results collected [{ResultsSize} MB]",
             jobModel.Id, jobModel.Results.LongLength / 1024.0 / 1024.0);
     }
 
