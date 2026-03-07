@@ -22,6 +22,7 @@ cp config/pg_hba.conf $POSTGRES_DIR/config/
 cp ../../Certificates/certs/svc_postgres/svc_postgres.crt $POSTGRES_DIR/config/
 cp ../../Certificates/certs/svc_postgres/svc_postgres.key $POSTGRES_DIR/config/
 cp ../../Certificates/certs/svc_postgres/svc_postgres.truststore.pem $POSTGRES_DIR/config/
+cp ../../Certificates/root/crl.pem $POSTGRES_DIR/config/
 cp ../../Certificates/root/pass.txt $POSTGRES_DIR/config/
 
 chmod 700 $POSTGRES_DIR
