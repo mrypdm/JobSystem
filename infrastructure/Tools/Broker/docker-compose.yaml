@@ -42,10 +42,9 @@ services:
       networks:
         - kafka
       volumes:
-        # Kafka cannot work well with NTFS, so use ~/ dir instead of ./
-        # because ./ dir is current project dir on Windows
-        - ~/kafka/data:/var/lib/kafka/data
-        - ~/kafka/secrets:/etc/kafka/secrets:ro
+        # Kafka cannot work well with NTFS, so be sure that ./ is not on NTFS filesystem
+        - ./data/kafka/data:/var/lib/kafka/data
+        - ./data/kafka/secrets:/etc/kafka/secrets:ro
 
     # Only for debugging
     kafka-ui:
@@ -62,8 +61,8 @@ services:
       networks:
         - kafka
       volumes:
-      - ~/kafka-ui/config.yaml:/etc/kafkaui/dynamic_config.yaml
-      - ~/kafka-ui/secrets:/etc/kafkaui/secrets:ro
+      - ./data/kafka-ui/config.yaml:/etc/kafkaui/dynamic_config.yaml
+      - ./data/kafka-ui/secrets:/etc/kafkaui/secrets:ro
 
 networks:
   kafka:

@@ -1,8 +1,6 @@
 services:
     kafka:
       image: apache/kafka
-      entrypoint: /bin/sh
-      command: /etc/github-actions/start-for-github.sh
       ports:
         - 8500:8500
       restart: unless-stopped
@@ -39,7 +37,7 @@ services:
         KAFKA_SUPER_USERS: 'User:svc_kafka;User:superuser@kafka'
         KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
       volumes:
-        - ./config:/etc/github-actions:ro
+        - ./data/kafka/secrets:/etc/kafka/secrets:ro
       networks:
         - test-net
 

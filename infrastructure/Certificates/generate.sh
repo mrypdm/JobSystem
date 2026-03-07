@@ -145,6 +145,8 @@ function create_pkcs12_keystore() {
 
 init_ca
 
+echo "$DEFAULT_PASSWORD" > $ROOT_DIR/pass.txt
+
 # Root
 generate_root_certificate
 

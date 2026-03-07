@@ -48,6 +48,7 @@ jobs:
       - name: Start PostgreSQL container
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Database
+            bash ./init.sh
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
             sleep 5 # waiting for full startup of service
@@ -55,6 +56,7 @@ jobs:
       - name: Start Apache Kafka container
         run: |
             cd ${{ github.workspace }}/infrastructure/Tools/Broker
+            bash ./init.sh
             docker compose -f docker-compose.github.yaml up -d
             cd ${{ github.workspace }}
             sleep 5 # waiting for full startup of service

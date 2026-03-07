@@ -1,7 +1,7 @@
 #!/bin/bash
 
-KAFKA_DIR=~/kafka
-KAFKA_UI_DIR=~/kafka-ui
+KAFKA_DIR=./data/kafka
+KAFKA_UI_DIR=./data/kafka-ui
 
 sudo rm -rf $KAFKA_DIR/
 sudo rm -rf $KAFKA_UI_DIR/
@@ -17,12 +17,14 @@ mkdir -p $KAFKA_DIR
 mkdir -p $KAFKA_DIR/data
 mkdir -p $KAFKA_DIR/secrets
 
-cp config/* $KAFKA_DIR/secrets/
+cp ../../Certificates/root/pass.txt $KAFKA_DIR/secrets/
+cp ../../Certificates/certs/svc_kafka/svc_kafka.keystore.p12 $KAFKA_DIR/secrets/
+cp ../../Certificates/certs/svc_kafka/svc_kafka.truststore.p12 $KAFKA_DIR/secrets/
 
-sudo chmod 700 $KAFKA_DIR
-sudo chmod 700 $KAFKA_DIR/data
-sudo chmod 500 $KAFKA_DIR/secrets
-sudo chmod 400 $KAFKA_DIR/secrets/*
+chmod 700 $KAFKA_DIR
+chmod 700 $KAFKA_DIR/data
+chmod 500 $KAFKA_DIR/secrets
+chmod 400 $KAFKA_DIR/secrets/*
 
 sudo chown $KAFKA_USER:$KAFKA_USER -R $KAFKA_DIR/
 
@@ -36,11 +38,11 @@ mkdir -p $KAFKA_UI_DIR/secrets
 
 cp ../../Certificates/certs/superuser@kafka/superuser@kafka.keystore.p12    $KAFKA_UI_DIR/secrets/
 cp ../../Certificates/certs/svc_kafka/svc_kafka.truststore.p12              $KAFKA_UI_DIR/secrets/
-sed "s/<PASSWORD>/$CERT_PASS/g" config.yaml.template > $KAFKA_UI_DIR/config.yaml
+sed "s/<PASSWORD>/$CERT_PASS/g" config/config.yaml.template > $KAFKA_UI_DIR/config.yaml
 
-sudo chmod 700 $KAFKA_UI_DIR
-sudo chmod 500 $KAFKA_UI_DIR/secrets
-sudo chmod 600 $KAFKA_UI_DIR/config.yaml
-sudo chmod 400 $KAFKA_UI_DIR/secrets/*
+chmod 700 $KAFKA_UI_DIR
+chmod 500 $KAFKA_UI_DIR/secrets
+chmod 600 $KAFKA_UI_DIR/config.yaml
+chmod 400 $KAFKA_UI_DIR/secrets/*
 
 sudo chown $KAFKA_UI_USER:$KAFKA_UI_USER -R $KAFKA_UI_DIR/
