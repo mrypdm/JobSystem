@@ -22,7 +22,8 @@ services:
         KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
         KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
         KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
-        KAFKA_LOG_DIRS: /var/lib/kafka/data
+        KAFKA_LOG_DIRS: /var/lib/kafka/data # for broker topics, partitions and etc.
+        LOG_DIR: /var/log/kafka # for literally logs
 
         KAFKA_SECURITY_PROTOCOL: SSL
         KAFKA_CSECURITY_INTER_BROKER_PROTOCOL: SSL

@@ -6,7 +6,7 @@ KAFKA_UI_DIR=./data/kafka-ui
 sudo rm -rf $KAFKA_DIR/
 sudo rm -rf $KAFKA_UI_DIR/
 
-CERT_PASS=$(cat config/pass.txt)
+CERT_PASS=$(cat ../../Certificates/root/pass.txt)
 
 #
 # Init Kafka
@@ -15,6 +15,7 @@ KAFKA_USER=1000
 
 mkdir -p $KAFKA_DIR
 mkdir -p $KAFKA_DIR/data
+mkdir -p $KAFKA_DIR/logs
 mkdir -p $KAFKA_DIR/secrets
 
 cp ../../Certificates/root/pass.txt $KAFKA_DIR/secrets/
@@ -23,6 +24,7 @@ cp ../../Certificates/certs/svc_kafka/svc_kafka.truststore.p12 $KAFKA_DIR/secret
 
 chmod 700 $KAFKA_DIR
 chmod 700 $KAFKA_DIR/data
+chmod 700 $KAFKA_DIR/logs
 chmod 500 $KAFKA_DIR/secrets
 chmod 400 $KAFKA_DIR/secrets/*
 
