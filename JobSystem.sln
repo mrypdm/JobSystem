@@ -138,6 +138,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "activity", "activity", "{82
 		docs\diagrams\activity\Job.Database.puml = docs\diagrams\activity\Job.Database.puml
 		docs\diagrams\activity\Job.WebApi.puml = docs\diagrams\activity\Job.WebApi.puml
 		docs\diagrams\activity\Job.Worker.puml = docs\diagrams\activity\Job.Worker.puml
+		docs\diagrams\activity\Shared.Contract.puml = docs\diagrams\activity\Shared.Contract.puml
 		docs\diagrams\activity\User.Database.puml = docs\diagrams\activity\User.Database.puml
 		docs\diagrams\activity\User.WebApp.puml = docs\diagrams\activity\User.WebApp.puml
 	EndProjectSection
