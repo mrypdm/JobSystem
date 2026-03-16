@@ -2,7 +2,7 @@
 hide empty members
 
 interface IDisposable << Built-In >>
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 
 class DbContextOptions << EF Core >>
 class PostgreDbContext << External >>

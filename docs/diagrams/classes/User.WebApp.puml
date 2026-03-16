@@ -12,7 +12,7 @@ Controller --> HttpContext
 abstract class BaseExceptionFilter << External >>
 interface IUserDbContext << External >>
 interface IJobWebApiClient << External >>
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 interface IFormFile << ASP.NET Core >>
 interface IMemoryCache << ASP.NET Core >>
 

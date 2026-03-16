@@ -2,7 +2,7 @@
 hide empty members
 
 interface IDisposable << Built-In >>
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 
 enum JobStatus << External >>
 class NewJobModel << External >>

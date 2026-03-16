@@ -21,7 +21,7 @@ IContainerOperations --> ContainerRemoveParameters
 interface IDockerClient << Docket.DotNet >>
 IDockerClient --> IContainerOperations
 
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 interface IHostedService << Built-In >>
 
 enum JobStatus << External >>

@@ -1,7 +1,7 @@
 @startuml Job.Broker classes
 hide empty members
 
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 class ConsumerOptions << External >>
 class ProducerOptions << External >>
 

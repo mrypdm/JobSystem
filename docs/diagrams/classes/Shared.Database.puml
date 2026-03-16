@@ -4,7 +4,7 @@ hide empty members
 class SslValidator << External >>
 class Pkcs12CertificateOptions << External >>
 
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 interface ILoggerFactory << Built-In >>
 ILoggerFactory --> ILogger
 

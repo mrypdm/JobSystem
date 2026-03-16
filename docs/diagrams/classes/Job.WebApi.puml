@@ -3,7 +3,7 @@ hide empty members
 
 abstract class Controller << ASP.NET Core >>
 interface IHostedService << Built-In >>
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 interface IJobDbContext << External >>
 class JobMessage << External >>
 class NewJobModel << External >>

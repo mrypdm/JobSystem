@@ -6,13 +6,14 @@ interface IDisposable << Built-In >>
     +void Dispose()
 }
 
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 {
-    +void LogCritical
-    +void LogError
-    +void LogWarning
-    +void LogInformation
-    +void LogDebug
+    +void Fatal
+    +void Error
+    +void Warning
+    +void Information
+    +void Debug
+    +void Verbose
 }
 
 

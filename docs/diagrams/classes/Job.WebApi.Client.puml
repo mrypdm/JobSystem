@@ -3,7 +3,7 @@ hide empty members
 
 class Exception << Built-In >>
 interface IDisposable << Built-In >>
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 interface IFlurlClient << Flurl >>
 class Pkcs12CertificateOptions << External >>
 class JobResultResponse << External >>

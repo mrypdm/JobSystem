@@ -5,7 +5,7 @@ interface IExceptionFilter << ASP.NET Core >>
 {
     +void OnException(ExceptionContext)
 }
-interface ILogger << Built-In >>
+interface ILogger << Serilog >>
 
 exception PostgresException << EF Core >>
 
