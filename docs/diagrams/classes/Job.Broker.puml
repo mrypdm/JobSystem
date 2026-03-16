@@ -5,6 +5,9 @@ interface ILogger << Built-In >>
 class ConsumerOptions << External >>
 class ProducerOptions << External >>
 
+class ConsumerBuilder << Confluent >>
+class ProducerBuilder << Confluent >>
+
 interface ISerializer<TType> << Confluent >>
 {
     +byte[] Serialize(TType, SerializationContext)
@@ -21,9 +24,9 @@ class JobMessage
 }
 
 interface IBrokerConsumer<Guid, JobMessage> << External >>
-IBrokerConsumer --> JobMessage
+IBrokerConsumer -> JobMessage
 interface IBrokerProducer<Guid, JobMessage> << External >>
-IBrokerProducer --> JobMessage
+IBrokerProducer -> JobMessage
 
 class GuidConverter<Guid>
 ISerializer <|.. GuidConverter
@@ -34,6 +37,11 @@ ISerializer <|.. JobMessageConverter
 IDeserializer <|.. JobMessageConverter
 JobMessageConverter --> JobMessage
 
+ConsumerBuilder --> IDeserializer
+ConsumerBuilder --> ISerializer
+ProducerBuilder --> IDeserializer
+ProducerBuilder --> ISerializer
+
 class JobConsumer
 {
     -bool _disposed
@@ -42,8 +50,7 @@ class JobConsumer
 IBrokerConsumer <|.. JobConsumer
 JobConsumer --> ConsumerOptions
 JobConsumer --> ILogger
-JobConsumer --> JobMessageConverter
-JobConsumer --> GuidConverter
+JobConsumer --> ConsumerBuilder
 
 class JobProducer
 {
@@ -53,7 +60,6 @@ class JobProducer
 IBrokerProducer <|.. JobProducer
 JobProducer --> ProducerOptions
 JobProducer --> ILogger
-JobProducer --> JobMessageConverter
-JobProducer --> GuidConverter
+JobProducer --> ProducerBuilder
 
 @enduml
