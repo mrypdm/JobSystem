@@ -16,6 +16,8 @@ services:
         -c log_directory=/var/log/postgresql
         -c log_rotation_age=30d
         -c log_destination=jsonlog
+        -c summarize_wal=on
+        -c wal_level=replica
       restart: unless-stopped
       user: 70:70
       environment:
@@ -27,6 +29,7 @@ services:
       volumes:
         - ./data/postgres/data:/var/lib/postgresql
         - ./data/postgres/logs:/var/log/postgresql
+        - ./data/postgres/backup:/backup
         - ./data/postgres/config:/etc/postgres-config:ro
       networks:
         - postgres_network

@@ -17,8 +17,10 @@ mkdir -p $POSTGRES_DIR
 mkdir -p $POSTGRES_DIR/data
 mkdir -p $POSTGRES_DIR/logs
 mkdir -p $POSTGRES_DIR/config
+mkdir -p $POSTGRES_DIR/backup
 
 cp config/pg_hba.conf $POSTGRES_DIR/config/
+cp config/backup.sh $POSTGRES_DIR/config/
 cp ../../Certificates/certs/svc_postgres/svc_postgres.crt $POSTGRES_DIR/config/
 cp ../../Certificates/certs/svc_postgres/svc_postgres.key $POSTGRES_DIR/config/
 cp ../../Certificates/certs/svc_postgres/svc_postgres.truststore.pem $POSTGRES_DIR/config/
@@ -30,8 +32,10 @@ chmod 700 $POSTGRES_DIR/data
 chmod 700 $POSTGRES_DIR/logs
 chmod 500 $POSTGRES_DIR/config
 chmod 400 $POSTGRES_DIR/config/*
+chmod 500 $POSTGRES_DIR/config/backup.sh
 
 sudo chown $POSTGRES_USER:$POSTGRES_USER -R $POSTGRES_DIR/
+sudo chown root:root -R $POSTGRES_DIR/backup
 
 #
 # Init pgadmin
