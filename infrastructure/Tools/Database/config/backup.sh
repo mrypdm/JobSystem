@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INCREMENTAL="$1"
+MODE="$1"
 
 BASE_DIR=/home/mrypdm/Projects/JobSystem/tmp
 TIMESTAMP=$(date +%s)
@@ -31,9 +31,9 @@ function incremental() {
         --incremental=${LATEST_BACKUP}/backup_manifest
 }
 
-if [ "$1" == "FULL" ]; then
+if [ "$MODE" == "FULL" ]; then
     full
-elif [ "$1" == "INC" ]; then
+elif [ "$MODE" == "INC" ]; then
     incremental
 else
     echo "First argument must be 'FULL' for full backup or 'INC' for incremental"
