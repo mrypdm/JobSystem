@@ -12,6 +12,7 @@ using Shared.Contract.Extensions;
 using Shared.Contract.Options;
 using Shared.Database;
 using User.Database.Contexts;
+using User.WebApp.Protectors;
 
 namespace User.WebApp.Extensions;
 
@@ -103,6 +104,8 @@ public static class AppBuilderExtensions
             .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(opt =>
             {
+                opt.DataProtectionProvider = new CookieProtector(webServerOptions);
+
                 opt.LoginPath = "/auth/login";
                 opt.LogoutPath = "/auth/logout";
 

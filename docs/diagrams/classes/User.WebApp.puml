@@ -1,6 +1,17 @@
 @startuml User.WebApp classes
 hide empty members
 
+interface IDataProtector << ASP.NET Core >>
+{
+    +bool IDataProtector(string)
+    +byte[] Protect(byte[])
+    +byte[] Unprotect(byte[])
+}
+
+class CookieProtector
+IDataProtector <|.. CookieProtector
+CookieProtector --> Pkcs12CertificateOptions
+
 abstract class HttpContext << ASP.NET Core >>
 {
     +Task SignInAsync(string, ClaimsPrincipal)
@@ -9,12 +20,15 @@ abstract class HttpContext << ASP.NET Core >>
 abstract class Controller << ASP.NET Core >>
 Controller --> HttpContext
 
+class Pkcs12CertificateOptions << External >>
 abstract class BaseExceptionFilter << External >>
 interface IUserDbContext << External >>
 interface IJobWebApiClient << External >>
 interface ILogger << Serilog >>
 interface IFormFile << ASP.NET Core >>
 interface IMemoryCache << ASP.NET Core >>
+
+HttpContext --> CookieProtector
 
 class CreateUserJobRequest
 {
