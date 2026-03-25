@@ -14,7 +14,8 @@ public class Pkcs12CertificateOptions : CertificateOptions
     /// </summary>
     public Pkcs12CertificateOptions()
     {
-        _certificateChain = new(() => X509CertificateLoader.LoadPkcs12CollectionFromFile(CertificateFilePath, Password));
+        _certificateChain = new(() => X509CertificateLoader
+            .LoadPkcs12CollectionFromFile(CertificateFilePath, Password, X509KeyStorageFlags.Exportable));
     }
 
     /// <summary>
