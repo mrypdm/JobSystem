@@ -158,6 +158,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "structure", "structure", "{
 		docs\diagrams\structure\User.WebApp.puml = docs\diagrams\structure\User.WebApp.puml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "econom", "econom", "{CDE73B9C-A001-13A7-8FEC-54F565EACB97}"
+	ProjectSection(SolutionItems) = preProject
+		docs\diagrams\ekonom\graph.puml = docs\diagrams\ekonom\graph.puml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -408,6 +413,7 @@ Global
 		{825626BD-01C8-F1D6-CB51-4D34527D0DE8} = {3D1517F3-F756-8532-C927-7FD1F48ABE6F}
 		{6E9D5F74-0CEF-4D98-9B38-4C1F7E92ADC7} = {D9205183-7E2C-4610-8A85-F99471BA21D8}
 		{435A63FD-FA66-57F1-79D4-0C6C833CC3C9} = {3D1517F3-F756-8532-C927-7FD1F48ABE6F}
+		{CDE73B9C-A001-13A7-8FEC-54F565EACB97} = {3D1517F3-F756-8532-C927-7FD1F48ABE6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A09298-C745-4041-A133-65E3AF4E8E3E}
