@@ -49,8 +49,8 @@ async function getResults(jobId) {
     }
 
     statusCell.innerHTML = response.status;
-    startedCell.innerHTML = response.startedAt == null ? "not started" : response.startedat;
-    finishedCell.innerHTML = response.finishedAt == null ? "not finished" : response.finishedat;
+    startedCell.innerHTML = response.startedAt == null ? "not started" : response.startedAt;
+    finishedCell.innerHTML = response.finishedAt == null ? "not finished" : response.finishedAt;
     resultsCell.innerHTML = response.results == null ? "not found" : "saved to results.zip";
 }
 
